@@ -1,0 +1,10 @@
+[workspace]
+authors = ["Allen Guo <guosonglin001@gmail.com>"]
+channels = ["conda-forge"]
+name = "paper-xyz"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
