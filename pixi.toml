@@ -1,0 +1,28 @@
+[workspace]
+authors = ["Allen Guo <guosonglin001@gmail.com>"]
+channels = ["conda-forge"]
+name = "paper-xyz"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.13.*"
+uv = ">=0.10.5,<0.11"
+ruff = ">=0.15.2,<0.16"
+ty = ">=0.0.18,<0.0.19"
+
+# https://github.com/py-pdf/pypdf
+pypdf = ">=6.7.2,<7"
+
+[pypi-dependencies]
+# https://github.com/pymupdf/PyMuPDF
+pymupdf = ">=1.27.1, <2"
+# https://github.com/pymupdf/pymupdf4llm
+pymupdf4llm = ">=0.3.4, <0.4"
+# https://github.com/datalab-to/marker
+marker-pdf = ">=1.10.2, <2"
+# https://github.com/microsoft/markitdown
+# pixi add --pypi 'markitdown[pdf]'
+markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
