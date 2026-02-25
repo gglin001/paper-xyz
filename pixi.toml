@@ -28,6 +28,8 @@ pymupdf = ">=1.27.1, <2"
 pymupdf4llm = ">=0.3.4, <0.4"
 # https://github.com/datalab-to/marker
 marker-pdf = ">=1.10.2, <2"
+# https://github.com/datalab-to/surya
+surya-ocr = ">=0.17.1, <0.18"
 # https://github.com/microsoft/markitdown
 # pixi add --pypi 'markitdown[pdf]'
 markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
