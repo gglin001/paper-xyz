@@ -7,6 +7,9 @@ version = "0.1.0"
 
 [tasks]
 
+[system-requirements]
+macos = "16.0"
+
 [dependencies]
 python = "3.13.*"
 uv = ">=0.10.5,<0.11"
@@ -17,6 +20,9 @@ ripgrep = ">=15.1.0,<16"
 fzf = ">=0.68.0,<0.69"
 fd-find = ">=10.3.0,<11"
 difftastic = ">=0.65.0,<0.66"
+
+"llama.cpp" = ">=7880,<7881"
+mlx = ">=0.30.6,<0.31"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
