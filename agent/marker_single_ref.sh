@@ -115,32 +115,32 @@ main() {
   require_marker_single
   local mode="${1:-standard}"
   case "$mode" in
-    help|-h|--help)
-      usage
-      ;;
-    standard)
-      run_standard "${2:-}" "${3:-}"
-      ;;
-    fast)
-      run_fast "${2:-}" "${3:-}"
-      ;;
-    page-range)
-      run_page_range "${2:-}" "${3:-}" "${4:-}"
-      ;;
-    json)
-      run_json "${2:-}" "${3:-}"
-      ;;
-    config)
-      run_config "${2:-}" "${3:-}" "${4:-}"
-      ;;
-    debug)
-      run_debug "${2:-}" "${3:-}" "${4:-}"
-      ;;
-    *)
-      echo "Unknown mode: $mode" >&2
-      usage
-      return 1
-      ;;
+  help | -h | --help)
+    usage
+    ;;
+  standard)
+    run_standard "${2:-}" "${3:-}"
+    ;;
+  fast)
+    run_fast "${2:-}" "${3:-}"
+    ;;
+  page-range)
+    run_page_range "${2:-}" "${3:-}" "${4:-}"
+    ;;
+  json)
+    run_json "${2:-}" "${3:-}"
+    ;;
+  config)
+    run_config "${2:-}" "${3:-}" "${4:-}"
+    ;;
+  debug)
+    run_debug "${2:-}" "${3:-}" "${4:-}"
+    ;;
+  *)
+    echo "Unknown mode: $mode" >&2
+    usage
+    return 1
+    ;;
   esac
 }
 
