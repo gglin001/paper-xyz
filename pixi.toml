@@ -51,3 +51,6 @@ markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
 
 # TODO: add zerox
 # https://github.com/getomni-ai/zerox
+
+# TODO: add a new api way using llama-cpp/mlx-lm
+# with hf models like glm-ocr/deepseek-ocr/etc
