@@ -42,3 +42,6 @@ markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
 
 # TODO: add olmocr
 # https://github.com/allenai/olmocr
+
+# TODO: add opendataloader
+# https://github.com/opendataloader-project/opendataloader-pdf
