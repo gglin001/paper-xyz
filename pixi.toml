@@ -22,12 +22,29 @@ difftastic = ">=0.65.0,<0.66"
 pypdf = ">=6.7.2,<7"
 
 [pypi-dependencies]
+requests = ">=2.32.5, <3"
+ty-extensions = ">=0.1.0, <0.2"
+
 # https://github.com/pymupdf/PyMuPDF
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
 # https://github.com/datalab-to/marker
 marker-pdf = ">=1.10.2, <2"
+# https://github.com/datalab-to/surya
+surya-ocr = ">=0.17.1, <0.18"
 # https://github.com/microsoft/markitdown
 # pixi add --pypi 'markitdown[pdf]'
 markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
+
+# TODO: add docling, fix deps conflicts
+# https://github.com/docling-project/docling
+
+# TODO: add MinerU
+# https://github.com/opendatalab/MinerU
+
+# TODO: add olmocr
+# https://github.com/allenai/olmocr
+
+# TODO: add opendataloader
+# https://github.com/opendataloader-project/opendataloader-pdf
