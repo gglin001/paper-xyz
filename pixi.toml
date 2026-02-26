@@ -7,9 +7,7 @@ version = "0.1.0"
 
 [tasks]
 
-[system-requirements]
-macos = "16.0"
-
+# default
 [dependencies]
 python = "3.13.*"
 uv = ">=0.10.5,<0.11"
@@ -22,7 +20,6 @@ fd-find = ">=10.3.0,<11"
 difftastic = ">=0.65.0,<0.66"
 
 "llama.cpp" = ">=7880,<7881"
-mlx = ">=0.30.6,<0.31"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
@@ -34,13 +31,39 @@ pypdf = ">=6.7.3, <7"
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
+
+# markitdown
+[feature.markitdown.dependencies]
+python = "3.13.*"
+
+[feature.markitdown.pypi-dependencies]
+# https://github.com/microsoft/markitdown
+# pixi add --pypi 'markitdown[pdf]' -f markitdown
+markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
+
+# marker
+[feature.marker.dependencies]
+python = "3.13.*"
+
+[feature.marker.pypi-dependencies]
 # https://github.com/datalab-to/marker
 marker-pdf = ">=1.10.2, <2"
 # https://github.com/datalab-to/surya
 surya-ocr = ">=0.17.1, <0.18"
-# https://github.com/microsoft/markitdown
-# pixi add --pypi 'markitdown[pdf]'
-markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
+
+# mlx
+[feature.mlx.system-requirements]
+macos = "16.0"
+
+[feature.mlx.dependencies]
+python = "3.13.*"
+mlx = ">=0.30.6,<0.31"
+mlx-lm = ">=0.30.7,<0.31"
+
+[environments]
+markitdown = { features = ["markitdown"], no-default-feature = true }
+marker = { features = ["marker"], no-default-feature = true }
+mlx = { features = ["mlx"], no-default-feature = true }
 
 # TODO: add docling, fix deps conflicts
 # https://github.com/docling-project/docling
@@ -57,5 +80,5 @@ markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
 # TODO: add zerox
 # https://github.com/getomni-ai/zerox
 
-# TODO: add a new api way using llama-cpp/mlx-lm
+# TODO: add a new api way using llama-cpp/mlx-lm/vllm-metal
 # with hf models like glm-ocr/deepseek-ocr/etc
