@@ -48,3 +48,6 @@ markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
 
 # TODO: add opendataloader
 # https://github.com/opendataloader-project/opendataloader-pdf
+
+# TODO: add zerox
+# https://github.com/getomni-ai/zerox
