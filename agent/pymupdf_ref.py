@@ -2,10 +2,10 @@
 """Reference extractor for PyMuPDF with multiple text modes.
 
 Examples:
-  pixi run python agent/pymupdf_ref.py
-  pixi run python agent/pymupdf_ref.py --mode text --pages 1-2
-  pixi run python agent/pymupdf_ref.py --mode words --sort
-  pixi run python agent/pymupdf_ref.py --mode text --clip 0,0,595,842
+  pixi run -e default python agent/pymupdf_ref.py
+  pixi run -e default python agent/pymupdf_ref.py --mode text --pages 1-2
+  pixi run -e default python agent/pymupdf_ref.py --mode words --sort
+  pixi run -e default python agent/pymupdf_ref.py --mode text --clip 0,0,595,842
 """
 
 from __future__ import annotations

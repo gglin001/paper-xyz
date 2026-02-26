@@ -9,12 +9,12 @@ set -euo pipefail
 #   like `psutil` / `setuptools(pkg_resources)` are missing.
 #
 # Examples:
-#   pixi run bash agent/marker_single_ref.sh help
-#   pixi run bash agent/marker_single_ref.sh standard agent/demo.pdf md
-#   pixi run bash agent/marker_single_ref.sh fast agent/demo.pdf md
-#   pixi run bash agent/marker_single_ref.sh page-range agent/demo.pdf md 0-2
-#   pixi run bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_fast.json
-#   pixi run bash agent/marker_single_ref.sh debug agent/demo.pdf md debug_agent/marker_debug
+#   pixi run -e marker bash agent/marker_single_ref.sh help
+#   pixi run -e marker bash agent/marker_single_ref.sh standard agent/demo.pdf md
+#   pixi run -e marker bash agent/marker_single_ref.sh fast agent/demo.pdf md
+#   pixi run -e marker bash agent/marker_single_ref.sh page-range agent/demo.pdf md 0-2
+#   pixi run -e marker bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_fast.json
+#   pixi run -e marker bash agent/marker_single_ref.sh debug agent/demo.pdf md debug_agent/marker_debug
 
 MARKER_BIN="${MARKER_BIN:-marker_single}"
 DEFAULT_INPUT="agent/demo.pdf"
@@ -32,7 +32,7 @@ Usage:
   marker_single_ref.sh debug [input_pdf] [output_dir] [debug_dir]
 
 Notes:
-  - Run with `pixi run`.
+  - Run with `pixi run -e marker`.
   - page range is 0-based, same as marker CLI (example: 0,2-4).
 EOF
 }
