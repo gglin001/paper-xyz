@@ -16,6 +16,10 @@ set -euo pipefail
 #   pixi run bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_fast.json
 #   pixi run bash agent/marker_single_ref.sh debug agent/demo.pdf md debug_agent/marker_debug
 
+MARKER_BIN="${MARKER_BIN:-marker_single}"
+DEFAULT_INPUT="agent/demo.pdf"
+DEFAULT_OUTPUT_DIR="md"
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -34,107 +38,77 @@ EOF
 }
 
 require_marker_single() {
-  if ! command -v marker_single >/dev/null 2>&1; then
-    echo "marker_single is not available in PATH." >&2
+  if ! command -v "$MARKER_BIN" >/dev/null 2>&1; then
+    echo "marker_single command not found: $MARKER_BIN" >&2
     return 1
   fi
 }
 
-run_standard() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --output_format markdown \
-    --disable_tqdm
-}
-
-run_fast() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --output_format markdown \
-    --disable_ocr \
-    --disable_image_extraction \
-    --disable_multiprocessing \
-    --disable_tqdm
-}
-
-run_page_range() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  local page_range="${3:-0-1}"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --output_format markdown \
-    --page_range "$page_range" \
-    --disable_tqdm
-}
-
-run_json() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --output_format json \
-    --disable_tqdm
-}
-
-run_config() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  local config_json="${3:-agent/marker_config_fast.json}"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --config_json "$config_json"
-}
-
-run_debug() {
-  local input="${1:-agent/demo.pdf}"
-  local output_dir="${2:-md}"
-  local debug_dir="${3:-debug_agent/marker_debug}"
-  mkdir -p "$debug_dir"
-  marker_single \
-    "$input" \
-    --output_dir "$output_dir" \
-    --output_format markdown \
-    --debug \
-    --debug_data_folder "$debug_dir" \
-    --debug_layout_images \
-    --debug_json \
-    --disable_tqdm
-}
-
 main() {
-  require_marker_single
   local mode="${1:-standard}"
+  local input="${2:-$DEFAULT_INPUT}"
+  local output_dir="${3:-$DEFAULT_OUTPUT_DIR}"
+  local -a args
+
   case "$mode" in
   help | -h | --help)
     usage
+    return 0
     ;;
+  esac
+
+  require_marker_single
+  case "$mode" in
   standard)
-    run_standard "${2:-}" "${3:-}"
+    args=(
+      --output_dir "$output_dir"
+      --output_format markdown
+      --disable_tqdm
+    )
     ;;
   fast)
-    run_fast "${2:-}" "${3:-}"
+    args=(
+      --output_dir "$output_dir"
+      --output_format markdown
+      --disable_ocr
+      --disable_image_extraction
+      --disable_multiprocessing
+      --disable_tqdm
+    )
     ;;
   page-range)
-    run_page_range "${2:-}" "${3:-}" "${4:-}"
+    args=(
+      --output_dir "$output_dir"
+      --output_format markdown
+      --page_range "${4:-0-1}"
+      --disable_tqdm
+    )
     ;;
   json)
-    run_json "${2:-}" "${3:-}"
+    args=(
+      --output_dir "$output_dir"
+      --output_format json
+      --disable_tqdm
+    )
     ;;
   config)
-    run_config "${2:-}" "${3:-}" "${4:-}"
+    args=(
+      --output_dir "$output_dir"
+      --config_json "${4:-agent/marker_config_fast.json}"
+    )
     ;;
   debug)
-    run_debug "${2:-}" "${3:-}" "${4:-}"
+    local debug_dir="${4:-debug_agent/marker_debug}"
+    mkdir -p "$debug_dir"
+    args=(
+      --output_dir "$output_dir"
+      --output_format markdown
+      --debug
+      --debug_data_folder "$debug_dir"
+      --debug_layout_images
+      --debug_json
+      --disable_tqdm
+    )
     ;;
   *)
     echo "Unknown mode: $mode" >&2
@@ -142,6 +116,8 @@ main() {
     return 1
     ;;
   esac
+
+  "$MARKER_BIN" "$input" "${args[@]}"
 }
 
 main "$@"

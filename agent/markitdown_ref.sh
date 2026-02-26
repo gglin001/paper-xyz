@@ -12,6 +12,8 @@ set -euo pipefail
 #   pixi run bash agent/markitdown_ref.sh plugins agent/demo.pdf md/demo.plugins.md
 
 MARKITDOWN_BIN="${MARKITDOWN_BIN:-markitdown}"
+DEFAULT_INPUT="agent/demo.pdf"
+DEFAULT_OUTPUT="md/demo.markitdown.md"
 
 usage() {
   cat <<'EOF'
@@ -34,8 +36,8 @@ ensure_parent_dir() {
 }
 
 run_single() {
-  local input="${1:-agent/demo.pdf}"
-  local output="${2:-md/demo.markitdown.md}"
+  local input="${1:-$DEFAULT_INPUT}"
+  local output="${2:-$DEFAULT_OUTPUT}"
   ensure_parent_dir "$output"
   "$MARKITDOWN_BIN" "$input" -o "$output"
   echo "[single] $input -> $output"
@@ -65,48 +67,56 @@ run_batch() {
 }
 
 run_stdin() {
-  local input="${1:-agent/demo.pdf}"
+  local input="${1:-$DEFAULT_INPUT}"
   local output="${2:-md/demo.stdin.md}"
   local ext_hint="${3:-pdf}"
   local mime_hint="${4:-application/pdf}"
   ensure_parent_dir "$output"
 
   # Useful when input comes from pipes and extension/mime metadata is missing.
-  cat "$input" | "$MARKITDOWN_BIN" -x "$ext_hint" -m "$mime_hint" -o "$output"
+  "$MARKITDOWN_BIN" -x "$ext_hint" -m "$mime_hint" -o "$output" <"$input"
   echo "[stdin] $input -> $output"
 }
 
 run_plugins() {
-  local input="${1:-agent/demo.pdf}"
+  local input="${1:-$DEFAULT_INPUT}"
   local output="${2:-md/demo.plugins.md}"
   ensure_parent_dir "$output"
   "$MARKITDOWN_BIN" -p "$input" -o "$output"
   echo "[plugins] $input -> $output"
 }
 
-mode="${1:-batch}"
-case "$mode" in
-help | -h | --help)
-  usage
-  ;;
-single)
-  run_single "${2:-}" "${3:-}"
-  ;;
-batch)
-  run_batch "${2:-}" "${3:-}"
-  ;;
-stdin)
-  run_stdin "${2:-}" "${3:-}" "${4:-}" "${5:-}"
-  ;;
-plugins)
-  run_plugins "${2:-}" "${3:-}"
-  ;;
-list-plugins)
-  "$MARKITDOWN_BIN" --list-plugins
-  ;;
-*)
-  echo "Unknown mode: $mode" >&2
-  usage
-  exit 1
-  ;;
-esac
+main() {
+  local mode="${1:-single}"
+  case "$mode" in
+  help | -h | --help)
+    usage
+    return 0
+    ;;
+  esac
+
+  case "$mode" in
+  single)
+    run_single "${2:-}" "${3:-}"
+    ;;
+  batch)
+    run_batch "${2:-}" "${3:-}"
+    ;;
+  stdin)
+    run_stdin "${2:-}" "${3:-}" "${4:-}" "${5:-}"
+    ;;
+  plugins)
+    run_plugins "${2:-}" "${3:-}"
+    ;;
+  list-plugins)
+    "$MARKITDOWN_BIN" --list-plugins
+    ;;
+  *)
+    echo "Unknown mode: $mode" >&2
+    usage
+    return 1
+    ;;
+  esac
+}
+
+main "$@"
