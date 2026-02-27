@@ -2,10 +2,10 @@
 """Reference extractor for pypdf with multiple configuration examples.
 
 Examples:
-  pixi run python agent/pypdf_ref.py
-  pixi run python agent/pypdf_ref.py --mode plain --pages 1-2
-  pixi run python agent/pypdf_ref.py --mode layout --space-width 120
-  pixi run python agent/pypdf_ref.py --show-metadata --metadata-json
+  pixi run -e default python agent/pypdf_ref.py
+  pixi run -e default python agent/pypdf_ref.py --mode plain --pages 1-2
+  pixi run -e default python agent/pypdf_ref.py --mode layout --space-width 120
+  pixi run -e default python agent/pypdf_ref.py --show-metadata --metadata-json
 """
 
 from __future__ import annotations

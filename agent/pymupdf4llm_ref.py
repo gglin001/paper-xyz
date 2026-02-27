@@ -2,10 +2,10 @@
 """Reference CLI for pymupdf4llm with multiple parameter presets.
 
 Examples:
-  pixi run python agent/pymupdf4llm_ref.py
-  pixi run python agent/pymupdf4llm_ref.py --preset fast_text
-  pixi run python agent/pymupdf4llm_ref.py --preset image_folder --pages 0-1
-  pixi run python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
+  pixi run -e default python agent/pymupdf4llm_ref.py
+  pixi run -e default python agent/pymupdf4llm_ref.py --preset fast_text
+  pixi run -e default python agent/pymupdf4llm_ref.py --preset image_folder --pages 0-1
+  pixi run -e default python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
 """
 
 from __future__ import annotations

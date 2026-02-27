@@ -19,26 +19,26 @@ This directory stores reusable reference scripts only, not production pipeline c
 
 ```bash
 # markitdown (default: single demo input)
-pixi run bash agent/markitdown_ref.sh
-pixi run bash agent/markitdown_ref.sh stdin
-pixi run bash agent/markitdown_ref.sh plugins
+pixi run -e markitdown bash agent/markitdown_ref.sh
+pixi run -e markitdown bash agent/markitdown_ref.sh stdin
+pixi run -e markitdown bash agent/markitdown_ref.sh plugins
 
 # pymupdf4llm (default preset)
-pixi run python agent/pymupdf4llm_ref.py
-pixi run python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
+pixi run -e default python agent/pymupdf4llm_ref.py
+pixi run -e default python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
 
 # pymupdf (default mode: text)
-pixi run python agent/pymupdf_ref.py
-pixi run python agent/pymupdf_ref.py --mode text --pages 1-2
+pixi run -e default python agent/pymupdf_ref.py
+pixi run -e default python agent/pymupdf_ref.py --mode text --pages 1-2
 
 # pypdf (default mode: layout)
-pixi run python agent/pypdf_ref.py
-pixi run python agent/pypdf_ref.py --mode layout --pages 1-3 --metadata-json
+pixi run -e default python agent/pypdf_ref.py
+pixi run -e default python agent/pypdf_ref.py --mode layout --pages 1-3 --metadata-json
 
 # marker_single (default mode: standard)
-pixi run bash agent/marker_single_ref.sh
-pixi run bash agent/marker_single_ref.sh fast
-pixi run bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_quality.json
+pixi run -e marker bash agent/marker_single_ref.sh
+pixi run -e marker bash agent/marker_single_ref.sh fast
+pixi run -e marker bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_quality.json
 ```
 
 ## Notes
@@ -46,5 +46,5 @@ pixi run bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_c
 - Default demo run for each script uses `agent/demo.pdf` as input and writes results under `md/`.
 - `marker_single_ref.sh` writes into an output folder, so default markdown path is `md/demo/demo.md`.
 - Run scripts from repo root so relative paths (`pdf/`, `md/`, `debug_agent/`) resolve correctly.
-- Run `pixi run bash agent/<script>.sh help` to inspect mode arguments quickly.
+- Run `pixi run -e <env> bash agent/<script>.sh help` to inspect mode arguments quickly.
 - For large PDFs, test with page ranges first to tune params quickly.

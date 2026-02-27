@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # markitdown reference script.
-# Run with `pixi run bash agent/markitdown_ref.sh <mode> ...`
+# Run with `pixi run -e markitdown bash agent/markitdown_ref.sh <mode> ...`
 #
 # Common examples:
-#   pixi run bash agent/markitdown_ref.sh help
-#   pixi run bash agent/markitdown_ref.sh single agent/demo.pdf md/demo.markitdown.md
-#   pixi run bash agent/markitdown_ref.sh batch pdf md
-#   pixi run bash agent/markitdown_ref.sh stdin agent/demo.pdf md/demo.stdin.md pdf application/pdf
-#   pixi run bash agent/markitdown_ref.sh plugins agent/demo.pdf md/demo.plugins.md
+#   pixi run -e markitdown bash agent/markitdown_ref.sh help
+#   pixi run -e markitdown bash agent/markitdown_ref.sh single agent/demo.pdf md/demo.markitdown.md
+#   pixi run -e markitdown bash agent/markitdown_ref.sh batch pdf md
+#   pixi run -e markitdown bash agent/markitdown_ref.sh stdin agent/demo.pdf md/demo.stdin.md pdf application/pdf
+#   pixi run -e markitdown bash agent/markitdown_ref.sh plugins agent/demo.pdf md/demo.plugins.md
 
 MARKITDOWN_BIN="${MARKITDOWN_BIN:-markitdown}"
 DEFAULT_INPUT="agent/demo.pdf"
@@ -26,7 +26,7 @@ Usage:
   markitdown_ref.sh list-plugins
 
 Notes:
-  - Run from repo root with `pixi run` so dependencies are on PATH.
+  - Run from repo root with `pixi run -e markitdown` so dependencies are on PATH.
 EOF
 }
 

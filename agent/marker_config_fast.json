@@ -1,7 +1,7 @@
 {
-  "output_format": "markdown",
-  "disable_ocr": true,
   "disable_image_extraction": true,
   "disable_multiprocessing": true,
-  "disable_tqdm": true
+  "disable_ocr": true,
+  "disable_tqdm": false,
+  "output_format": "markdown"
 }

@@ -18,12 +18,12 @@ Keep filename stems aligned across formats, e.g. `pdf/MyPaper.pdf` -> `md/MyPape
 Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
-- `pixi run markitdown pdf/<file>.pdf -o md/<file>.md`: run one supported PDF-to-Markdown converter path.
+- `pixi run -e markitdown markitdown pdf/<file>.pdf -o md/<file>.md`: run one supported PDF-to-Markdown converter path.
 - `mkdir -p debug_agent && cp agent/markitdown_ref.sh debug_agent/markitdown_local.sh && chmod +x debug_agent/markitdown_local.sh`: create a runnable local script from the reference template. update if need.
-- `pixi run bash debug_agent/markitdown_local.sh`: execute your local conversion script.
-- `pixi run ruff check .`: lint Python code.
-- `pixi run ruff format .`: format Python code.
-- `pixi run ty check .`: run type checks.
+- `pixi run -e markitdown bash debug_agent/markitdown_local.sh`: execute your local conversion script.
+- `pixi run -e default ruff check .`: lint Python code.
+- `pixi run -e default ruff format .`: format Python code.
+- `pixi run -e default ty check .`: run type checks.
 
 `markitdown` is only one option. New conversion backends are welcome as long as they produce analysis-ready Markdown in `md/`.
 
