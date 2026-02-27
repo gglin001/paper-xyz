@@ -8,9 +8,6 @@ version = "0.1.0"
 [tasks]
 
 # default
-[system-requirements]
-macos = "16.0"
-
 [dependencies]
 python = "3.13.*"
 uv = ">=0.10.5,<0.11"
@@ -23,14 +20,12 @@ fzf = ">=0.68.0,<0.69"
 fd-find = ">=10.3.0,<11"
 difftastic = ">=0.65.0,<0.66"
 
+pdf2image = ">=1.17.0,<2"
 "llama.cpp" = ">=7880,<7881"
-mlx = ">=0.30.6,<0.31"
-mlx-lm = ">=0.30.7,<0.31"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
 ty-extensions = ">=0.1.0, <0.2"
-
 # https://github.com/py-pdf/pypdf
 pypdf = ">=6.7.3, <7"
 # https://github.com/pymupdf/PyMuPDF
@@ -57,10 +52,21 @@ marker-pdf = ">=1.10.2, <2"
 # https://github.com/datalab-to/surya
 surya-ocr = ">=0.17.1, <0.18"
 
+# mlx
+[feature.mlx.system-requirements]
+macos = "16.0"
+
+[feature.mlx.dependencies]
+python = "3.13.*"
+mlx = ">=0.30.6,<0.31"
+mlx-lm = ">=0.30.7,<0.31"
+mlx-vlm = ">=0.3.12,<0.4"
+
 [environments]
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
+mlx = { features = ["mlx"], no-default-feature = true }
 
 # TODO: add docling, fix deps conflicts
 # https://github.com/docling-project/docling
