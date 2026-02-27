@@ -17,7 +17,6 @@ from typing import Any
 
 import fitz
 
-
 TEXT_MODES = {"text", "html", "xhtml", "xml"}
 STRUCTURED_MODES = {"blocks", "words", "dict", "rawdict", "json", "rawjson"}
 ALL_MODES = sorted(TEXT_MODES | STRUCTURED_MODES)

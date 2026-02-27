@@ -1,0 +1,15 @@
+# https://docs.astral.sh/ruff/settings/
+# https://docs.astral.sh/ruff/rules/
+# https://docs.astral.sh/ruff/configuration/
+[tool.ruff]
+fix = true
+
+[tool.ruff.lint]
+select = ["I", "E", "F"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
