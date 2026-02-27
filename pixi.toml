@@ -20,6 +20,7 @@ fzf = ">=0.68.0,<0.69"
 fd-find = ">=10.3.0,<11"
 difftastic = ">=0.65.0,<0.66"
 
+pdf2image = ">=1.17.0,<2"
 "llama.cpp" = ">=7880,<7881"
 
 [pypi-dependencies]
@@ -60,6 +61,7 @@ macos = "16.0"
 python = "3.13.*"
 mlx = ">=0.30.6,<0.31"
 mlx-lm = ">=0.30.7,<0.31"
+mlx-vlm = ">=0.3.12,<0.4"
 
 [environments]
 # default is implicit

@@ -37,8 +37,9 @@ def fetch_ocr_models_via_api(min_downloads=1000, min_likes=50):
     return filtered_models
 
 
-results = fetch_ocr_models_via_api(min_downloads=200, min_likes=2)
-for model in results[:]:
-    print(
-        f"[{model['created_at'][:10]}] {model['model_id']} (⬇️ {model['downloads']} | ❤️ {model['likes']})"
-    )
+if __name__ == "__main__":
+    results = fetch_ocr_models_via_api(min_downloads=200, min_likes=2)
+    for model in results[:]:
+        print(
+            f"[{model['created_at'][:10]}] {model['model_id']} (⬇️ {model['downloads']} | ❤️ {model['likes']})"
+        )
