@@ -3,7 +3,7 @@
 !.pixi/config.toml
 
 .vscode
+__pycache__/
 
 debug_agent/
-
 third_party
