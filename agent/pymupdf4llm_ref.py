@@ -17,7 +17,6 @@ from typing import Any
 
 import pymupdf4llm
 
-
 # Presets intentionally keep only a few high-signal parameters, so users can
 # quickly compare quality and runtime tradeoffs.
 PRESETS: dict[str, dict[str, Any]] = {
