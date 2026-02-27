@@ -26,32 +26,21 @@ Use `pixi` for all local workflows:
 - `pixi run -e default ty check .`: run type checks.
 - skip `pre-commit`; handled manually.
 
-`markitdown` is only one option. New conversion backends are welcome as long as they produce analysis-ready Markdown in `md/`.
+`markitdown` is only one option. New conversion backends are welcome as long as they produce analysis-ready markdown in `md/`.
 
 ## Coding Style & Naming Conventions
 
 - Python target: `3.13`; use 4-space indentation and small, focused functions.
 - Shell scripts should use `set -euo pipefail` and be composable.
 - Prefer descriptive lowercase names with underscores for scripts/modules.
-- Do not manually edit generated Markdown except when documenting conversion defects.
 
 ## Testing Guidelines
 
 There is no formal automated test suite or coverage gate yet.
 
-- For conversion changes, run at least one real file from `pdf/` and inspect output in `md/`.
-- Verify structure and fidelity (headings, equations/tables, references, obvious OCR/layout issues).
-- Keep temporary validation artifacts in `debug_agent/`.
-- If you add non-trivial Python logic, create tests under `tests/` and document how to run them.
-
 ## Commit & Pull Request Guidelines
 
 Recent commits include short lowercase subjects; prefer clearer scoped messages.
-
-- Use `scope: imperative summary`, e.g. `converter: add marker-based batch flow`.
-- Keep each commit focused on one logical change.
-- PRs should include intent, changed paths, and validation commands executed.
-- For conversion behavior changes, include a before/after sample path from `md/` and note which backend was used.
 
 ## Agent-Specific Instructions
 
