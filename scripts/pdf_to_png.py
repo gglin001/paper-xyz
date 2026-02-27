@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
         "-o",
         "--output-dir",
         default=None,
-        help="Output directory. Default: <pdf_dir>/<pdf_stem>_png",
+        help="Output directory. Default: <pdf_dir>/<pdf_stem>",
     )
     parser.add_argument(
         "--dpi",
@@ -43,7 +43,7 @@ def main() -> None:
     output_dir = (
         Path(args.output_dir).expanduser().resolve()
         if args.output_dir
-        else pdf_path.parent / f"{pdf_path.stem}_png"
+        else pdf_path.parent / f"{pdf_path.stem}"
     )
     output_dir.mkdir(parents=True, exist_ok=True)
 

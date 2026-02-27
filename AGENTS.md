@@ -11,7 +11,7 @@ This repository follows a convert-then-analyze workflow:
 - `scripts/`: directly usable scripts.
 - `debug_agent/`: untracked scratch workspace for temp files and local experiments (use this instead of `/tmp`).
 
-Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf` -> `md/MyPaper.md` and `png/MyPaper_png/`.
+Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf` -> `md/MyPaper.md` and `png/MyPaper/`.
 
 ## Build, Test, and Development Commands
 
