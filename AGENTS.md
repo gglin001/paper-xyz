@@ -50,3 +50,12 @@ Recent commits include short lowercase subjects; prefer clearer scoped messages.
 - Keep directly usable project scripts in `scripts/`; agents may execute these scripts.
 - Keep disposable scripts and temporary outputs in `debug_agent/`.
 - Design workflows so multiple PDF conversion backends can coexist.
+
+## Workspace Hygiene and `.gitignore` Policy
+
+The repository uses a narrow `.gitignore` strategy (targeted ignores), not a global deny-all pattern like `*` + whitelist.
+
+- Keep analysis inputs such as `md/` readable and visible to normal workflows.
+- Do not switch to a deny-all ignore pattern unless explicitly requested.
+- Assume `.gitignore` controls Git tracking only; it does not block local file reading by agents.
+- Prefer putting disposable outputs in `debug_agent/` instead of expanding broad ignore rules.

@@ -20,6 +20,8 @@ fzf = ">=0.68.0,<0.69"
 fd-find = ">=10.3.0,<11"
 difftastic = ">=0.65.0,<0.66"
 
+pytorch = ">=2.10.0,<3"
+torchvision = ">=0.25.0,<0.26"
 pdf2image = ">=1.17.0,<2"
 "llama.cpp" = ">=7880,<7881"
 
@@ -62,12 +64,18 @@ python = "3.13.*"
 mlx = ">=0.30.6,<0.31"
 mlx-lm = ">=0.30.7,<0.31"
 mlx-vlm = ">=0.3.12,<0.4"
+torchvision = ">=0.25.0,<0.26"
+
+# ollama
+[feature.ollama.dependencies]
+ollama = ">=0.17.0,<0.18"
 
 [environments]
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
 mlx = { features = ["mlx"], no-default-feature = true }
+ollama = { features = ["ollama"], no-default-feature = true }
 
 # TODO: add docling, fix deps conflicts
 # https://github.com/docling-project/docling
