@@ -6,4 +6,6 @@
 __pycache__/
 
 debug_agent/
-third_party
+
+/third_party
+/third_party_*
