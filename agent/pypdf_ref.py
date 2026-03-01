@@ -56,7 +56,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Extract text with pypdf. Example input: agent/demo.pdf."
     )
-    parser.add_argument("input_pdf", help="Input PDF path. Example: agent/demo.pdf.")
+    parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
         "--output",
         "-o",
@@ -105,11 +105,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
-    input_pdf = Path(args.input_pdf)
-    if not input_pdf.exists():
-        raise SystemExit(f"Input PDF not found: {input_pdf}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input PDF not found: {input}")
 
-    reader = PdfReader(str(input_pdf))
+    reader = PdfReader(str(input))
     if reader.is_encrypted:
         if not args.password:
             raise SystemExit("PDF is encrypted. Provide --password.")
@@ -148,7 +148,7 @@ def main() -> int:
         print(f"[pypdf] metadata -> {metadata_path}")
 
     print(
-        f"[pypdf] input={input_pdf} pages={total_pages} mode={args.mode} output={output}"
+        f"[pypdf] input={input} pages={total_pages} mode={args.mode} output={output}"
     )
     return 0
 

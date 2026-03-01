@@ -5,9 +5,9 @@ Use this helper to debug conversion pipelines on large PDFs.
 Split a representative page subset first, then run converters on the smaller PDF.
 
 Examples:
-  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1-2 -o debug_agent/demo.p1-2.pdf
-  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1,3,5-6 --per-page-dir debug_agent/demo_pages
-  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 0-2 --zero-based -o debug_agent/demo.z0-2.pdf
+  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.p1-2.pdf --pages 1-2
+  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --per-page-dir debug_agent/demo_pages --pages 1,3,5-6
+  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.z0-2.pdf --pages 0-2 --zero-based
 """
 
 from __future__ import annotations
@@ -25,15 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
             "(inclusive ranges)."
         )
     )
-    parser.add_argument("input_pdf", help="Input PDF path. Example: agent/demo.pdf.")
-    parser.add_argument(
-        "--pages",
-        required=True,
-        help=(
-            "Page selector list, comma separated. Example: 1,3,5-7,10-. "
-            "Use --zero-based to interpret indices from 0."
-        ),
-    )
+    parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
         "-o",
         "--output",
@@ -41,6 +33,14 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Merged output PDF path. Default: debug_agent/<stem>.subset.pdf "
             "(unless --per-page-dir is set and --output is omitted)."
+        ),
+    )
+    parser.add_argument(
+        "--pages",
+        required=True,
+        help=(
+            "Page selector list, comma separated. Example: 1,3,5-7,10-. "
+            "Use --zero-based to interpret indices from 0."
         ),
     )
     parser.add_argument(
@@ -165,11 +165,11 @@ def write_per_page_pdfs(
 
 def main() -> int:
     args = build_parser().parse_args()
-    input_pdf = Path(args.input_pdf)
-    if not input_pdf.exists():
-        raise SystemExit(f"Input PDF not found: {input_pdf}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input PDF not found: {input}")
 
-    reader = PdfReader(str(input_pdf))
+    reader = PdfReader(str(input))
     if reader.is_encrypted:
         if not args.password:
             raise SystemExit("PDF is encrypted. Provide --password.")
@@ -187,7 +187,7 @@ def main() -> int:
     if args.output:
         merged_output = Path(args.output)
     elif args.per_page_dir is None:
-        merged_output = Path("debug_agent") / f"{input_pdf.stem}.subset.pdf"
+        merged_output = Path("debug_agent") / f"{input.stem}.subset.pdf"
 
     if merged_output is not None:
         write_subset_pdf(reader, page_indexes, merged_output)
@@ -198,7 +198,7 @@ def main() -> int:
             reader,
             page_indexes,
             Path(args.per_page_dir),
-            stem=input_pdf.stem,
+            stem=input.stem,
         )
         print(f"[pdf_split] per-page output dir -> {args.per_page_dir}")
         for path in per_page_outputs:
@@ -208,7 +208,7 @@ def main() -> int:
         raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
 
     print(
-        f"[pdf_split] input={input_pdf} selected_pages={len(page_indexes)} "
+        f"[pdf_split] input={input} selected_pages={len(page_indexes)} "
         f"total_pages={len(reader.pages)}"
     )
     return 0

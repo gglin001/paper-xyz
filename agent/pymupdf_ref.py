@@ -35,7 +35,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Extract page text via PyMuPDF. Example input: agent/demo.pdf."
     )
-    parser.add_argument("input_pdf", help="Input PDF path. Example: agent/demo.pdf.")
+    parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
         "--output",
         "-o",
@@ -69,12 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
-    input_pdf = Path(args.input_pdf)
-    if not input_pdf.exists():
-        raise SystemExit(f"Input PDF not found: {input_pdf}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input PDF not found: {input}")
 
     clip = parse_clip(args.clip)
-    doc = fitz.open(str(input_pdf))
+    doc = fitz.open(str(input))
     try:
         page_count = doc.page_count
         if page_count == 0:
@@ -114,7 +114,7 @@ def main() -> int:
     finally:
         doc.close()
 
-    print(f"[pymupdf] input={input_pdf} mode={args.mode} pages={page_count}")
+    print(f"[pymupdf] input={input} mode={args.mode} pages={page_count}")
     print(f"[pymupdf] kwargs={extract_kwargs}")
     print(f"[pymupdf] output={output} ({summary})")
     return 0

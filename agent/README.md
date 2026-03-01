@@ -21,11 +21,11 @@ This directory stores reusable reference scripts only, not production pipeline c
 
 ```bash
 # markitdown
-pixi run -e markitdown python agent/markitdown_ref.py single --input agent/demo.pdf --output md/demo.markitdown.md
-pixi run -e markitdown python agent/markitdown_ref.py stdin --input agent/demo.pdf --output md/demo.stdin.md
-pixi run -e markitdown python agent/markitdown_ref.py plugins --input agent/demo.pdf --output md/demo.plugins.md
-pixi run -e markitdown python agent/markitdown_ref.py list-plugins
-pixi run -e markitdown python agent/markitdown_ref.py batch --input-dir pdf --output-dir md
+pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.markitdown.md --mode single
+pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.stdin.md --mode stdin
+pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.plugins.md --mode plugins
+pixi run -e markitdown python agent/markitdown_ref.py --mode list-plugins
+pixi run -e markitdown python agent/markitdown_ref.py pdf --output-dir md --mode batch
 
 # pymupdf4llm
 pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output md/demo.pymupdf4llm.default.md
@@ -40,22 +40,22 @@ pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.py
 pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt --mode layout --metadata-json md/demo.pypdf.layout.meta.json
 
 # marker_single
-pixi run -e marker python agent/marker_single_ref.py standard --input agent/demo.pdf --output-dir md
-pixi run -e marker python agent/marker_single_ref.py fast --input agent/demo.pdf --output-dir md
-pixi run -e marker python agent/marker_single_ref.py config --input agent/demo.pdf --output-dir md --config-json agent/marker_config_quality.json
-pixi run -e marker python agent/marker_single_ref.py debug --input agent/demo.pdf --output-dir md --debug-dir debug_agent/marker_debug
+pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode standard
+pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode fast
+pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode config --config-json agent/marker_config_quality.json
+pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode debug --debug-dir debug_agent/marker_debug
 
 # surya_ocr
-pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --debug-dir debug_agent/surya_ocr_pdf --output md/demo.surya.pdf.md
-pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --debug-dir debug_agent/surya_ocr_png --save-images --output md/demo.surya.png.md
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.pdf.md --debug-dir debug_agent/surya_ocr_pdf
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --output md/demo.surya.png.md --debug-dir debug_agent/surya_ocr_png --save-images
 
 # pdf_split
-pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1-3 -o debug_agent/demo.p1-3.pdf
-pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1,3,5-6 --per-page-dir debug_agent/demo_pages
-pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 0-2 --zero-based -o debug_agent/demo.z0-2.pdf
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.p1-3.pdf --pages 1-3
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --per-page-dir debug_agent/demo_pages --pages 1,3,5-6
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.z0-2.pdf --pages 0-2 --zero-based
 
 # debug large PDF conversion with a subset first
-pixi run -e default python agent/pdf_split_ref.py pdf/large.pdf --pages 5-12 -o debug_agent/large.p5-12.pdf
+pixi run -e default python agent/pdf_split_ref.py pdf/large.pdf -o debug_agent/large.p5-12.pdf --pages 5-12
 pixi run -e markitdown markitdown debug_agent/large.p5-12.pdf -o md/large.p5-12.markitdown.md
 ```
 

@@ -2,8 +2,8 @@
 """Reference CLI for surya_ocr, always OCR to markdown.
 
 Examples:
-  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.md
-  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --debug-dir debug_agent/surya_ocr --save-images --output md/demo.surya.md
+  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.md --debug-dir debug_agent/surya_ocr
+  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --output md/demo.surya.md --debug-dir debug_agent/surya_ocr --save-images
 """
 
 from __future__ import annotations
@@ -18,14 +18,14 @@ from typing import Any
 
 def run_surya(
     *,
-    input_path: Path,
+    input: Path,
     tmp_dir: Path,
     save_images: bool = False,
 ) -> None:
     tmp_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
         "surya_ocr",
-        str(input_path),
+        str(input),
         "--output_dir",
         str(tmp_dir),
     ]
@@ -34,8 +34,8 @@ def run_surya(
     subprocess.run(cmd, check=True)
 
 
-def find_results_json(input_path: Path, tmp_dir: Path) -> Path:
-    expected = tmp_dir / input_path.stem / "results.json"
+def find_results_json(input: Path, tmp_dir: Path) -> Path:
+    expected = tmp_dir / input.stem / "results.json"
     if expected.is_file():
         return expected
 
@@ -98,7 +98,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "input_path",
+        "input",
         help="Input file path, PDF or image. Example: agent/demo.png.",
     )
     parser.add_argument(
@@ -123,19 +123,19 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> int:
     args = build_parser().parse_args()
-    input_path = Path(args.input_path)
-    if not input_path.exists():
-        raise SystemExit(f"Input file not found: {input_path}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input file not found: {input}")
 
-    tmp_dir = Path(args.tmp_dir)
+    tmp_dir = Path(args.debug_dir)
     output_md = Path(args.output)
 
     run_surya(
-        input_path=input_path,
+        input=input,
         tmp_dir=tmp_dir,
         save_images=args.save_images,
     )
-    results_path = find_results_json(input_path, tmp_dir)
+    results_path = find_results_json(input, tmp_dir)
     write_markdown(results_path, output_md)
     return 0
 

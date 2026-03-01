@@ -2,11 +2,11 @@
 """markitdown reference CLI script.
 
 Examples:
-  pixi run -e markitdown python agent/markitdown_ref.py single --input agent/demo.pdf --output md/demo.markitdown.md
-  pixi run -e markitdown python agent/markitdown_ref.py batch --input-dir pdf --output-dir md
-  pixi run -e markitdown python agent/markitdown_ref.py stdin --input agent/demo.pdf --output md/demo.stdin.md
-  pixi run -e markitdown python agent/markitdown_ref.py plugins --input agent/demo.pdf --output md/demo.plugins.md
-  pixi run -e markitdown python agent/markitdown_ref.py list-plugins
+  pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.markitdown.md --mode single
+  pixi run -e markitdown python agent/markitdown_ref.py pdf --output-dir md --mode batch
+  pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.stdin.md --mode stdin
+  pixi run -e markitdown python agent/markitdown_ref.py agent/demo.pdf --output md/demo.plugins.md --mode plugins
+  pixi run -e markitdown python agent/markitdown_ref.py --mode list-plugins
 """
 
 from __future__ import annotations
@@ -72,27 +72,23 @@ def build_parser() -> argparse.ArgumentParser:
         description="Reference CLI for markitdown. Example input: agent/demo.pdf.",
     )
     parser.add_argument(
-        "mode",
-        choices=["single", "batch", "stdin", "plugins", "list-plugins"],
-        help="Run mode.",
-    )
-    parser.add_argument(
-        "--input",
-        dest="input_path",
-        help="Input file path. Required for single, stdin, plugins. Example: agent/demo.pdf.",
+        "input",
+        nargs="?",
+        help="Input path. File path for single/stdin/plugins, directory path for batch.",
     )
     parser.add_argument(
         "--output",
-        dest="output_path",
         help="Output markdown path. Required for single, stdin, plugins.",
-    )
-    parser.add_argument(
-        "--input-dir",
-        help="Input directory containing PDFs. Required for batch.",
     )
     parser.add_argument(
         "--output-dir",
         help="Output directory. Required for batch.",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["single", "batch", "stdin", "plugins", "list-plugins"],
+        default="single",
+        help="Run mode.",
     )
     parser.add_argument(
         "--extension-hint",
@@ -109,29 +105,29 @@ def build_parser() -> argparse.ArgumentParser:
 
 def validate_args(args: argparse.Namespace) -> None:
     if args.mode == "batch":
-        if not args.input_dir or not args.output_dir:
-            raise ValueError("batch mode requires --input-dir and --output-dir")
+        if not args.input or not args.output_dir:
+            raise ValueError("batch mode requires input and --output-dir")
         return
 
     if args.mode in {"single", "stdin", "plugins"}:
-        if not args.input_path or not args.output_path:
-            raise ValueError(f"{args.mode} mode requires --input and --output")
+        if not args.input or not args.output:
+            raise ValueError(f"{args.mode} mode requires input and --output")
 
 
 def run_with_args(args: argparse.Namespace) -> int:
     if args.mode == "single":
-        return run_single(args.input_path, args.output_path)
+        return run_single(args.input, args.output)
     if args.mode == "batch":
-        return run_batch(args.input_dir, args.output_dir)
+        return run_batch(args.input, args.output_dir)
     if args.mode == "stdin":
         return run_stdin(
-            args.input_path,
-            args.output_path,
+            args.input,
+            args.output,
             args.extension_hint,
             args.mime_hint,
         )
     if args.mode == "plugins":
-        return run_plugins(args.input_path, args.output_path)
+        return run_plugins(args.input, args.output)
     if args.mode == "list-plugins":
         run_cmd("--list-plugins")
         return 0
@@ -143,8 +139,8 @@ def main() -> int:
     try:
         validate_args(args)
         return run_with_args(args)
-    except FileNotFoundError:
-        print(f"Command not found: {MARKITDOWN_BIN}", file=sys.stderr)
+    except FileNotFoundError as exc:
+        print(f"Command not found: {exc.filename or 'markitdown'}", file=sys.stderr)
         return 127
     except ValueError as exc:
         print(str(exc), file=sys.stderr)

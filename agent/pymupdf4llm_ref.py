@@ -74,7 +74,7 @@ def build_parser() -> argparse.ArgumentParser:
         )
     )
     parser.add_argument(
-        "input_pdf",
+        "input",
         help="Input PDF path. Example: agent/demo.pdf.",
     )
     parser.add_argument(
@@ -110,9 +110,9 @@ def main() -> int:
         print(json.dumps(PRESETS, indent=2, sort_keys=True))
         return 0
 
-    input_pdf = Path(args.input_pdf)
-    if not input_pdf.exists():
-        raise SystemExit(f"Input PDF not found: {input_pdf}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input PDF not found: {input}")
 
     kwargs: dict[str, Any] = dict(PRESETS[args.preset])
     if args.show_progress:
@@ -123,10 +123,10 @@ def main() -> int:
         image_path.mkdir(parents=True, exist_ok=True)
 
     output = Path(args.output)
-    result = pymupdf4llm.to_markdown(str(input_pdf), **kwargs)
+    result = pymupdf4llm.to_markdown(str(input), **kwargs)
     summary = write_result(output, result)
 
-    print(f"[pymupdf4llm] input={input_pdf} output={output} preset={args.preset}")
+    print(f"[pymupdf4llm] input={input} output={output} preset={args.preset}")
     print(f"[pymupdf4llm] kwargs={json.dumps(kwargs, sort_keys=True)}")
     print(f"[pymupdf4llm] wrote {summary}")
     return 0

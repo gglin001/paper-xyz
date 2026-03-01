@@ -2,11 +2,11 @@
 """marker_single reference CLI script.
 
 Examples:
-  pixi run -e marker python agent/marker_single_ref.py standard --input agent/demo.pdf --output-dir md
-  pixi run -e marker python agent/marker_single_ref.py fast --input agent/demo.pdf --output-dir md
-  pixi run -e marker python agent/marker_single_ref.py json --input agent/demo.pdf --output-dir md
-  pixi run -e marker python agent/marker_single_ref.py config --input agent/demo.pdf --output-dir md --config-json agent/marker_config_fast.json
-  pixi run -e marker python agent/marker_single_ref.py debug --input agent/demo.pdf --output-dir md --debug-dir debug_agent/marker_debug
+  pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode standard
+  pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode fast
+  pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode json
+  pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode config --config-json agent/marker_config_fast.json
+  pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode debug --debug-dir debug_agent/marker_debug
 """
 
 from __future__ import annotations
@@ -85,20 +85,19 @@ def build_parser() -> argparse.ArgumentParser:
         description="Reference CLI for marker_single. Example input: agent/demo.pdf.",
     )
     parser.add_argument(
-        "mode",
-        choices=["standard", "fast", "json", "config", "debug"],
-        help="Run mode.",
-    )
-    parser.add_argument(
-        "--input",
-        dest="input_pdf",
-        required=True,
+        "input",
         help="Input PDF path. Example: agent/demo.pdf.",
     )
     parser.add_argument(
         "--output-dir",
         required=True,
         help="Output directory.",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["standard", "fast", "json", "config", "debug"],
+        required=True,
+        help="Run mode.",
     )
     parser.add_argument(
         "--config-json",
@@ -126,7 +125,7 @@ def run_with_args(args: argparse.Namespace) -> int:
         extra = args.debug_dir
 
     marker_args = build_marker_args(args.mode, args.output_dir, extra)
-    subprocess.run(["marker_single", args.input_pdf, *marker_args], check=True)
+    subprocess.run(["marker_single", args.input, *marker_args], check=True)
     return 0
 
 
