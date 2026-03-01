@@ -2,10 +2,10 @@
 """Reference CLI for pymupdf4llm with multiple parameter presets.
 
 Examples:
-  pixi run -e default python agent/pymupdf4llm_ref.py
-  pixi run -e default python agent/pymupdf4llm_ref.py --preset fast_text
-  pixi run -e default python agent/pymupdf4llm_ref.py --preset image_folder --pages 0-1
-  pixi run -e default python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
+  pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output md/demo.pymupdf4llm.default.md
+  pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output md/demo.pymupdf4llm.fast.md --preset fast_text
+  pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output md/demo.pymupdf4llm.image.md --preset image_folder
+  pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output debug_agent/demo.chunks.jsonl --preset page_chunks
 """
 
 from __future__ import annotations
@@ -16,6 +16,8 @@ from pathlib import Path
 from typing import Any
 
 import pymupdf4llm
+
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 
 # Presets intentionally keep only a few high-signal parameters, so users can
 # quickly compare quality and runtime tradeoffs.
@@ -47,34 +49,6 @@ PRESETS: dict[str, dict[str, Any]] = {
 }
 
 
-def parse_pages(raw: str | None) -> list[int] | None:
-    """Parse 0-based pages from strings like '0,2-4,8'."""
-    if not raw:
-        return None
-
-    pages: set[int] = set()
-    for part in raw.split(","):
-        item = part.strip()
-        if not item:
-            continue
-        if "-" in item:
-            start_text, end_text = item.split("-", 1)
-            start = int(start_text)
-            end = int(end_text)
-            if start > end:
-                start, end = end, start
-            pages.update(range(start, end + 1))
-        else:
-            pages.add(int(item))
-
-    return sorted(pages)
-
-
-def default_output_path(input_pdf: Path, preset: str) -> Path:
-    suffix = ".jsonl" if preset == "page_chunks" else ".md"
-    return Path("md") / f"{input_pdf.stem}.pymupdf4llm.{preset}{suffix}"
-
-
 def write_result(output: Path, result: Any) -> str:
     output.parent.mkdir(parents=True, exist_ok=True)
 
@@ -94,32 +68,30 @@ def write_result(output: Path, result: Any) -> str:
     return f"json:{len(payload)} chars"
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Convert PDF to markdown using pymupdf4llm presets."
+        description=(
+            "Convert PDF to markdown using pymupdf4llm presets. "
+            "Example input: agent/demo.pdf."
+        ),
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
-        "input_pdf",
-        nargs="?",
-        default="agent/demo.pdf",
-        help="Input PDF path.",
+        "input",
+        help="Input PDF path. Example: agent/demo.pdf.",
     )
     parser.add_argument(
         "--output",
         "-o",
-        default=None,
-        help="Output path. Defaults to md/<stem>.pymupdf4llm.<preset>.(md|jsonl).",
+        required=True,
+        help="Output path.",
     )
     parser.add_argument(
         "--preset",
         choices=sorted(PRESETS.keys()),
         default="default",
         help="Preset parameter set.",
-    )
-    parser.add_argument(
-        "--pages",
-        default=None,
-        help="0-based pages, e.g. '0,2-4'.",
     )
     parser.add_argument(
         "--show-progress",
@@ -131,25 +103,21 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print presets and exit.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+    args = parse_args()
 
     if args.print_presets:
         print(json.dumps(PRESETS, indent=2, sort_keys=True))
         return 0
 
-    input_pdf = Path(args.input_pdf)
-    if not input_pdf.exists():
-        raise SystemExit(f"Input PDF not found: {input_pdf}")
+    input = Path(args.input)
+    if not input.exists():
+        raise SystemExit(f"Input PDF not found: {input}")
 
     kwargs: dict[str, Any] = dict(PRESETS[args.preset])
-    pages = parse_pages(args.pages)
-    if pages is not None:
-        kwargs["pages"] = pages
     if args.show_progress:
         kwargs["show_progress"] = True
 
@@ -157,15 +125,11 @@ def main() -> int:
         image_path = Path(kwargs["image_path"])
         image_path.mkdir(parents=True, exist_ok=True)
 
-    output = (
-        Path(args.output)
-        if args.output
-        else default_output_path(input_pdf, args.preset)
-    )
-    result = pymupdf4llm.to_markdown(str(input_pdf), **kwargs)
+    output = Path(args.output)
+    result = pymupdf4llm.to_markdown(str(input), **kwargs)
     summary = write_result(output, result)
 
-    print(f"[pymupdf4llm] input={input_pdf} output={output} preset={args.preset}")
+    print(f"[pymupdf4llm] input={input} output={output} preset={args.preset}")
     print(f"[pymupdf4llm] kwargs={json.dumps(kwargs, sort_keys=True)}")
     print(f"[pymupdf4llm] wrote {summary}")
     return 0
