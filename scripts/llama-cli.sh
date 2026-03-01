@@ -15,10 +15,10 @@ args=(
   # -mm third_party/FireRed-OCR-GGUF/FireRed-OCR.mmproj-Q8_0.gguf
   #
   # -m third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.Q8_0.gguf
-  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B-Q8_0.gguf
+  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.mmproj-Q8_0.gguf
   #
   # -m third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.f16.gguf
-  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B-f16.gguf
+  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.mmproj-f16.gguf
   #
   # -n 10000
   # --temp 0.0
