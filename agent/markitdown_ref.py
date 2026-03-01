@@ -70,15 +70,6 @@ def run_plugins(input_file: str, output_file: str) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Reference CLI for markitdown. Example input: agent/demo.pdf.",
-        epilog=(
-            "Examples:\n"
-            "  markitdown_ref.py single --input agent/demo.pdf --output md/demo.markitdown.md\n"
-            "  markitdown_ref.py batch --input-dir pdf --output-dir md\n"
-            "  markitdown_ref.py stdin --input agent/demo.pdf --output md/demo.stdin.md\n"
-            "  markitdown_ref.py plugins --input agent/demo.pdf --output md/demo.plugins.md\n"
-            "  markitdown_ref.py list-plugins"
-        ),
-        formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
         "mode",

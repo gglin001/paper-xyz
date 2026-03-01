@@ -27,7 +27,9 @@ def require_marker_single() -> None:
     raise FileNotFoundError(f"marker_single command not found: {MARKER_BIN}")
 
 
-def build_marker_args(mode: str, output_dir: str, extra: str | None = None) -> list[str]:
+def build_marker_args(
+    mode: str, output_dir: str, extra: str | None = None
+) -> list[str]:
     if mode == "standard":
         return [
             "--output_dir",
@@ -91,15 +93,6 @@ def build_marker_args(mode: str, output_dir: str, extra: str | None = None) -> l
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Reference CLI for marker_single. Example input: agent/demo.pdf.",
-        epilog=(
-            "Examples:\n"
-            "  marker_single_ref.py standard --input agent/demo.pdf --output-dir md\n"
-            "  marker_single_ref.py fast --input agent/demo.pdf --output-dir md\n"
-            "  marker_single_ref.py json --input agent/demo.pdf --output-dir md\n"
-            "  marker_single_ref.py config --input agent/demo.pdf --output-dir md --config-json agent/marker_config_fast.json\n"
-            "  marker_single_ref.py debug --input agent/demo.pdf --output-dir md --debug-dir debug_agent/marker_debug"
-        ),
-        formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
         "mode",
