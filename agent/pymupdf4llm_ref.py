@@ -17,6 +17,8 @@ from typing import Any
 
 import pymupdf4llm
 
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+
 # Presets intentionally keep only a few high-signal parameters, so users can
 # quickly compare quality and runtime tradeoffs.
 PRESETS: dict[str, dict[str, Any]] = {
@@ -66,12 +68,14 @@ def write_result(output: Path, result: Any) -> str:
     return f"json:{len(payload)} chars"
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Convert PDF to markdown using pymupdf4llm presets. "
             "Example input: agent/demo.pdf."
-        )
+        ),
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "input",
@@ -99,12 +103,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print presets and exit.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def main() -> int:
-    parser = build_parser()
-    args = parser.parse_args()
+    args = parse_args()
 
     if args.print_presets:
         print(json.dumps(PRESETS, indent=2, sort_keys=True))

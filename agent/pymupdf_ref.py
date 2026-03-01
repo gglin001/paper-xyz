@@ -17,6 +17,8 @@ from typing import Any
 
 import fitz
 
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+
 TEXT_MODES = {"text", "html", "xhtml", "xml"}
 STRUCTURED_MODES = {"blocks", "words", "dict", "rawdict", "json", "rawjson"}
 ALL_MODES = sorted(TEXT_MODES | STRUCTURED_MODES)
@@ -31,9 +33,11 @@ def parse_clip(raw: str | None) -> fitz.Rect | None:
     return fitz.Rect(*(float(value) for value in values))
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Extract page text via PyMuPDF. Example input: agent/demo.pdf."
+        description="Extract page text via PyMuPDF. Example input: agent/demo.pdf.",
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
@@ -64,11 +68,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Optional PyMuPDF text extraction flags integer.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    args = parse_args()
     input = Path(args.input)
     if not input.exists():
         raise SystemExit(f"Input PDF not found: {input}")

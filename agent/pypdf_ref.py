@@ -16,6 +16,8 @@ from pathlib import Path
 
 from pypdf import PdfReader
 
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+
 
 def parse_orientations(raw: str) -> tuple[int, ...]:
     values = [chunk.strip() for chunk in raw.split(",") if chunk.strip()]
@@ -52,9 +54,11 @@ def extract_pages(
     return "\n\n".join(chunks).rstrip() + "\n"
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Extract text with pypdf. Example input: agent/demo.pdf."
+        description="Extract text with pypdf. Example input: agent/demo.pdf.",
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
@@ -100,11 +104,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Write metadata JSON to this path.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    args = parse_args()
     input = Path(args.input)
     if not input.exists():
         raise SystemExit(f"Input PDF not found: {input}")
@@ -147,9 +151,7 @@ def main() -> int:
         )
         print(f"[pypdf] metadata -> {metadata_path}")
 
-    print(
-        f"[pypdf] input={input} pages={total_pages} mode={args.mode} output={output}"
-    )
+    print(f"[pypdf] input={input} pages={total_pages} mode={args.mode} output={output}")
     return 0
 
 

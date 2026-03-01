@@ -16,6 +16,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+
 
 def ensure_parent_dir(target: str) -> None:
     Path(target).parent.mkdir(parents=True, exist_ok=True)
@@ -67,9 +69,11 @@ def run_plugins(input_file: str, output_file: str) -> int:
     return 0
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Reference CLI for markitdown. Example input: agent/demo.pdf.",
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "input",
@@ -100,7 +104,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="application/pdf",
         help="MIME hint for stdin mode, passed to markitdown -m.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def validate_args(args: argparse.Namespace) -> None:
@@ -135,7 +139,7 @@ def run_with_args(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    args = parse_args()
     try:
         validate_args(args)
         return run_with_args(args)

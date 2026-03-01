@@ -7,6 +7,11 @@ Examples:
   pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode json
   pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode config --config-json agent/marker_config_fast.json
   pixi run -e marker python agent/marker_single_ref.py agent/demo.pdf --output-dir md --mode debug --debug-dir debug_agent/marker_debug
+
+Notes:
+  - marker_single writes to a folder. With --output-dir md and agent/demo.pdf, markdown is md/demo/demo.md.
+  - marker config sample, speed-first: agent/marker_config_fast.json (disable OCR and image extraction).
+  - marker config sample, quality-first: agent/marker_config_quality.json (higher DPI and layout tuning).
 """
 
 from __future__ import annotations
@@ -15,6 +20,8 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 
 
 def build_marker_args(
@@ -80,9 +87,11 @@ def build_marker_args(
     raise ValueError(f"Unknown mode: {mode}")
 
 
-def build_parser() -> argparse.ArgumentParser:
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Reference CLI for marker_single. Example input: agent/demo.pdf.",
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "input",
@@ -107,7 +116,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--debug-dir",
         help="Debug output directory for debug mode.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def validate_args(args: argparse.Namespace) -> None:
@@ -130,7 +139,7 @@ def run_with_args(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    args = parse_args()
     try:
         validate_args(args)
         return run_with_args(args)

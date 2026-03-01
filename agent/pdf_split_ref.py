@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Reference PDF splitter using pypdf.
 
-Use this helper to debug conversion pipelines on large PDFs.
-Split a representative page subset first, then run converters on the smaller PDF.
+Use this helper to extract selected pages into a subset PDF.
+Shared workflow guidance is documented in agent/README.md.
 
 Examples:
   pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.p1-2.pdf --pages 1-2
   pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --per-page-dir debug_agent/demo_pages --pages 1,3,5-6
   pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.z0-2.pdf --pages 0-2 --zero-based
+
+Notes:
+  - Subset outputs default to debug_agent/<stem>.subset.pdf when --output is omitted.
 """
 
 from __future__ import annotations
@@ -17,13 +20,17 @@ from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
 
+HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 
-def build_parser() -> argparse.ArgumentParser:
+
+def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
             "Split PDF by page selectors. Selectors support N, A-B, A-, -B "
             "(inclusive ranges)."
-        )
+        ),
+        epilog=HELP_EPILOG or None,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
@@ -58,7 +65,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Password for encrypted PDFs.",
     )
-    return parser
+    return parser.parse_args()
 
 
 def parse_positive_int(value: str, label: str) -> int:
@@ -164,7 +171,7 @@ def write_per_page_pdfs(
 
 
 def main() -> int:
-    args = build_parser().parse_args()
+    args = parse_args()
     input = Path(args.input)
     if not input.exists():
         raise SystemExit(f"Input PDF not found: {input}")
