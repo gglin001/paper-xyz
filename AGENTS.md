@@ -18,16 +18,12 @@ Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf
 Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
-- `pixi run -e markitdown markitdown pdf/<file>.pdf -o md/<file>.md`: run one supported PDF-to-Markdown converter path.
 - `pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`: extract representative pages for large/complex PDF debug and test loops.
-- `mkdir -p debug_agent && cp agent/markitdown_ref.py debug_agent/markitdown_local.py && chmod +x debug_agent/markitdown_local.py`: create a runnable local script from the reference template, then update it as needed.
-- `pixi run -e markitdown python debug_agent/markitdown_local.py single --input agent/demo.pdf --output md/demo.markitdown.md`: execute your local conversion script.
+- Conversion backend selection and exact usage live in `agent/README.md`; check that file first, then use each script's `--help` for final arguments.
 - `pixi run -e default ruff check .`: lint Python code.
 - `pixi run -e default ruff format .`: format Python code.
 - `pixi run -e default ty check .`: run type checks.
 - skip `pre-commit`; handled manually.
-
-`markitdown` is only one option. New conversion backends are welcome as long as they produce analysis-ready markdown in `md/`.
 
 ## Large or Complex PDF Debug/Test Workflow
 
