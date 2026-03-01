@@ -26,10 +26,10 @@ pixi run -e markitdown markitdown pdf/large.pdf -o md/large.md
 
 ## Reference Scripts
 
-- `agent/markitdown_ref.py`: markitdown CLI wrapper (`single`, `batch`, `stdin`, `plugins`, `list-plugins`). Help: `pixi run -e markitdown python agent/markitdown_ref.py --help`.
+- `agent/markitdown_ref.py`: markitdown CLI wrapper (`single`, `plugins`). Help: `pixi run -e markitdown python agent/markitdown_ref.py --help`. List plugins directly: `pixi run -e markitdown markitdown --list-plugins`.
 - `agent/pymupdf4llm_ref.py`: preset-based markdown extraction and JSON/JSONL output. Help: `pixi run -e default python agent/pymupdf4llm_ref.py --help`.
 - `agent/pymupdf_ref.py`: PyMuPDF `get_text` mode examples (`text`, `html`, `words`, `dict`, etc.). Help: `pixi run -e default python agent/pymupdf_ref.py --help`.
 - `agent/pypdf_ref.py`: pypdf extraction examples (`plain`, `layout`, metadata export). Help: `pixi run -e default python agent/pypdf_ref.py --help`.
-- `agent/marker_single_ref.py`: marker-pdf single-file conversion with runtime profiles. Note: outputs a folder, so `agent/demo.pdf` with `--output-dir md` writes markdown to `md/demo/demo.md`. Help: `pixi run -e marker python agent/marker_single_ref.py --help`.
+- `agent/marker_ref.py`: marker-pdf single-file conversion with built-in markdown profiles (`standard`, `fast`, `quality`) via Python API imports. Help: `pixi run -e marker python agent/marker_ref.py --help`.
 - `agent/surya_ocr_ref.py`: surya OCR for image/PDF inputs with markdown export. Help: `pixi run -e marker python agent/surya_ocr_ref.py --help`.
 - `agent/pdf_split_ref.py`: selected-page subset extraction helper. Usage workflow is documented in `Shared Workflow` above. Help: `pixi run -e default python agent/pdf_split_ref.py --help`.

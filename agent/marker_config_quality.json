@@ -1,8 +1,0 @@
-{
-  "disable_tqdm": false,
-  "highres_image_dpi": 256,
-  "layout_coverage_min_lines": 1,
-  "layout_coverage_threshold": 0.2,
-  "lowres_image_dpi": 128,
-  "output_format": "markdown"
-}

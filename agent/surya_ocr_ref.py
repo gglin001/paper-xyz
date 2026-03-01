@@ -4,9 +4,6 @@
 Examples:
   pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.md --debug-dir debug_agent/surya_ocr
   pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --output md/demo.surya.md --debug-dir debug_agent/surya_ocr --save-images
-
-Notes:
-  - If macOS MPS is unstable, run with TORCH_DEVICE=cpu.
 """
 
 from __future__ import annotations
