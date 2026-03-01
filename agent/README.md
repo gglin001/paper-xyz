@@ -4,11 +4,11 @@ This directory stores reusable reference scripts only, not production pipeline c
 
 ## Covered PDF Backends
 
-- `agent/markitdown_ref.sh`: markitdown CLI examples (`single`, `batch`, `stdin`, `plugins`, `list-plugins`).
-- `agent/pymupdf4llm_ref.py`: preset-based markdown extraction with optional page selection and chunk JSONL output.
+- `agent/markitdown_ref.py`: markitdown CLI examples (`single`, `batch`, `stdin`, `plugins`, `list-plugins`).
+- `agent/pymupdf4llm_ref.py`: preset-based markdown extraction and chunk JSONL output.
 - `agent/pymupdf_ref.py`: PyMuPDF `get_text` mode examples (`text`, `html`, `words`, `dict`, etc.).
 - `agent/pypdf_ref.py`: pypdf extraction examples (`plain` / `layout`, orientation filter, metadata export).
-- `agent/marker_single_ref.sh`: marker-pdf single-file conversion examples with multiple runtime profiles.
+- `agent/marker_single_ref.py`: marker-pdf single-file conversion examples with multiple runtime profiles.
 - `agent/surya_ocr_ref.py`: surya OCR examples for image/PDF inputs, including markdown export from OCR JSON.
 
 ## Marker Config Samples
@@ -19,39 +19,41 @@ This directory stores reusable reference scripts only, not production pipeline c
 ## Quick Commands
 
 ```bash
-# markitdown (default: single demo input)
-pixi run -e markitdown bash agent/markitdown_ref.sh
-pixi run -e markitdown bash agent/markitdown_ref.sh stdin
-pixi run -e markitdown bash agent/markitdown_ref.sh plugins
+# markitdown
+pixi run -e markitdown python agent/markitdown_ref.py single --input agent/demo.pdf --output md/demo.markitdown.md
+pixi run -e markitdown python agent/markitdown_ref.py stdin --input agent/demo.pdf --output md/demo.stdin.md
+pixi run -e markitdown python agent/markitdown_ref.py plugins --input agent/demo.pdf --output md/demo.plugins.md
+pixi run -e markitdown python agent/markitdown_ref.py list-plugins
+pixi run -e markitdown python agent/markitdown_ref.py batch --input-dir pdf --output-dir md
 
-# pymupdf4llm (default preset)
-pixi run -e default python agent/pymupdf4llm_ref.py
-pixi run -e default python agent/pymupdf4llm_ref.py --preset page_chunks --output debug_agent/demo.chunks.jsonl
+# pymupdf4llm
+pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output md/demo.pymupdf4llm.default.md
+pixi run -e default python agent/pymupdf4llm_ref.py agent/demo.pdf --output debug_agent/demo.chunks.jsonl --preset page_chunks
 
-# pymupdf (default mode: text)
-pixi run -e default python agent/pymupdf_ref.py
-pixi run -e default python agent/pymupdf_ref.py --mode text --pages 1-2
+# pymupdf
+pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.text.txt
+pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.words.json --mode words --sort
 
-# pypdf (default mode: layout)
-pixi run -e default python agent/pypdf_ref.py
-pixi run -e default python agent/pypdf_ref.py --mode layout --pages 1-3 --metadata-json
+# pypdf
+pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt
+pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt --mode layout --metadata-json md/demo.pypdf.layout.meta.json
 
-# marker_single (default mode: standard)
-pixi run -e marker bash agent/marker_single_ref.sh
-pixi run -e marker bash agent/marker_single_ref.sh fast
-pixi run -e marker bash agent/marker_single_ref.sh config agent/demo.pdf md agent/marker_config_quality.json
+# marker_single
+pixi run -e marker python agent/marker_single_ref.py standard --input agent/demo.pdf --output-dir md
+pixi run -e marker python agent/marker_single_ref.py fast --input agent/demo.pdf --output-dir md
+pixi run -e marker python agent/marker_single_ref.py config --input agent/demo.pdf --output-dir md --config-json agent/marker_config_quality.json
+pixi run -e marker python agent/marker_single_ref.py debug --input agent/demo.pdf --output-dir md --debug-dir debug_agent/marker_debug
 
-# surya_ocr (default mode: ocr)
-pixi run -e marker python agent/surya_ocr_ref.py
-pixi run -e marker python agent/surya_ocr_ref.py page-range agent/demo.pdf debug_agent/surya_ocr 0
-pixi run -e marker python agent/surya_ocr_ref.py to-md agent/demo.png md/demo.surya.md
+# surya_ocr
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --tmp-dir debug_agent/surya_ocr_pdf --output md/demo.surya.pdf.md
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_agent/surya_ocr_png --save-images --output md/demo.surya.png.md
 ```
 
 ## Notes
 
-- Default demo run for each script uses `agent/demo.pdf` as input and writes results under `md/`.
-- `marker_single_ref.sh` writes into an output folder, so default markdown path is `md/demo/demo.md`.
+- Use `agent/demo.pdf` and `agent/demo.png` as sample inputs in commands and `--help` text only.
+- `marker_single_ref.py` writes into an output folder. For `agent/demo.pdf` with `output_dir=md`, markdown path is `md/demo/demo.md`.
 - `surya_ocr_ref.py` supports `TORCH_DEVICE=cpu` when macOS MPS acceleration is unstable.
 - Run scripts from repo root so relative paths (`pdf/`, `md/`, `debug_agent/`) resolve correctly.
 - For shell refs, use `pixi run -e <env> bash agent/<script>.sh help`; for Python refs, use `pixi run -e <env> python agent/<script>.py --help`.
-- For large PDFs, test with page ranges first to tune params quickly.
+- For large PDFs, test with smaller sample files first to tune params quickly.

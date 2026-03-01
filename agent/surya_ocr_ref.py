@@ -3,7 +3,7 @@
 
 Examples:
   pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.md
-  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --save-images --output md/demo.surya.md
+  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_agent/surya_ocr --save-images --output md/demo.surya.md
 """
 
 from __future__ import annotations
@@ -14,10 +14,6 @@ import re
 import subprocess
 from pathlib import Path
 from typing import Any
-
-DEFAULT_INPUT = Path("agent/demo.png")
-DEFAULT_TMP_DIR = Path("debug_agent/surya_ocr")
-DEFAULT_OUTPUT = Path("md/demo.surya.md")
 
 
 def run_surya(
@@ -96,24 +92,25 @@ def write_markdown(results_path: Path, output_md: Path) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run surya_ocr once and export markdown from OCR results.",
+        description=(
+            "Run surya_ocr once and export markdown from OCR results. "
+            "Example input: agent/demo.png or agent/demo.pdf."
+        ),
     )
     parser.add_argument(
         "input_path",
-        nargs="?",
-        default=str(DEFAULT_INPUT),
-        help="Input file path, PDF or image.",
+        help="Input file path, PDF or image. Example: agent/demo.png.",
     )
     parser.add_argument(
         "--output",
         "-o",
-        default=str(DEFAULT_OUTPUT),
+        required=True,
         help="Markdown output path.",
     )
     parser.add_argument(
         "-d",
         "--tmp-dir",
-        default=str(DEFAULT_TMP_DIR),
+        required=True,
         help="Temporary directory used by surya_ocr for intermediate outputs.",
     )
     parser.add_argument(

@@ -2,10 +2,10 @@
 """Reference extractor for pypdf with multiple configuration examples.
 
 Examples:
-  pixi run -e default python agent/pypdf_ref.py
-  pixi run -e default python agent/pypdf_ref.py --mode plain --pages 1-2
-  pixi run -e default python agent/pypdf_ref.py --mode layout --space-width 120
-  pixi run -e default python agent/pypdf_ref.py --show-metadata --metadata-json
+  pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt
+  pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.plain.txt --mode plain
+  pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt --mode layout --space-width 120
+  pixi run -e default python agent/pypdf_ref.py agent/demo.pdf --output md/demo.pypdf.layout.txt --show-metadata --metadata-json md/demo.pypdf.layout.meta.json
 """
 
 from __future__ import annotations
@@ -13,35 +13,8 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
-from typing import Iterable
 
 from pypdf import PdfReader
-
-
-def parse_page_spec(spec: str | None, total_pages: int) -> list[int]:
-    """Parse 1-based page spec like '1,3-5' into 0-based indices."""
-    if not spec:
-        return list(range(total_pages))
-
-    result: set[int] = set()
-    for part in spec.split(","):
-        item = part.strip()
-        if not item:
-            continue
-        if "-" in item:
-            start_text, end_text = item.split("-", 1)
-            start = int(start_text)
-            end = int(end_text)
-            if start > end:
-                start, end = end, start
-            for page_num in range(start, end + 1):
-                if 1 <= page_num <= total_pages:
-                    result.add(page_num - 1)
-        else:
-            page_num = int(item)
-            if 1 <= page_num <= total_pages:
-                result.add(page_num - 1)
-    return sorted(result)
 
 
 def parse_orientations(raw: str) -> tuple[int, ...]:
@@ -59,7 +32,6 @@ def normalize_lines(text: str) -> str:
 
 def extract_pages(
     reader: PdfReader,
-    page_indexes: Iterable[int],
     *,
     mode: str,
     orientations: tuple[int, ...],
@@ -67,8 +39,7 @@ def extract_pages(
     strip_empty_lines: bool,
 ) -> str:
     chunks: list[str] = []
-    for page_index in page_indexes:
-        page = reader.pages[page_index]
+    for page_index, page in enumerate(reader.pages):
         page_text = page.extract_text(
             extraction_mode=mode,
             orientations=orientations,
@@ -82,24 +53,21 @@ def extract_pages(
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Extract text with pypdf.")
-    parser.add_argument("input_pdf", nargs="?", default="agent/demo.pdf")
+    parser = argparse.ArgumentParser(
+        description="Extract text with pypdf. Example input: agent/demo.pdf."
+    )
+    parser.add_argument("input_pdf", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
         "--output",
         "-o",
-        default=None,
-        help="Output text path. Default: md/<stem>.pypdf.<mode>.txt",
+        required=True,
+        help="Output text path.",
     )
     parser.add_argument(
         "--mode",
         choices=["plain", "layout"],
         default="layout",
         help="pypdf extraction mode.",
-    )
-    parser.add_argument(
-        "--pages",
-        default=None,
-        help="1-based page ranges. Example: 1,3-5",
     )
     parser.add_argument(
         "--orientations",
@@ -129,10 +97,8 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--metadata-json",
-        nargs="?",
-        const="",
         default=None,
-        help="Write metadata JSON. Optional path value.",
+        help="Write metadata JSON to this path.",
     )
     return parser
 
@@ -152,21 +118,15 @@ def main() -> int:
             raise SystemExit("Incorrect password for encrypted PDF.")
 
     total_pages = len(reader.pages)
-    page_indexes = parse_page_spec(args.pages, total_pages)
-    if not page_indexes:
-        raise SystemExit("No pages selected after parsing --pages.")
+    if total_pages == 0:
+        raise SystemExit("Input PDF has no pages.")
 
     orientations = parse_orientations(args.orientations)
-    output = (
-        Path(args.output)
-        if args.output
-        else Path("md") / f"{input_pdf.stem}.pypdf.{args.mode}.txt"
-    )
+    output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
 
     content = extract_pages(
         reader,
-        page_indexes,
         mode=args.mode,
         orientations=orientations,
         space_width=args.space_width,
@@ -179,11 +139,7 @@ def main() -> int:
         print(json.dumps(metadata, indent=2, sort_keys=True))
 
     if args.metadata_json is not None:
-        metadata_path = (
-            Path(args.metadata_json)
-            if args.metadata_json
-            else output.with_suffix(".meta.json")
-        )
+        metadata_path = Path(args.metadata_json)
         metadata_path.parent.mkdir(parents=True, exist_ok=True)
         metadata_path.write_text(
             json.dumps(metadata, indent=2, sort_keys=True),
@@ -192,7 +148,7 @@ def main() -> int:
         print(f"[pypdf] metadata -> {metadata_path}")
 
     print(
-        f"[pypdf] input={input_pdf} pages={len(page_indexes)} mode={args.mode} output={output}"
+        f"[pypdf] input={input_pdf} pages={total_pages} mode={args.mode} output={output}"
     )
     return 0
 

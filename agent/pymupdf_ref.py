@@ -2,10 +2,10 @@
 """Reference extractor for PyMuPDF with multiple text modes.
 
 Examples:
-  pixi run -e default python agent/pymupdf_ref.py
-  pixi run -e default python agent/pymupdf_ref.py --mode text --pages 1-2
-  pixi run -e default python agent/pymupdf_ref.py --mode words --sort
-  pixi run -e default python agent/pymupdf_ref.py --mode text --clip 0,0,595,842
+  pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.text.txt
+  pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.text.txt --mode text
+  pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.words.json --mode words --sort
+  pixi run -e default python agent/pymupdf_ref.py agent/demo.pdf --output md/demo.pymupdf.clip.txt --mode text --clip 0,0,595,842
 """
 
 from __future__ import annotations
@@ -22,31 +22,6 @@ STRUCTURED_MODES = {"blocks", "words", "dict", "rawdict", "json", "rawjson"}
 ALL_MODES = sorted(TEXT_MODES | STRUCTURED_MODES)
 
 
-def parse_page_spec(spec: str | None, total_pages: int) -> list[int]:
-    if not spec:
-        return list(range(total_pages))
-
-    result: set[int] = set()
-    for part in spec.split(","):
-        item = part.strip()
-        if not item:
-            continue
-        if "-" in item:
-            start_text, end_text = item.split("-", 1)
-            start = int(start_text)
-            end = int(end_text)
-            if start > end:
-                start, end = end, start
-            for page_num in range(start, end + 1):
-                if 1 <= page_num <= total_pages:
-                    result.add(page_num - 1)
-        else:
-            page_num = int(item)
-            if 1 <= page_num <= total_pages:
-                result.add(page_num - 1)
-    return sorted(result)
-
-
 def parse_clip(raw: str | None) -> fitz.Rect | None:
     if not raw:
         return None
@@ -56,35 +31,22 @@ def parse_clip(raw: str | None) -> fitz.Rect | None:
     return fitz.Rect(*(float(value) for value in values))
 
 
-def default_output_path(input_pdf: Path, mode: str) -> Path:
-    if mode in {"html", "xhtml", "xml"}:
-        suffix = ".html"
-    elif mode in STRUCTURED_MODES:
-        suffix = ".json"
-    else:
-        suffix = ".txt"
-    return Path("md") / f"{input_pdf.stem}.pymupdf.{mode}{suffix}"
-
-
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Extract page text via PyMuPDF.")
-    parser.add_argument("input_pdf", nargs="?", default="agent/demo.pdf")
+    parser = argparse.ArgumentParser(
+        description="Extract page text via PyMuPDF. Example input: agent/demo.pdf."
+    )
+    parser.add_argument("input_pdf", help="Input PDF path. Example: agent/demo.pdf.")
     parser.add_argument(
         "--output",
         "-o",
-        default=None,
-        help="Output file path. Default: md/<stem>.pymupdf.<mode>.<ext>",
+        required=True,
+        help="Output file path.",
     )
     parser.add_argument(
         "--mode",
         choices=ALL_MODES,
         default="text",
         help="PyMuPDF get_text mode.",
-    )
-    parser.add_argument(
-        "--pages",
-        default=None,
-        help="1-based pages. Example: 1,3-5",
     )
     parser.add_argument(
         "--sort",
@@ -114,9 +76,9 @@ def main() -> int:
     clip = parse_clip(args.clip)
     doc = fitz.open(str(input_pdf))
     try:
-        page_indexes = parse_page_spec(args.pages, doc.page_count)
-        if not page_indexes:
-            raise SystemExit("No pages selected after parsing --pages.")
+        page_count = doc.page_count
+        if page_count == 0:
+            raise SystemExit("Input PDF has no pages.")
 
         extract_kwargs: dict[str, Any] = {}
         if args.sort:
@@ -126,23 +88,19 @@ def main() -> int:
         if args.flags is not None:
             extract_kwargs["flags"] = args.flags
 
-        output = (
-            Path(args.output)
-            if args.output
-            else default_output_path(input_pdf, args.mode)
-        )
+        output = Path(args.output)
         output.parent.mkdir(parents=True, exist_ok=True)
 
         if args.mode in TEXT_MODES:
             chunks: list[str] = []
-            for page_index in page_indexes:
+            for page_index in range(page_count):
                 text = doc[page_index].get_text(args.mode, **extract_kwargs)
                 chunks.append(f"<!-- page:{page_index + 1} -->\n\n{text}")
             output.write_text("\n\n".join(chunks).rstrip() + "\n", encoding="utf-8")
             summary = f"text chars={output.stat().st_size}"
         else:
             records: list[dict[str, Any]] = []
-            for page_index in page_indexes:
+            for page_index in range(page_count):
                 payload = doc[page_index].get_text(args.mode, **extract_kwargs)
                 if args.mode in {"json", "rawjson"}:
                     payload = json.loads(payload)
@@ -156,7 +114,7 @@ def main() -> int:
     finally:
         doc.close()
 
-    print(f"[pymupdf] input={input_pdf} mode={args.mode} pages={len(page_indexes)}")
+    print(f"[pymupdf] input={input_pdf} mode={args.mode} pages={page_count}")
     print(f"[pymupdf] kwargs={extract_kwargs}")
     print(f"[pymupdf] output={output} ({summary})")
     return 0

@@ -19,8 +19,8 @@ Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
 - `pixi run -e markitdown markitdown pdf/<file>.pdf -o md/<file>.md`: run one supported PDF-to-Markdown converter path.
-- `mkdir -p debug_agent && cp agent/markitdown_ref.sh debug_agent/markitdown_local.sh && chmod +x debug_agent/markitdown_local.sh`: create a runnable local script from the reference template, then update it as needed.
-- `pixi run -e markitdown bash debug_agent/markitdown_local.sh`: execute your local conversion script.
+- `mkdir -p debug_agent && cp agent/markitdown_ref.py debug_agent/markitdown_local.py && chmod +x debug_agent/markitdown_local.py`: create a runnable local script from the reference template, then update it as needed.
+- `pixi run -e markitdown python debug_agent/markitdown_local.py single --input agent/demo.pdf --output md/demo.markitdown.md`: execute your local conversion script.
 - `pixi run -e default ruff check .`: lint Python code.
 - `pixi run -e default ruff format .`: format Python code.
 - `pixi run -e default ty check .`: run type checks.
