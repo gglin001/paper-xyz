@@ -10,6 +10,7 @@ This directory stores reusable reference scripts only, not production pipeline c
 - `agent/pypdf_ref.py`: pypdf extraction examples (`plain` / `layout`, orientation filter, metadata export).
 - `agent/marker_single_ref.py`: marker-pdf single-file conversion examples with multiple runtime profiles.
 - `agent/surya_ocr_ref.py`: surya OCR examples for image/PDF inputs, including markdown export from OCR JSON.
+- `agent/pdf_split_ref.py`: extract selected pages into one subset PDF and optionally one file per page.
 
 ## Marker Config Samples
 
@@ -47,6 +48,15 @@ pixi run -e marker python agent/marker_single_ref.py debug --input agent/demo.pd
 # surya_ocr
 pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --tmp-dir debug_agent/surya_ocr_pdf --output md/demo.surya.pdf.md
 pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_agent/surya_ocr_png --save-images --output md/demo.surya.png.md
+
+# pdf_split
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1-3 -o debug_agent/demo.p1-3.pdf
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1,3,5-6 --per-page-dir debug_agent/demo_pages
+pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 0-2 --zero-based -o debug_agent/demo.z0-2.pdf
+
+# debug large PDF conversion with a subset first
+pixi run -e default python agent/pdf_split_ref.py pdf/large.pdf --pages 5-12 -o debug_agent/large.p5-12.pdf
+pixi run -e markitdown markitdown debug_agent/large.p5-12.pdf -o md/large.p5-12.markitdown.md
 ```
 
 ## Notes
@@ -56,4 +66,4 @@ pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_
 - `surya_ocr_ref.py` supports `TORCH_DEVICE=cpu` when macOS MPS acceleration is unstable.
 - Run scripts from repo root so relative paths (`pdf/`, `md/`, `debug_agent/`) resolve correctly.
 - For shell refs, use `pixi run -e <env> bash agent/<script>.sh help`; for Python refs, use `pixi run -e <env> python agent/<script>.py --help`.
-- For large PDFs, test with smaller sample files first to tune params quickly.
+- For large PDFs, prefer `pdf_split_ref.py` first, then run conversion on the subset PDF for faster tuning.

@@ -19,6 +19,7 @@ Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
 - `pixi run -e markitdown markitdown pdf/<file>.pdf -o md/<file>.md`: run one supported PDF-to-Markdown converter path.
+- `pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`: extract representative pages for faster conversion debugging.
 - `mkdir -p debug_agent && cp agent/markitdown_ref.py debug_agent/markitdown_local.py && chmod +x debug_agent/markitdown_local.py`: create a runnable local script from the reference template, then update it as needed.
 - `pixi run -e markitdown python debug_agent/markitdown_local.py single --input agent/demo.pdf --output md/demo.markitdown.md`: execute your local conversion script.
 - `pixi run -e default ruff check .`: lint Python code.
@@ -27,6 +28,15 @@ Use `pixi` for all local workflows:
 - skip `pre-commit`; handled manually.
 
 `markitdown` is only one option. New conversion backends are welcome as long as they produce analysis-ready markdown in `md/`.
+
+## Large PDF Debug Workflow
+
+When conversion debugging is slow because the source PDF is large:
+
+1. Split first with `agent/pdf_split_ref.py`, and save subset PDFs under `debug_agent/`.
+2. Run conversion backends against the subset PDF until parameters and prompts are stable.
+3. Re-run the same settings on the full source PDF in `pdf/`.
+4. Keep temporary subset files in `debug_agent/`, and keep final analysis inputs in `md/`.
 
 ## Coding Style & Naming Conventions
 
