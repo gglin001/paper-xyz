@@ -11,6 +11,9 @@ args=(
   # -m third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.Q8_0.gguf
   # -mm third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.mmproj-Q8_0.gguf
   #
+  # -m third_party/FireRed-OCR-GGUF/FireRed-OCR.Q8_0.gguf
+  # -mm third_party/FireRed-OCR-GGUF/FireRed-OCR.mmproj-Q8_0.gguf
+  #
   # -n 10000
   # --temp 0.0
   #
