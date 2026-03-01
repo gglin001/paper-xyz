@@ -12,19 +12,9 @@ Examples:
 from __future__ import annotations
 
 import argparse
-import os
-import shutil
 import subprocess
 import sys
 from pathlib import Path
-
-MARKER_BIN = os.environ.get("MARKER_BIN", "marker_single")
-
-
-def require_marker_single() -> None:
-    if shutil.which(MARKER_BIN):
-        return
-    raise FileNotFoundError(f"marker_single command not found: {MARKER_BIN}")
 
 
 def build_marker_args(
@@ -136,14 +126,13 @@ def run_with_args(args: argparse.Namespace) -> int:
         extra = args.debug_dir
 
     marker_args = build_marker_args(args.mode, args.output_dir, extra)
-    subprocess.run([MARKER_BIN, args.input_pdf, *marker_args], check=True)
+    subprocess.run(["marker_single", args.input_pdf, *marker_args], check=True)
     return 0
 
 
 def main() -> int:
     args = build_parser().parse_args()
     try:
-        require_marker_single()
         validate_args(args)
         return run_with_args(args)
     except FileNotFoundError as exc:
