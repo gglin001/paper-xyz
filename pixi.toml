@@ -23,8 +23,10 @@ difftastic = ">=0.65.0,<0.66"
 pytorch = ">=2.10.0,<3"
 torchvision = ">=0.25.0,<0.26"
 pdf2image = ">=1.17.0,<2"
-"llama.cpp" = ">=7880,<7881"
 openai = ">=2.24.0,<3"
+
+# may needs a latest version, check `activation.env`
+"llama.cpp" = ">=7880,<7881"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
@@ -95,3 +97,7 @@ ollama = { features = ["ollama"], no-default-feature = true }
 
 # TODO: add a new api way using llama-cpp/mlx-lm/vllm-metal
 # with hf models like glm-ocr/deepseek-ocr/etc
+
+[activation.env]
+# https://github.com/ggml-org/llama.cpp/releases
+PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"
