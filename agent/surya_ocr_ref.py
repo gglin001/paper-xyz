@@ -3,7 +3,7 @@
 
 Examples:
   pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --output md/demo.surya.md
-  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_agent/surya_ocr --save-images --output md/demo.surya.md
+  pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --debug-dir debug_agent/surya_ocr --save-images --output md/demo.surya.md
 """
 
 from __future__ import annotations
@@ -109,7 +109,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "-d",
-        "--tmp-dir",
+        "--debug-dir",
         required=True,
         help="Temporary directory used by surya_ocr for intermediate outputs.",
     )

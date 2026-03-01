@@ -46,8 +46,8 @@ pixi run -e marker python agent/marker_single_ref.py config --input agent/demo.p
 pixi run -e marker python agent/marker_single_ref.py debug --input agent/demo.pdf --output-dir md --debug-dir debug_agent/marker_debug
 
 # surya_ocr
-pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --tmp-dir debug_agent/surya_ocr_pdf --output md/demo.surya.pdf.md
-pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --tmp-dir debug_agent/surya_ocr_png --save-images --output md/demo.surya.png.md
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.pdf --debug-dir debug_agent/surya_ocr_pdf --output md/demo.surya.pdf.md
+pixi run -e marker python agent/surya_ocr_ref.py agent/demo.png --debug-dir debug_agent/surya_ocr_png --save-images --output md/demo.surya.png.md
 
 # pdf_split
 pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --pages 1-3 -o debug_agent/demo.p1-3.pdf
