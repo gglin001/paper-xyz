@@ -19,6 +19,11 @@ hfd.sh mradermacher/FireRed-OCR-GGUF \
   --include "FireRed-OCR.Q8_0.gguf" --include "FireRed-OCR.mmproj-Q8_0.gguf"
 # https://huggingface.co/mradermacher/FireRed-OCR-GGUF/tree/main
 
+hfd.sh mradermacher/LightOnOCR-2-1B-GGUF \
+  --include "LightOnOCR-2-1B.Q8_0.gguf" --include "LightOnOCR-2-1B-Q8_0.gguf" \
+  --include "LightOnOCR-2-1B.f16.gguf" --include "LightOnOCR-2-1B-f16.gguf"
+# https://huggingface.co/mradermacher/LightOnOCR-2-1B-GGUF/tree/main
+
 # -----
 
 hfd.sh mlx-community/GLM-OCR-bf16
