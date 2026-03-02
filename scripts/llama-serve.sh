@@ -8,5 +8,8 @@ args=(
   # -n 10000
   # --temp 0.0
   #
+  --host 127.0.0.1
+  --port 11235
+  #
 )
 llama-server "${args[@]}"
