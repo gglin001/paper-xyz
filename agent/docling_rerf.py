@@ -30,6 +30,8 @@ DEFAULT_PROMPT = "Parse this document and convert it into standard markdown form
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
 
 
+# TODO: use `VlmConvertOptions.register_preset` like:
+# VlmConvertOptions.register_preset(stage_model_specs.VLM_CONVERT_GEMMA_27B)
 def build_vlm_options(args: argparse.Namespace, api_url: str, model_id: str):
     engine_options = ApiVlmEngineOptions(
         engine_type=VlmEngineType.API,
