@@ -12,7 +12,6 @@ Use this skill when a task asks for reproducible PDF to Markdown conversion via 
 ## Prerequisites
 
 - Run commands from repository root.
-- Run `pixi install` at least once to sync the local environment.
 
 ## Checklist
 
