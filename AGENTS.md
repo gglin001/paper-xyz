@@ -38,7 +38,9 @@ When source PDFs are large or structurally complex, or when you need fast debug/
 ## Coding Style & Naming Conventions
 
 - Python target: `3.13`; use 4-space indentation and small, focused functions.
-- Shell scripts should use `set -euo pipefail` and be composable.
+- Prefer elegant, concise, and intuitive implementations over bloated or over-abstract designs.
+- Focus effort and code volume on core paths; keep edge-path handling proportional and minimal.
+- Shell scripts should use `set -euo pipefail` and stay simple and composable.
 - Prefer descriptive lowercase names with underscores for scripts/modules.
 
 ## Testing Guidelines
@@ -56,7 +58,7 @@ Recent commits include short lowercase subjects; prefer clearer scoped messages.
 - Keep reusable references in `agent/`; do not execute them as production scripts.
 - Keep directly usable project scripts in `scripts/`; agents may execute these scripts.
 - Keep disposable scripts and temporary outputs in `debug_agent/`.
-- Design workflows so multiple PDF conversion backends can coexist.
+- Design workflows so multiple PDF conversion backends can coexist with minimal necessary abstraction.
 
 ## Workspace Hygiene and `.gitignore` Policy
 

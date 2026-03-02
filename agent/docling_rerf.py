@@ -7,7 +7,7 @@ Examples:
   pixi run -e docling python agent/docling_rerf.py --list-presets
 
 Notes:
-  - Default args works with`scripts/llama-serve.sh`
+  - Default args works with `scripts/llama-serve.sh`
 """
 
 from __future__ import annotations
