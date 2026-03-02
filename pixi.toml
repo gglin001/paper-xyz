@@ -58,6 +58,14 @@ marker-pdf = ">=1.10.2, <2"
 # https://github.com/datalab-to/surya
 surya-ocr = ">=0.17.1, <0.18"
 
+# docling
+[feature.docling.dependencies]
+python = "3.13.*"
+
+[feature.docling.pypi-dependencies]
+# pixi add -f docling docling --pypi
+docling = ">=2.75.0, <3"
+
 # mlx
 [feature.mlx.system-requirements]
 macos = "16.0"
@@ -77,11 +85,9 @@ ollama = ">=0.17.0,<0.18"
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
+docling = { features = ["docling"], no-default-feature = true }
 mlx = { features = ["mlx"], no-default-feature = true }
 ollama = { features = ["ollama"], no-default-feature = true }
-
-# TODO: add docling, fix deps conflicts
-# https://github.com/docling-project/docling
 
 # TODO: add MinerU
 # https://github.com/opendatalab/MinerU
