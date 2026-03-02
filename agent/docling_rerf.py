@@ -3,6 +3,7 @@
 
 Examples:
   pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md
+  pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md --concurrency 10
   pixi run -e docling python agent/docling_rerf.py --list-presets
 
 Notes:
@@ -145,7 +146,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--concurrency",
         type=int,
-        default=1,
+        default=5,
         help="Concurrent API requests in Docling runtime. Default: 1.",
     )
     parser.add_argument(
