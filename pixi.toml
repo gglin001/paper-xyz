@@ -86,15 +86,6 @@ ollama = { features = ["ollama"], no-default-feature = true }
 # TODO: add olmocr
 # https://github.com/allenai/olmocr
 
-# TODO: add opendataloader
-# https://github.com/opendataloader-project/opendataloader-pdf
-
-# TODO: add zerox
-# https://github.com/getomni-ai/zerox
-
-# TODO: add a new api way using llama-cpp/mlx-lm/vllm-metal
-# with hf models like glm-ocr/deepseek-ocr/etc
-
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
 PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"

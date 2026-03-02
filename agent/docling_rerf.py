@@ -61,6 +61,8 @@ def register_presets(args: argparse.Namespace):
     )
     VlmConvertOptions.register_preset(llama_cpp)
 
+    # TODO: add a custom gemini/gpt preset
+
 
 def run_with_args(args: argparse.Namespace) -> int:
     register_presets(args)

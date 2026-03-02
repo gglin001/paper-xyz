@@ -1,6 +1,6 @@
 ---
 name: pdf-png-md-direct-context
-description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `agent/pdf_to_png.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including flows like `agent/pdf-png-md.md`."
+description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `agent/pdf_to_png_ref.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including flows like `agent/pdf-png-md.md`."
 ---
 
 # PDF PNG to Markdown, Direct Context
@@ -11,7 +11,7 @@ Use this skill for conversion tasks that follow the same approach as `agent/pdf-
 
 ## Checklist
 
-- Use only `agent/pdf_to_png.py` for `pdf -> png`.
+- Use only `agent/pdf_to_png_ref.py` for `pdf -> png`.
 - Use Codex image context only for `png -> md`.
 - Keep one input page mapped to one output Markdown file.
 - Process files in deterministic filename order.
@@ -24,13 +24,13 @@ Use this skill for conversion tasks that follow the same approach as `agent/pdf-
 Run the repository script with `pixi`:
 
 ```bash
-pixi run -e default python agent/pdf_to_png.py <input_pdf> -o <output_png_dir>
+pixi run -e default python agent/pdf_to_png_ref.py <input_pdf> -od <output_png_dir>
 ```
 
 Demo example:
 
 ```bash
-pixi run -e default python agent/pdf_to_png.py agent/demo.pdf -o png/demo
+pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
 mkdir -p md/demo
 ```
 

@@ -7,8 +7,8 @@ Tip:
   script on the subset PDF while tuning conversion settings.
 
 Examples:
-  pixi run -e default python agent/pdf_to_png.py agent/demo.pdf -o png/demo
-  pixi run -e default python agent/pdf_to_png.py agent/demo.pdf -o png/demo --dpi 300
+  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
+  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo --dpi 300
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Convert PDF pages to PNG.")
     parser.add_argument("input", help="Input PDF path.")
     parser.add_argument(
-        "-o",
+        "-od",
         "--output-dir",
         required=True,
         help="Output directory. Default: <pdf_dir>/<pdf_stem>",
