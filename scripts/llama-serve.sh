@@ -15,4 +15,11 @@ args=(
   --port 11235
   #
 )
-llama-server "${args[@]}"
+# llama-server "${args[@]}"
+zellij a llama --create-background
+zellij -s llama run -- llama-server "${args[@]}"
+
+# use `zellij run` cause below not works with background sessions
+# zellij -s llama action write-chars "CMD"
+# zellij -s llama action write 13
+# zellij a llama
