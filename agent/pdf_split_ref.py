@@ -172,11 +172,11 @@ def write_per_page_pdfs(
 
 def main() -> int:
     args = parse_args()
-    input = Path(args.input)
-    if not input.exists():
-        raise SystemExit(f"Input PDF not found: {input}")
+    input_path = Path(args.input)
+    if not input_path.exists():
+        raise SystemExit(f"Input PDF not found: {input_path}")
 
-    reader = PdfReader(str(input))
+    reader = PdfReader(str(input_path))
     if reader.is_encrypted:
         if not args.password:
             raise SystemExit("PDF is encrypted. Provide --password.")
@@ -194,7 +194,7 @@ def main() -> int:
     if args.output:
         merged_output = Path(args.output)
     elif args.per_page_dir is None:
-        merged_output = Path("debug_agent") / f"{input.stem}.subset.pdf"
+        merged_output = Path("debug_agent") / f"{input_path.stem}.subset.pdf"
 
     if merged_output is not None:
         write_subset_pdf(reader, page_indexes, merged_output)
@@ -205,7 +205,7 @@ def main() -> int:
             reader,
             page_indexes,
             Path(args.per_page_dir),
-            stem=input.stem,
+            stem=input_path.stem,
         )
         print(f"[pdf_split] per-page output dir -> {args.per_page_dir}")
         for path in per_page_outputs:
@@ -215,7 +215,7 @@ def main() -> int:
         raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
 
     print(
-        f"[pdf_split] input={input} selected_pages={len(page_indexes)} "
+        f"[pdf_split] input={input_path} selected_pages={len(page_indexes)} "
         f"total_pages={len(reader.pages)}"
     )
     return 0

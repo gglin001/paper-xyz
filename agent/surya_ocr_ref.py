@@ -20,14 +20,14 @@ HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 
 def run_surya(
     *,
-    input: Path,
+    input_path: Path,
     tmp_dir: Path,
     save_images: bool = False,
 ) -> None:
     tmp_dir.mkdir(parents=True, exist_ok=True)
     cmd = [
         "surya_ocr",
-        str(input),
+        str(input_path),
         "--output_dir",
         str(tmp_dir),
     ]
@@ -36,8 +36,8 @@ def run_surya(
     subprocess.run(cmd, check=True)
 
 
-def find_results_json(input: Path, tmp_dir: Path) -> Path:
-    expected = tmp_dir / input.stem / "results.json"
+def find_results_json(input_path: Path, tmp_dir: Path) -> Path:
+    expected = tmp_dir / input_path.stem / "results.json"
     if expected.is_file():
         return expected
 
@@ -127,19 +127,19 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    input = Path(args.input)
-    if not input.exists():
-        raise SystemExit(f"Input file not found: {input}")
+    input_path = Path(args.input)
+    if not input_path.exists():
+        raise SystemExit(f"Input file not found: {input_path}")
 
     tmp_dir = Path(args.debug_dir)
     output_md = Path(args.output)
 
     run_surya(
-        input=input,
+        input_path=input_path,
         tmp_dir=tmp_dir,
         save_images=args.save_images,
     )
-    results_path = find_results_json(input, tmp_dir)
+    results_path = find_results_json(input_path, tmp_dir)
     write_markdown(results_path, output_md)
     return 0
 

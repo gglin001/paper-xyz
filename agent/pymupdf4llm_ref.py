@@ -98,24 +98,15 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Enable pymupdf4llm progress output.",
     )
-    parser.add_argument(
-        "--print-presets",
-        action="store_true",
-        help="Print presets and exit.",
-    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
 
-    if args.print_presets:
-        print(json.dumps(PRESETS, indent=2, sort_keys=True))
-        return 0
-
-    input = Path(args.input)
-    if not input.exists():
-        raise SystemExit(f"Input PDF not found: {input}")
+    input_path = Path(args.input)
+    if not input_path.exists():
+        raise SystemExit(f"Input PDF not found: {input_path}")
 
     kwargs: dict[str, Any] = dict(PRESETS[args.preset])
     if args.show_progress:
@@ -126,10 +117,10 @@ def main() -> int:
         image_path.mkdir(parents=True, exist_ok=True)
 
     output = Path(args.output)
-    result = pymupdf4llm.to_markdown(str(input), **kwargs)
+    result = pymupdf4llm.to_markdown(str(input_path), **kwargs)
     summary = write_result(output, result)
 
-    print(f"[pymupdf4llm] input={input} output={output} preset={args.preset}")
+    print(f"[pymupdf4llm] input={input_path} output={output} preset={args.preset}")
     print(f"[pymupdf4llm] kwargs={json.dumps(kwargs, sort_keys=True)}")
     print(f"[pymupdf4llm] wrote {summary}")
     return 0

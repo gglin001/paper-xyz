@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from typing import Literal
 
 from pypdf import PdfReader
 
@@ -35,7 +36,7 @@ def normalize_lines(text: str) -> str:
 def extract_pages(
     reader: PdfReader,
     *,
-    mode: str,
+    mode: Literal["plain", "layout"],
     orientations: tuple[int, ...],
     space_width: float,
     strip_empty_lines: bool,
@@ -109,11 +110,11 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    input = Path(args.input)
-    if not input.exists():
-        raise SystemExit(f"Input PDF not found: {input}")
+    input_path = Path(args.input)
+    if not input_path.exists():
+        raise SystemExit(f"Input PDF not found: {input_path}")
 
-    reader = PdfReader(str(input))
+    reader = PdfReader(str(input_path))
     if reader.is_encrypted:
         if not args.password:
             raise SystemExit("PDF is encrypted. Provide --password.")
@@ -151,7 +152,9 @@ def main() -> int:
         )
         print(f"[pypdf] metadata -> {metadata_path}")
 
-    print(f"[pypdf] input={input} pages={total_pages} mode={args.mode} output={output}")
+    print(
+        f"[pypdf] input={input_path} pages={total_pages} mode={args.mode} output={output}"
+    )
     return 0
 
 
