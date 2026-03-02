@@ -27,7 +27,7 @@ args=(
   #
   --prompt "Parse this document and convert it into standard markdown format."
   #
-  --image png/demo/demo0001-1.png
+  --image png/demo/demo-0.png
   #
 )
 llama-cli "${args[@]}"

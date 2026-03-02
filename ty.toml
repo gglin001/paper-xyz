@@ -1,4 +1,5 @@
 # https://github.com/astral-sh/ty/blob/main/docs/reference/configuration.md
 [environment]
 # for human reading only, we have pixi for different libs at runtime
-extra-paths = ["./third_party/docling", "./third_party/marker"]
+# extra-paths = ["./third_party/docling", "./third_party/marker"]
+# extra-paths = [".pixi/envs/default/lib/python3.13/site-packages"]
