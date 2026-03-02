@@ -2,14 +2,14 @@
 """marker reference CLI script, using marker Python API directly.
 
 Examples:
-  pixi run -e marker python agent/marker_ref.py agent/demo.pdf --output-dir md --mode fast
-  pixi run -e marker python agent/marker_ref.py agent/demo.pdf --output-dir md --mode standard
-  pixi run -e marker python agent/marker_ref.py agent/demo.pdf --output-dir md --mode quality
+  pixi run -e marker python agent/marker_ref.py agent/demo.pdf -od md --mode fast
+  pixi run -e marker python agent/marker_ref.py agent/demo.pdf -od md --mode standard
+  pixi run -e marker python agent/marker_ref.py agent/demo.pdf -od md --mode quality
 
 Notes:
   - Output format is fixed to markdown.
   - Default mode is fast. Other modes are often much slower, use with caution.
-  - marker writes to a folder. With --output-dir md and agent/demo.pdf, markdown is md/demo/demo.md.
+  - marker writes to a folder. With -od md and agent/demo.pdf, markdown is md/demo/demo.md.
 """
 
 from __future__ import annotations
@@ -54,6 +54,7 @@ def parse_args() -> argparse.Namespace:
         help="Input PDF path. Example: agent/demo.pdf.",
     )
     parser.add_argument(
+        "-od",
         "--output-dir",
         required=True,
         help="Output directory. Example: md.",

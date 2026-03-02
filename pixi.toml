@@ -22,7 +22,6 @@ difftastic = ">=0.65.0,<0.66"
 
 pytorch = ">=2.10.0,<3"
 torchvision = ">=0.25.0,<0.26"
-pdf2image = ">=1.17.0,<2"
 openai = ">=2.24.0,<3"
 
 # may needs a latest version, check `activation.env`
@@ -31,13 +30,14 @@ openai = ">=2.24.0,<3"
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
 ty-extensions = ">=0.1.0, <0.2"
-
 # https://github.com/py-pdf/pypdf
 pypdf = ">=6.7.3, <7"
 # https://github.com/pymupdf/PyMuPDF
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
+# https://github.com/docling-project/docling
+docling = ">=2.75.0, <3"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -58,14 +58,6 @@ marker-pdf = ">=1.10.2, <2"
 # https://github.com/datalab-to/surya
 surya-ocr = ">=0.17.1, <0.18"
 
-# docling
-[feature.docling.dependencies]
-python = "3.13.*"
-
-[feature.docling.pypi-dependencies]
-# pixi add -f docling docling --pypi
-docling = ">=2.75.0, <3"
-
 # mlx
 [feature.mlx.system-requirements]
 macos = "16.0"
@@ -85,7 +77,6 @@ ollama = ">=0.17.0,<0.18"
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
-docling = { features = ["docling"], no-default-feature = true }
 mlx = { features = ["mlx"], no-default-feature = true }
 ollama = { features = ["ollama"], no-default-feature = true }
 
@@ -94,15 +85,6 @@ ollama = { features = ["ollama"], no-default-feature = true }
 
 # TODO: add olmocr
 # https://github.com/allenai/olmocr
-
-# TODO: add opendataloader
-# https://github.com/opendataloader-project/opendataloader-pdf
-
-# TODO: add zerox
-# https://github.com/getomni-ai/zerox
-
-# TODO: add a new api way using llama-cpp/mlx-lm/vllm-metal
-# with hf models like glm-ocr/deepseek-ocr/etc
 
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases

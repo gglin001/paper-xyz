@@ -2,9 +2,9 @@
 """docling reference CLI script, VLM API mode only.
 
 Examples:
-  pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md
-  pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md --concurrency 10
-  pixi run -e docling python agent/docling_rerf.py --list-presets
+  pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md
+  pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md --concurrency 10
+  pixi run -e default python agent/docling_rerf.py --list-presets
 
 Notes:
   Default args works with `scripts/llama-serve.sh`
@@ -60,6 +60,8 @@ def register_presets(args: argparse.Namespace):
         },
     )
     VlmConvertOptions.register_preset(llama_cpp)
+
+    # TODO: add a custom gemini/gpt preset
 
 
 def run_with_args(args: argparse.Namespace) -> int:

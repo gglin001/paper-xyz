@@ -1,17 +1,17 @@
 ---
 name: pdf-png-md-direct-context
-description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `scripts/pdf_to_png.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including flows like `_demos/demo3/demo3.md` or `agent/pdf-png-md.md`."
+description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `agent/pdf_to_png_ref.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including flows like `agent/pdf-png-md.md`."
 ---
 
 # PDF PNG to Markdown, Direct Context
 
 ## Overview
 
-Use this skill for conversion tasks that follow the same approach as `_demos/demo3/demo3.md` or `agent/pdf-png-md.md`. Keep the workflow reproducible, page aligned, and free of OCR tooling.
+Use this skill for conversion tasks that follow the same approach as `agent/pdf-png-md.md`. Keep the workflow reproducible, page aligned, and free of OCR tooling.
 
 ## Checklist
 
-- Use only `scripts/pdf_to_png.py` for `pdf -> png`.
+- Use only `agent/pdf_to_png_ref.py` for `pdf -> png`.
 - Use Codex image context only for `png -> md`.
 - Keep one input page mapped to one output Markdown file.
 - Process files in deterministic filename order.
@@ -24,20 +24,20 @@ Use this skill for conversion tasks that follow the same approach as `_demos/dem
 Run the repository script with `pixi`:
 
 ```bash
-pixi run -e default python scripts/pdf_to_png.py <input_pdf> -o <output_png_dir>
+pixi run -e default python agent/pdf_to_png_ref.py <input_pdf> -od <output_png_dir>
 ```
 
 Demo example:
 
 ```bash
-pixi run -e default python scripts/pdf_to_png.py agent/demo.pdf -o png/demo
+pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
 mkdir -p md/demo
 ```
 
 Expected result:
 
 - One PNG per PDF page.
-- Stable filename stems for page mapping, for example `demo0001-01.png`.
+- Stable filename stems for page mapping, for example `demo-0.png`.
 
 ### Step 2, Transcribe `png -> md` in Codex only
 
@@ -51,8 +51,8 @@ Load `references/png_to_md_prompt.md` and fill placeholders:
 Process files one by one in sorted filename order, and write one Markdown file with the same basename.
 Example mapping:
 
-- `demo0001-01.png -> demo0001-01.md`
-- `demo0001-02.png -> demo0001-02.md`
+- `demo-0.png -> demo-0.md`
+- `demo-1.png -> demo-1.md`
 
 ## Output Rules
 
