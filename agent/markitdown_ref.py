@@ -17,28 +17,6 @@ from pathlib import Path
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 
 
-def ensure_parent_dir(target: str) -> None:
-    Path(target).parent.mkdir(parents=True, exist_ok=True)
-
-
-def run_cmd(*args: str, stdin=None) -> None:
-    subprocess.run(["markitdown", *args], check=True, stdin=stdin)
-
-
-def run_single(input_file: str, output_file: str) -> int:
-    ensure_parent_dir(output_file)
-    run_cmd(input_file, "-o", output_file)
-    print(f"[single] {input_file} -> {output_file}")
-    return 0
-
-
-def run_plugins(input_file: str, output_file: str) -> int:
-    ensure_parent_dir(output_file)
-    run_cmd("-p", input_file, "-o", output_file)
-    print(f"[plugins] {input_file} -> {output_file}")
-    return 0
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Reference CLI for markitdown. Example input: agent/demo.pdf.",
@@ -47,11 +25,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "input",
-        nargs="?",
         help="Input file path.",
     )
     parser.add_argument(
         "--output",
+        "-o",
+        required=True,
         help="Output markdown path.",
     )
     parser.add_argument(
@@ -63,32 +42,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def validate_args(args: argparse.Namespace) -> None:
-    if not args.input or not args.output:
-        raise ValueError(f"{args.mode} mode requires input and --output")
-
-
-def run_with_args(args: argparse.Namespace) -> int:
-    if args.mode == "single":
-        return run_single(args.input, args.output)
-    if args.mode == "plugins":
-        return run_plugins(args.input, args.output)
-    raise ValueError(f"Unknown mode: {args.mode}")
-
-
 def main() -> int:
     args = parse_args()
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    command = ["markitdown"]
+    if args.mode == "plugins":
+        command.append("-p")
+    command.extend([str(input_path), "-o", str(output_path)])
+
     try:
-        validate_args(args)
-        return run_with_args(args)
+        subprocess.run(command, check=True)
     except FileNotFoundError as exc:
         print(f"Command not found: {exc.filename or 'markitdown'}", file=sys.stderr)
         return 127
-    except ValueError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
     except subprocess.CalledProcessError as exc:
         return exc.returncode
+    print(f"[markitdown:{args.mode}] {input_path} -> {output_path}")
+    return 0
 
 
 if __name__ == "__main__":

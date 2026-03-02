@@ -51,12 +51,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "input",
-        nargs="?",
         help="Input PDF path. Example: agent/demo.pdf.",
     )
     parser.add_argument(
         "--output-dir",
-        required=False,
+        required=True,
         help="Output directory. Example: md.",
     )
     parser.add_argument(
@@ -65,67 +64,49 @@ def parse_args() -> argparse.Namespace:
         default="fast",
         help="Built-in markdown profile. Default: fast. Other modes can be much slower.",
     )
-    parser.add_argument(
-        "--print-modes",
-        action="store_true",
-        help="Print built-in markdown modes as JSON and exit.",
-    )
     return parser.parse_args()
 
 
-def validate_args(args: argparse.Namespace) -> None:
-    if args.print_modes:
-        return
-
-    if not args.input:
-        raise ValueError("input is required unless --print-modes is set")
-
-    if not args.output_dir:
-        raise ValueError("--output-dir is required unless --print-modes is set")
-
-    input_path = Path(args.input)
-    if not input_path.exists():
-        raise ValueError(f"Input file not found: {input_path}")
-
-
-def build_cli_options(args: argparse.Namespace) -> dict[str, Any]:
-    cli_options: dict[str, Any] = {
-        "output_dir": args.output_dir,
-        "output_format": "markdown",
-    }
-    cli_options.update(MARKDOWN_MODES[args.mode])
-    return cli_options
-
-
-def run_with_args(args: argparse.Namespace) -> int:
-    if args.print_modes:
-        print(json.dumps(MARKDOWN_MODES, indent=2, sort_keys=True))
-        return 0
-
+def main() -> int:
+    args = parse_args()
     input_path = Path(args.input).resolve()
-    Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+    if not input_path.exists():
+        print(f"Input file not found: {input_path}", file=sys.stderr)
+        return 1
 
-    cli_options = build_cli_options(args)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    cli_options: dict[str, Any] = {
+        "output_dir": str(output_dir),
+        "output_format": "markdown",
+        **MARKDOWN_MODES[args.mode],
+    }
+
     config_parser = ConfigParser(cli_options)
     config_dict = config_parser.generate_config_dict()
 
     start = time.time()
-    models = create_model_dict()
+    try:
+        models = create_model_dict()
+        converter_cls = config_parser.get_converter_cls()
+        converter = converter_cls(
+            config=config_dict,
+            artifact_dict=models,
+            processor_list=config_parser.get_processors(),
+            renderer=config_parser.get_renderer(),
+            llm_service=config_parser.get_llm_service(),
+        )
 
-    converter_cls = config_parser.get_converter_cls()
-    converter = converter_cls(
-        config=config_dict,
-        artifact_dict=models,
-        processor_list=config_parser.get_processors(),
-        renderer=config_parser.get_renderer(),
-        llm_service=config_parser.get_llm_service(),
-    )
-
-    rendered = converter(str(input_path))
-    out_folder = config_parser.get_output_folder(str(input_path))
-    base_name = config_parser.get_base_filename(str(input_path))
-    save_output(rendered, out_folder, base_name)
-
+        rendered = converter(str(input_path))
+        out_folder = config_parser.get_output_folder(str(input_path))
+        base_name = config_parser.get_base_filename(str(input_path))
+        save_output(rendered, out_folder, base_name)
+    except FileNotFoundError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        print("Interrupted", file=sys.stderr)
+        return 130
     elapsed = time.time() - start
     marker_path = next(iter(marker.__path__))
     print(f"[marker] package_path={marker_path}")
@@ -134,22 +115,6 @@ def run_with_args(args: argparse.Namespace) -> int:
     print(f"[marker] config={json.dumps(config_dict, sort_keys=True)}")
     print(f"[marker] total_time={elapsed:.2f}s")
     return 0
-
-
-def main() -> int:
-    args = parse_args()
-    try:
-        validate_args(args)
-        return run_with_args(args)
-    except ValueError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
-    except FileNotFoundError as exc:
-        print(str(exc), file=sys.stderr)
-        return 1
-    except KeyboardInterrupt:
-        print("Interrupted", file=sys.stderr)
-        return 130
 
 
 if __name__ == "__main__":

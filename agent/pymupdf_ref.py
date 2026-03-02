@@ -73,12 +73,12 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    input = Path(args.input)
-    if not input.exists():
-        raise SystemExit(f"Input PDF not found: {input}")
+    input_path = Path(args.input)
+    if not input_path.exists():
+        raise SystemExit(f"Input PDF not found: {input_path}")
 
     clip = parse_clip(args.clip)
-    doc = fitz.open(str(input))
+    doc = fitz.open(str(input_path))
     try:
         page_count = doc.page_count
         if page_count == 0:
@@ -118,7 +118,7 @@ def main() -> int:
     finally:
         doc.close()
 
-    print(f"[pymupdf] input={input} mode={args.mode} pages={page_count}")
+    print(f"[pymupdf] input={input_path} mode={args.mode} pages={page_count}")
     print(f"[pymupdf] kwargs={extract_kwargs}")
     print(f"[pymupdf] output={output} ({summary})")
     return 0

@@ -3,24 +3,25 @@
 
 Examples:
   pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md
+  pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md --concurrency 10
   pixi run -e docling python agent/docling_rerf.py --list-presets
 
 Notes:
-  - Default endpoint is http://127.0.0.1:11235/v1/chat/completions (from scripts/llama-serve.sh).
-  - Default preset is granite_vision, because markdown-style VLMs work best with llama-server OCR models.
+  Default args works with `scripts/llama-serve.sh`
 """
 
 from __future__ import annotations
 
 import argparse
 import gc
-import json
 import sys
 import time
 from pathlib import Path
 
+from docling.datamodel import stage_model_specs
 from docling.datamodel.base_models import ConversionStatus, InputFormat
 from docling.datamodel.pipeline_options import VlmConvertOptions, VlmPipelineOptions
+from docling.datamodel.pipeline_options_vlm_model import ResponseFormat
 from docling.datamodel.vlm_engine_options import ApiVlmEngineOptions, VlmEngineType
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.pipeline.vlm_pipeline import VlmPipeline
@@ -30,39 +31,56 @@ DEFAULT_PROMPT = "Parse this document and convert it into standard markdown form
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
 
 
-def build_vlm_options(args: argparse.Namespace, api_url: str, model_id: str):
-    engine_options = ApiVlmEngineOptions(
-        engine_type=VlmEngineType.API,
-        url=api_url,
-        params={"model": model_id},
-        timeout=args.timeout,
-        concurrency=args.concurrency,
+def register_presets(args: argparse.Namespace):
+    llama_cpp = stage_model_specs.StageModelPreset(
+        preset_id="llama_cpp",
+        name="llama_cpp",
+        description=("works with llama-serve api."),
+        model_spec=stage_model_specs.VlmModelSpec(
+            name="llama_cpp",
+            default_repo_id="None",
+            prompt=args.prompt,
+            response_format=ResponseFormat.MARKDOWN,
+            supported_engines={
+                VlmEngineType.API,
+            },
+            api_overrides={
+                VlmEngineType.API: stage_model_specs.ApiModelConfig(
+                    params={"model": None},
+                ),
+            },
+        ),
+        default_engine_type=VlmEngineType.API,
+        # TODO: tune params
+        scale=args.scale,
+        max_size=args.max_size,
+        stage_options={
+            "batch_size": 1,
+            "force_backend_text": False,
+        },
     )
-    vlm_options = VlmConvertOptions.from_preset(
-        args.preset,
-        engine_options=engine_options,
-    )
-
-    if args.prompt:
-        vlm_options.model_spec.prompt = args.prompt
-    if args.scale is not None:
-        vlm_options.scale = args.scale
-    if args.max_size is not None:
-        vlm_options.max_size = args.max_size
-
-    return vlm_options
+    VlmConvertOptions.register_preset(llama_cpp)
 
 
 def run_with_args(args: argparse.Namespace) -> int:
-    if args.list_presets:
-        print(json.dumps(VlmConvertOptions.get_preset_info(), indent=2))
-        return 0
+    register_presets(args)
 
     input_path = Path(args.input).resolve()
     output_path = Path(args.output).resolve()
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    vlm_options = build_vlm_options(args, args.api, args.model)
+    engine_options = ApiVlmEngineOptions(
+        engine_type=VlmEngineType.API,
+        url=args.api,
+        timeout=args.timeout,
+        concurrency=args.concurrency,
+    )
+
+    vlm_options = VlmConvertOptions.from_preset(
+        args.preset,
+        engine_options=engine_options,
+    )
+
     pipeline_options = VlmPipelineOptions(
         vlm_options=vlm_options,
         enable_remote_services=True,
@@ -120,51 +138,36 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--preset",
-        choices=tuple(VlmConvertOptions.list_preset_ids()),
-        default="granite_vision",
-        help=("Docling VLM preset. Default: granite_vision. "),
+        default="llama_cpp",
     )
     parser.add_argument(
         "--api",
         default=DEFAULT_API,
-        help=(f"OpenAI-compatible API base URL or endpoint. Default: {DEFAULT_API}."),
     )
     parser.add_argument(
         "--model",
         default=None,
-        help=("Model id sent to the API. Default: None."),
     )
     parser.add_argument(
         "--timeout",
-        type=float,
         default=120.0,
-        help="HTTP timeout seconds for each request. Default: 120.",
     )
     parser.add_argument(
         "--concurrency",
-        type=int,
-        default=1,
-        help="Concurrent API requests in Docling runtime. Default: 1.",
+        default=5,
     )
     parser.add_argument(
         "--prompt",
         default=DEFAULT_PROMPT,
-        help="Override the preset prompt.",
     )
     parser.add_argument(
         "--scale",
-        type=float,
-        help="Override image scale used by the VLM stage.",
+        default=2.0,
     )
     parser.add_argument(
         "--max-size",
         type=int,
-        help="Override max image dimension sent to the VLM.",
-    )
-    parser.add_argument(
-        "--list-presets",
-        action="store_true",
-        help="Print available VLM preset ids and exit.",
+        default=None,
     )
     return parser.parse_args()
 
