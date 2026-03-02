@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 from typing import Literal
 
 from pypdf import PdfReader
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
 def parse_orientations(raw: str) -> tuple[int, ...]:
@@ -105,11 +107,26 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Write metadata JSON to this path.",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
     input_path = Path(args.input)
     if not input_path.exists():
         raise SystemExit(f"Input PDF not found: {input_path}")
@@ -141,7 +158,7 @@ def main() -> int:
 
     metadata = {key: str(value) for key, value in (reader.metadata or {}).items()}
     if args.show_metadata:
-        print(json.dumps(metadata, indent=2, sort_keys=True))
+        logging.info("%s", json.dumps(metadata, indent=2, sort_keys=True))
 
     if args.metadata_json is not None:
         metadata_path = Path(args.metadata_json)
@@ -150,10 +167,14 @@ def main() -> int:
             json.dumps(metadata, indent=2, sort_keys=True),
             encoding="utf-8",
         )
-        print(f"[pypdf] metadata -> {metadata_path}")
+        logging.info("[pypdf] metadata -> %s", metadata_path)
 
-    print(
-        f"[pypdf] input={input_path} pages={total_pages} mode={args.mode} output={output}"
+    logging.info(
+        "[pypdf] input=%s pages=%s mode=%s output=%s",
+        input_path,
+        total_pages,
+        args.mode,
+        output,
     )
     return 0
 

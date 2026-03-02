@@ -14,9 +14,12 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import logging
 from pathlib import Path
 
 import fitz
+
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,12 +37,27 @@ def parse_args() -> argparse.Namespace:
         default=200,
         help="Render DPI. Default: 200",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def main() -> None:
     args = parse_args()
-    print(args)
+    configure_logging(args.verbose)
+    logging.debug("args=%s", args)
     input_path = Path(args.input).expanduser().resolve()
 
     if not input_path.is_file():

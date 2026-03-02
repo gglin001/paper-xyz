@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
+import logging
 import time
 from pathlib import Path
 from typing import Any
@@ -27,6 +27,7 @@ from marker.models import create_model_dict
 from marker.output import save_output
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 MARKDOWN_MODES: dict[str, dict[str, Any]] = {
     "standard": {},
@@ -65,14 +66,29 @@ def parse_args() -> argparse.Namespace:
         default="fast",
         help="Built-in markdown profile. Default: fast. Other modes can be much slower.",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
     input_path = Path(args.input).resolve()
     if not input_path.exists():
-        print(f"Input file not found: {input_path}", file=sys.stderr)
+        logging.error("Input file not found: %s", input_path)
         return 1
 
     output_dir = Path(args.output_dir)
@@ -103,18 +119,18 @@ def main() -> int:
         base_name = config_parser.get_base_filename(str(input_path))
         save_output(rendered, out_folder, base_name)
     except FileNotFoundError as exc:
-        print(str(exc), file=sys.stderr)
+        logging.error("%s", exc)
         return 1
     except KeyboardInterrupt:
-        print("Interrupted", file=sys.stderr)
+        logging.warning("Interrupted")
         return 130
     elapsed = time.time() - start
     marker_path = next(iter(marker.__path__))
-    print(f"[marker] package_path={marker_path}")
-    print(f"[marker] mode={args.mode} input={input_path}")
-    print(f"[marker] output={out_folder}/{base_name}.md")
-    print(f"[marker] config={json.dumps(config_dict, sort_keys=True)}")
-    print(f"[marker] total_time={elapsed:.2f}s")
+    logging.info("[marker] package_path=%s", marker_path)
+    logging.info("[marker] mode=%s input=%s", args.mode, input_path)
+    logging.info("[marker] output=%s/%s.md", out_folder, base_name)
+    logging.debug("[marker] config=%s", json.dumps(config_dict, sort_keys=True))
+    logging.info("[marker] total_time=%.2fs", elapsed)
     return 0
 
 

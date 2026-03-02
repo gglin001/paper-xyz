@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import argparse
 import gc
-import sys
+import logging
 import time
 from pathlib import Path
 
@@ -29,6 +29,7 @@ from docling.pipeline.vlm_pipeline import VlmPipeline
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 DEFAULT_PROMPT = "Parse this document and convert it into standard markdown format."
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
 def register_presets(args: argparse.Namespace):
@@ -113,10 +114,17 @@ def run_with_args(args: argparse.Namespace) -> int:
     output_path.write_text(markdown, encoding="utf-8")
     elapsed = time.time() - start
 
-    print(f"[docling] input={input_path}")
-    print(f"[docling] output={output_path}")
-    print(f"[docling] chars={len(markdown)} total_time={elapsed:.2f}s")
+    logging.info("[docling] input=%s", input_path)
+    logging.info("[docling] output=%s", output_path)
+    logging.info("[docling] chars=%s total_time=%.2fs", len(markdown), elapsed)
     return 0
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def parse_args() -> argparse.Namespace:
@@ -171,21 +179,29 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=None,
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
     try:
         return run_with_args(args)
     except ValueError as exc:
-        print(str(exc), file=sys.stderr)
+        logging.error("%s", exc)
         return 1
     except RuntimeError as exc:
-        print(str(exc), file=sys.stderr)
+        logging.error("%s", exc)
         return 2
     except KeyboardInterrupt:
-        print("Interrupted", file=sys.stderr)
+        logging.warning("Interrupted")
         return 130
 
 
