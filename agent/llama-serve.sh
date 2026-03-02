@@ -18,6 +18,11 @@ args=(
   --port 11235
   #
 )
+
+if pgrep -f 'llama-server' >/dev/null 2>&1; then
+  exit 0
+fi
+
 # llama-server "${args[@]}"
 zellij a llama --create-background
 zellij -s llama run -- llama-server "${args[@]}"
