@@ -16,11 +16,13 @@ Notes:
 from __future__ import annotations
 
 import argparse
+import logging
 from pathlib import Path
 
 from pypdf import PdfReader, PdfWriter
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
 def parse_args() -> argparse.Namespace:
@@ -65,7 +67,21 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Password for encrypted PDFs.",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def parse_positive_int(value: str, label: str) -> int:
@@ -172,6 +188,7 @@ def write_per_page_pdfs(
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
     input_path = Path(args.input)
     if not input_path.exists():
         raise SystemExit(f"Input PDF not found: {input_path}")
@@ -198,7 +215,7 @@ def main() -> int:
 
     if merged_output is not None:
         write_subset_pdf(reader, page_indexes, merged_output)
-        print(f"[pdf_split] merged output -> {merged_output}")
+        logging.info("[pdf_split] merged output -> %s", merged_output)
 
     if args.per_page_dir is not None:
         per_page_outputs = write_per_page_pdfs(
@@ -207,16 +224,18 @@ def main() -> int:
             Path(args.per_page_dir),
             stem=input_path.stem,
         )
-        print(f"[pdf_split] per-page output dir -> {args.per_page_dir}")
+        logging.info("[pdf_split] per-page output dir -> %s", args.per_page_dir)
         for path in per_page_outputs:
-            print(path)
+            logging.debug("[pdf_split] per-page file -> %s", path)
 
     if merged_output is None and args.per_page_dir is None:
         raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
 
-    print(
-        f"[pdf_split] input={input_path} selected_pages={len(page_indexes)} "
-        f"total_pages={len(reader.pages)}"
+    logging.info(
+        "[pdf_split] input=%s selected_pages=%s total_pages=%s",
+        input_path,
+        len(page_indexes),
+        len(reader.pages),
     )
     return 0
 

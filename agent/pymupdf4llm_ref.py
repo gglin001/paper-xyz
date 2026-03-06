@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import pymupdf4llm
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 # Presets intentionally keep only a few high-signal parameters, so users can
 # quickly compare quality and runtime tradeoffs.
@@ -98,11 +100,26 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Enable pymupdf4llm progress output.",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
 
     input_path = Path(args.input)
     if not input_path.exists():
@@ -120,9 +137,14 @@ def main() -> int:
     result = pymupdf4llm.to_markdown(str(input_path), **kwargs)
     summary = write_result(output, result)
 
-    print(f"[pymupdf4llm] input={input_path} output={output} preset={args.preset}")
-    print(f"[pymupdf4llm] kwargs={json.dumps(kwargs, sort_keys=True)}")
-    print(f"[pymupdf4llm] wrote {summary}")
+    logging.info(
+        "[pymupdf4llm] input=%s output=%s preset=%s",
+        input_path,
+        output,
+        args.preset,
+    )
+    logging.debug("[pymupdf4llm] kwargs=%s", json.dumps(kwargs, sort_keys=True))
+    logging.info("[pymupdf4llm] wrote %s", summary)
     return 0
 
 

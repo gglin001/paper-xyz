@@ -1,4 +1,4 @@
 interface:
-  display_name: "PDF PNG to MD Direct"
+  display_name: "pdf-png-md-direct-context"
   short_description: "Convert PDF pages to Markdown directly, with no OCR"
   default_prompt: "Render PDF pages to PNG with agent/pdf_to_png_ref.py, then transcribe each PNG to same-name Markdown using direct image context only, without OCR."

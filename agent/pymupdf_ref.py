@@ -12,12 +12,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
 import fitz
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
+LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 TEXT_MODES = {"text", "html", "xhtml", "xml"}
 STRUCTURED_MODES = {"blocks", "words", "dict", "rawdict", "json", "rawjson"}
@@ -68,11 +70,26 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="Optional PyMuPDF text extraction flags integer.",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="count",
+        default=0,
+        help="Set the verbosity level. -v for info logging, -vv for debug logging.",
+    )
     return parser.parse_args()
+
+
+def configure_logging(verbose: int) -> None:
+    if verbose <= 1:
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
+    else:
+        logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
 def main() -> int:
     args = parse_args()
+    configure_logging(args.verbose)
     input_path = Path(args.input)
     if not input_path.exists():
         raise SystemExit(f"Input PDF not found: {input_path}")
@@ -118,9 +135,11 @@ def main() -> int:
     finally:
         doc.close()
 
-    print(f"[pymupdf] input={input_path} mode={args.mode} pages={page_count}")
-    print(f"[pymupdf] kwargs={extract_kwargs}")
-    print(f"[pymupdf] output={output} ({summary})")
+    logging.info(
+        "[pymupdf] input=%s mode=%s pages=%s", input_path, args.mode, page_count
+    )
+    logging.debug("[pymupdf] kwargs=%s", extract_kwargs)
+    logging.info("[pymupdf] output=%s (%s)", output, summary)
     return 0
 
 
