@@ -27,6 +27,8 @@ openai = ">=2.24.0,<3"
 
 # may needs a latest version, check `activation.env`
 "llama.cpp" = ">=7880,<7881"
+# https://github.com/docling-project/docling
+docling = ">=2.77.0,<3"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
@@ -37,8 +39,6 @@ pypdf = ">=6.7.3, <7"
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
-# https://github.com/docling-project/docling
-docling = ">=2.75.0, <3"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -70,16 +70,16 @@ mlx-lm = ">=0.30.7,<0.31"
 mlx-vlm = ">=0.3.12,<0.4"
 torchvision = ">=0.25.0,<0.26"
 
-# ollama
-[feature.ollama.dependencies]
-ollama = ">=0.17.0,<0.18"
+# # ollama
+# [feature.ollama.dependencies]
+# ollama = ">=0.17.0,<0.18"
 
 [environments]
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
 mlx = { features = ["mlx"], no-default-feature = true }
-ollama = { features = ["ollama"], no-default-feature = true }
+# ollama = { features = ["ollama"], no-default-feature = true }
 
 # TODO: add MinerU
 # https://github.com/opendatalab/MinerU
