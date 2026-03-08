@@ -68,7 +68,3 @@ The repository uses a narrow `.gitignore` strategy (targeted ignores), not a glo
 - Do not switch to a deny-all ignore pattern unless explicitly requested.
 - Assume `.gitignore` controls Git tracking only; it does not block local file reading by agents.
 - Prefer putting disposable outputs in `debug_agent/` instead of expanding broad ignore rules.
-
-## Autonomous Loop Entry
-
-For autonomous Codex development rounds, use `.agents/loop/loop.md` as the single control prompt baseline and follow its process.

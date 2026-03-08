@@ -1,4 +1,4 @@
-# Project Goals
+# Goals
 
 - Keep this section current with the latest project direction.
 
@@ -21,7 +21,7 @@ Example:
 - [todo] T002 | add CLI args validation | reject empty input path
 - [done] T000 | initialize autonomous loop files | create `.agents/loop/loop.md`
 
-# Todo list
+# Todo List
 
 <!-- set a goal -->
 <!-- and todo lists -->
