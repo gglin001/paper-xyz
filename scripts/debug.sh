@@ -1,11 +1,26 @@
-# scripts for debug usage
+#!/usr/bin/env bash
+set -euo pipefail
 
-API_BASE=http://127.0.0.1:11235
+if ! command -v curl >/dev/null 2>&1; then
+  echo "error: curl is required but not installed" >&2
+  exit 127
+fi
 
-curl $API_BASE/v1/models
+API_BASE="${API_BASE:-http://127.0.0.1:11235}"
+REQUEST_TIMEOUT_SECONDS="${REQUEST_TIMEOUT_SECONDS:-10}"
 
-curl $API_BASE/v1/chat/completions \
+curl_args=(
+  --fail
+  --show-error
+  --silent
+  --connect-timeout "${REQUEST_TIMEOUT_SECONDS}"
+  --max-time "${REQUEST_TIMEOUT_SECONDS}"
+)
+
+curl "${curl_args[@]}" "${API_BASE}/v1/models"
+curl "${curl_args[@]}" \
+  "${API_BASE}/v1/chat/completions" \
   -H "Content-Type: application/json" \
   -d '{
-     "messages": [{"role": "user", "content": "hi"}]
-   }'
+    "messages": [{"role": "user", "content": "hi"}]
+  }'
