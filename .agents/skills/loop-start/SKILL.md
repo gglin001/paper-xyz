@@ -7,7 +7,7 @@ description: "Startup and dispatch skill for autonomous development rounds. Use 
 
 ## Use When
 
-- A round is triggered with command like: `codex "$(< .agents/loop/loop.md)"`.
+- A round is triggered with command like: `codex --yolo exec "$(< .agents/loop/loop.md)"`.
 - The agent must choose one primary focus between `loop-arch` and `loop-build`.
 - The round needs startup selection from `.agents/loop/todo.md`.
 
