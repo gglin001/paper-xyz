@@ -110,12 +110,21 @@ Purpose: batch-download selected OCR model artifacts into `third_party/` via `hf
 
 Required environment and tools:
 
-- External `hfd.sh` downloader command must be installed and in `PATH`.
-- `third_party/` directory must exist.
-- Optional env vars: `HF_ENDPOINT` (for mirror endpoints, for example `https://hf-mirror.com`).
+- External downloader command must be available (defaults to `hfd.sh`, configurable with `HFD_BIN`).
+- Target directory must exist and be writable (defaults to `third_party/`, configurable with `HFD_WORK_DIR`).
+- Optional env vars:
+  - Endpoint: `HF_ENDPOINT` (for mirror endpoints, for example `https://hf-mirror.com`).
+  - Script runtime: `HFD_BIN`, `HFD_WORK_DIR`.
+  - Artifact selection overrides: `GLM_GGML_*`, `GLM_MRADERMACHER_*`, `FIRERED_*`, `LIGHTON_*`, `GRANITE_REPO`, `MLX_GLM_BF16_REPO`, `MLX_GLM_8BIT_REPO`, `MLX_DEEPSEEK_8BIT_REPO`, `MLX_DOTS_BF16_REPO`.
 
 Stable invocation:
 
 ```bash
 bash scripts/hfd.sh
+```
+
+Example with explicit overrides:
+
+```bash
+HFD_WORK_DIR=third_party HFD_BIN=hfd.sh bash scripts/hfd.sh
 ```

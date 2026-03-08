@@ -27,4 +27,4 @@ Rules:
 - [done] T004 | document directly usable scripts in `scripts/README.md` | list purpose, required env, and one stable invocation per script
 - [done] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
 - [done] T006 | harden `scripts/hfd.sh` into a strict wrapper | add shebang and `set -euo pipefail`, enforce required commands and paths, and move model downloads into explicit configurable defaults
-- [todo] T007 | sync `scripts/README.md` for `hfd.sh` behavior and validate script syntax | document env vars and stable invocation after T006, then run `bash -n scripts/hfd.sh` plus repository checks
+- [done] T007 | sync `scripts/README.md` for `hfd.sh` behavior and validate script syntax | document env vars and stable invocation after T006, then run `bash -n scripts/hfd.sh` plus repository checks
