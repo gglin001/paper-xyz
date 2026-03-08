@@ -1,6 +1,8 @@
 # Project Goals
 
-- Keep this section current with the latest project direction.
+- Make `scripts/` the reliable entrypoint for reproducible local tooling, while keeping `agent/` as reference-only.
+- Normalize shell helper scripts to runnable strict-mode wrappers with explicit defaults and clear failure messages.
+- Keep script documentation aligned with actual commands and expected validation steps.
 
 # Todo Entries
 
@@ -15,13 +17,11 @@ Rules:
 - Keep entries ordered by execution priority.
 - Prefer small, implementation-ready entries.
 
-Example:
-
-- [todo] T001 | define parser boundary | target `scripts/` and add minimal tests
-- [todo] T002 | add CLI args validation | reject empty input path
-- [done] T000 | initialize autonomous loop files | create `.agents/loop/loop.md`
-
 # Todo list
 
-<!-- set a goal -->
-<!-- and todo lists -->
+- [done] T000 | initialize autonomous loop files | create `.agents/loop/loop.md` and seed `.agents/loop/todo.md`
+- [todo] T001 | harden `scripts/debug.sh` into a safe smoke-test command | add shebang, `set -euo pipefail`, and `curl` flags that fail loudly
+- [todo] T002 | harden `scripts/llama-cli.sh` and `scripts/mlx_vlm.generate.sh` | add shebang, `set -euo pipefail`, and minimal env-driven input overrides
+- [todo] T003 | make `scripts/mlx_lm.server.sh` actionable | replace ambiguous TODO note with a deterministic preflight check and clear failure hint
+- [todo] T004 | document directly usable scripts in `scripts/README.md` | list purpose, required env, and one stable invocation per script
+- [todo] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
