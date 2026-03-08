@@ -21,10 +21,11 @@ import time
 from pathlib import Path
 from typing import Any
 
-import marker
-from marker.config.parser import ConfigParser
-from marker.models import create_model_dict
-from marker.output import save_output
+# `marker` is installed in the pixi `marker` environment, not in `default`.
+import marker  # ty: ignore[unresolved-import]
+from marker.config.parser import ConfigParser  # ty: ignore[unresolved-import]
+from marker.models import create_model_dict  # ty: ignore[unresolved-import]
+from marker.output import save_output  # ty: ignore[unresolved-import]
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"

@@ -24,4 +24,4 @@ Rules:
 - [done] T002 | harden `scripts/llama-cli.sh` and `scripts/mlx_vlm.generate.sh` | add shebang, `set -euo pipefail`, and minimal env-driven input overrides
 - [done] T003 | make `scripts/mlx_lm.server.sh` actionable | replace ambiguous TODO note with a deterministic preflight check and clear failure hint
 - [done] T004 | document directly usable scripts in `scripts/README.md` | list purpose, required env, and one stable invocation per script
-- [todo] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
+- [done] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
