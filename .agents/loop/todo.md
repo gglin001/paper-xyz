@@ -3,6 +3,7 @@
 - Make `scripts/` the reliable entrypoint for reproducible local tooling, while keeping `agent/` as reference-only.
 - Normalize shell helper scripts to runnable strict-mode wrappers with explicit defaults and clear failure messages.
 - Keep script documentation aligned with actual commands and expected validation steps.
+- Finish migrating remaining legacy helper scripts to the same strict-mode and reproducibility baseline.
 
 # Todo Entries
 
@@ -25,3 +26,5 @@ Rules:
 - [done] T003 | make `scripts/mlx_lm.server.sh` actionable | replace ambiguous TODO note with a deterministic preflight check and clear failure hint
 - [done] T004 | document directly usable scripts in `scripts/README.md` | list purpose, required env, and one stable invocation per script
 - [done] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
+- [todo] T006 | harden `scripts/hfd.sh` into a strict wrapper | add shebang and `set -euo pipefail`, enforce required commands and paths, and move model downloads into explicit configurable defaults
+- [todo] T007 | sync `scripts/README.md` for `hfd.sh` behavior and validate script syntax | document env vars and stable invocation after T006, then run `bash -n scripts/hfd.sh` plus repository checks
