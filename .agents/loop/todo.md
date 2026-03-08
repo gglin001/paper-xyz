@@ -22,6 +22,6 @@ Rules:
 - [done] T000 | initialize autonomous loop files | create `.agents/loop/loop.md` and seed `.agents/loop/todo.md`
 - [done] T001 | harden `scripts/debug.sh` into a safe smoke-test command | add shebang, `set -euo pipefail`, and `curl` flags that fail loudly
 - [done] T002 | harden `scripts/llama-cli.sh` and `scripts/mlx_vlm.generate.sh` | add shebang, `set -euo pipefail`, and minimal env-driven input overrides
-- [todo] T003 | make `scripts/mlx_lm.server.sh` actionable | replace ambiguous TODO note with a deterministic preflight check and clear failure hint
+- [done] T003 | make `scripts/mlx_lm.server.sh` actionable | replace ambiguous TODO note with a deterministic preflight check and clear failure hint
 - [todo] T004 | document directly usable scripts in `scripts/README.md` | list purpose, required env, and one stable invocation per script
 - [todo] T005 | run repository quality checks after script edits | execute `pixi run -e default ruff check .` and `pixi run -e default ty check .` and resolve issues in touched files
