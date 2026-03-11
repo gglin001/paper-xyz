@@ -6,6 +6,7 @@
 __pycache__/
 
 debug_agent/
+*.log
 
 /third_party
 /third_party_*
