@@ -67,4 +67,7 @@ The repository uses a narrow `.gitignore` strategy (targeted ignores), not a glo
 - Keep analysis inputs such as `md/` readable and visible to normal workflows.
 - Do not switch to a deny-all ignore pattern unless explicitly requested.
 - Assume `.gitignore` controls Git tracking only; it does not block local file reading by agents.
+- Treat `third_party/` as a valid source of dependency code and reference implementations when relevant to the task.
+- Do not skip `third_party/` or its children merely because they are ignored by `.gitignore`; inspect them when they may affect the work.
+- Do not skip `third_party/` or its children merely because they are symlinks; follow and inspect linked contents when relevant and safe.
 - Prefer putting disposable outputs in `debug_agent/` instead of expanding broad ignore rules.
