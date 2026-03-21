@@ -1,3 +1,17 @@
+[project]
+name = "paper_xyz"
+version = "0.1.0"
+description = "paper_xyz"
+requires-python = ">=3.13"
+# dependencies = ["PyMuPDF>=1.27.1", "requests>=2.32.5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/paper_xyz"]
+
 # https://docs.astral.sh/ruff/settings/
 # https://docs.astral.sh/ruff/rules/
 # https://docs.astral.sh/ruff/configuration/
