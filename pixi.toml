@@ -40,6 +40,9 @@ pypdf = ">=6.7.3, <7"
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
+# https://github.com/allenai/olmocr
+olmocr = ">=0.4.27, <0.5"
+rich = "*"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -84,9 +87,6 @@ mlx = { features = ["mlx"], no-default-feature = true }
 
 # TODO: add MinerU
 # https://github.com/opendatalab/MinerU
-
-# TODO: add olmocr
-# https://github.com/allenai/olmocr
 
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
