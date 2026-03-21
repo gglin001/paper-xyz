@@ -28,8 +28,6 @@ websocket-client = ">=1.9.0,<2"
 
 # may needs a latest version, check `activation.env`
 "llama.cpp" = ">=8224,<8225"
-# https://github.com/docling-project/docling
-docling = ">=2.77.0,<3"
 poppler = ">=26.2.0,<27"
 
 [pypi-dependencies]
@@ -44,6 +42,12 @@ pymupdf4llm = ">=0.3.4, <0.4"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
 rich = "*"
+
+# docling
+[feature.docling.dependencies]
+python = "3.13.*"
+# https://github.com/docling-project/docling
+docling = ">=2.77.0,<3"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -81,6 +85,7 @@ torchvision = ">=0.25.0,<0.26"
 
 [environments]
 # default is implicit
+docling = { features = ["docling"], no-default-feature = true }
 markitdown = { features = ["markitdown"], no-default-feature = true }
 marker = { features = ["marker"], no-default-feature = true }
 mlx = { features = ["mlx"], no-default-feature = true }
