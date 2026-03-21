@@ -10,8 +10,8 @@ pixi run -e default python agent/pdf_split_ref.py pdf/large.pdf --pages 10-20 -o
 bash agent/llama-serve.sh
 ```
 
-- run `agent/docling_rerf.py` for `pdf -> png`
+- run `agent/docling_rerf.py` in the dedicated `docling` environment for `pdf -> markdown`
 
 ```bash
-pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.md
+pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.md
 ```

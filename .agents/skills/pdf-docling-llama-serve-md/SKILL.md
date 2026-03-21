@@ -18,7 +18,7 @@ Use this skill when a task asks for reproducible PDF to Markdown conversion via 
 - Keep conversion inputs in `pdf/` or `debug_agent/`.
 - Write final Markdown outputs to `md/`.
 - Start `llama-server` before running docling conversion.
-- Use `agent/docling_rerf.py` as the conversion entry point.
+- Use `agent/docling_rerf.py` as the conversion entry point from the dedicated `docling` pixi environment.
 
 ## Workflow
 
@@ -47,13 +47,13 @@ curl -sS http://127.0.0.1:11235/v1/models | head
 Generic command:
 
 ```bash
-pixi run -e default python agent/docling_rerf.py <input_pdf> -o <output_md>
+pixi run -e docling python agent/docling_rerf.py <input_pdf> -o <output_md>
 ```
 
 Demo command required by this flow:
 
 ```bash
-pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.md
+pixi run -e docling python agent/docling_rerf.py agent/demo.pdf -o md/demo.md
 ```
 
 ## Validation

@@ -2,9 +2,9 @@
 """docling-style reference CLI script, backed by local `paper_xyz`.
 
 Examples:
-  pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md
-  pixi run -e default python agent/docling_rerf.py agent/demo.pdf -o md/demo.docling.md --concurrency 10
-  pixi run -e default python agent/docling_rerf.py --list-presets
+  pixi run -e default python agent/paper_xyz_rerf.py agent/demo.pdf -o md/demo.paper_xyz.md
+  pixi run -e default python agent/paper_xyz_rerf.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 10
+  pixi run -e default python agent/paper_xyz_rerf.py --list-presets
 
 Notes:
   Default args works with `agent/llama-serve.sh`
@@ -146,7 +146,7 @@ def configure_logging(verbose: int) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Reference CLI for docling VLM API runtime. "
+            "Reference CLI for local `paper_xyz` VLM API runtime. "
             "Designed for local OpenAI-compatible servers like llama-server."
         ),
         epilog=HELP_EPILOG or None,
