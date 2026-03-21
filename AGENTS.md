@@ -18,8 +18,9 @@ Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf
 Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
+- `docling` backend runs in its dedicated environment, e.g. `pixi run -e docling python agent/docling_rerf.py pdf/<file>.pdf -o md/<file>.md`.
 - `pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`: extract representative pages for large/complex PDF debug and test loops.
-- Conversion backend selection and exact usage live in `agent/README.md`; check that file first, then use each script's `--help` for final arguments.
+- Conversion backend selection, backend-specific environments, and exact usage live in `agent/README.md`; check that file first, then use each script's `--help` for final arguments.
 - `pixi run -e default ruff check .`: lint Python code.
 - `pixi run -e default ruff format .`: format Python code.
 - `pixi run -e default ty check .`: run type checks.
@@ -31,7 +32,7 @@ When source PDFs are large or structurally complex, or when you need fast debug/
 
 1. Split first with `agent/pdf_split_ref.py`, and save subset PDFs under `debug_agent/`.
 2. Pick representative pages, especially layout-heavy or error-prone pages, for parameter tuning and troubleshooting.
-3. Run conversion backends against the subset PDF until prompts/parameters are stable, then run lightweight checks/tests on the same subset.
+3. Run conversion backends against the subset PDF in their own pixi environments until prompts/parameters are stable, then run lightweight checks/tests on the same subset.
 4. Re-run the same settings on the full source PDF in `pdf/` after the subset workflow is stable.
 5. Keep temporary subset files in `debug_agent/`, and keep final analysis inputs in `md/`.
 
