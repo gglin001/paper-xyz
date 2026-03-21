@@ -27,9 +27,10 @@ openai = ">=2.24.0,<3"
 websocket-client = ">=1.9.0,<2"
 
 # may needs a latest version, check `activation.env`
-"llama.cpp" = ">=7880,<7881"
+"llama.cpp" = ">=8224,<8225"
 # https://github.com/docling-project/docling
 docling = ">=2.77.0,<3"
+poppler = ">=26.2.0,<27"
 
 [pypi-dependencies]
 requests = ">=2.32.5, <3"
@@ -40,6 +41,9 @@ pypdf = ">=6.7.3, <7"
 pymupdf = ">=1.27.1, <2"
 # https://github.com/pymupdf/pymupdf4llm
 pymupdf4llm = ">=0.3.4, <0.4"
+# https://github.com/allenai/olmocr
+olmocr = ">=0.4.27, <0.5"
+rich = "*"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -84,9 +88,6 @@ mlx = { features = ["mlx"], no-default-feature = true }
 
 # TODO: add MinerU
 # https://github.com/opendatalab/MinerU
-
-# TODO: add olmocr
-# https://github.com/allenai/olmocr
 
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
