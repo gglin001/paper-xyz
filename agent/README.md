@@ -27,9 +27,8 @@ pixi run -e markitdown markitdown pdf/large.pdf -o md/large.md
 
 ## Reference Scripts
 
-- `agent/docling_rerf.py`: docling VLM API reference script for local OpenAI-compatible servers. Help: `pixi run -e default python agent/docling_rerf.py --help`.
-- `agent/docling_dots_mocr_rerf.py`: dots.mocr-style PDF page inference over an OpenAI-compatible `chat/completions` API, with combined markdown and per-page SVG output. Help: `pixi run -e default python agent/docling_dots_mocr_rerf.py --help`.
 - `agent/docling_rerf.py`: docling VLM API reference script for local OpenAI-compatible servers. Help: `pixi run -e docling python agent/docling_rerf.py --help`.
+- `agent/docling_dots_mocr_rerf.py`: dots.mocr-style PDF page inference over an OpenAI-compatible `chat/completions` API, with combined markdown and per-page SVG output. Help: `pixi run -e docling python agent/docling_dots_mocr_rerf.py --help`.
 - `agent/olmocr_ref.py`: olmocr-style VLM API reference script that renders PDF pages locally and calls an OpenAI-compatible `chat/completions` endpoint page by page. Help: `pixi run -e default python agent/olmocr_ref.py --help`.
 - `agent/markitdown_ref.py`: markitdown CLI wrapper (`single`, `plugins`). Help: `pixi run -e markitdown python agent/markitdown_ref.py --help`. List plugins directly: `pixi run -e markitdown markitdown --list-plugins`.
 - `agent/pymupdf4llm_ref.py`: preset-based markdown extraction and JSON/JSONL output. Help: `pixi run -e default python agent/pymupdf4llm_ref.py --help`.

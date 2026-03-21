@@ -2,9 +2,9 @@
 """dots.mocr-style PDF -> Markdown + SVG reference CLI.
 
 Examples:
-  pixi run -e default python agent/docling_dots_mocr_rerf.py agent/demo.pdf -o md/demo.dots.mocr.md
-  pixi run -e default python agent/docling_dots_mocr_rerf.py pdf/paper.pdf -o md/paper.dots.mocr.md --svg-dir svg/paper.dots.mocr
-  pixi run -e default python agent/docling_dots_mocr_rerf.py debug_agent/paper.subset.pdf --concurrency 8 --svg-model rednote-hilab/dots.mocr-svg
+  pixi run -e docling python agent/docling_dots_mocr_rerf.py agent/demo.pdf -o md/demo.dots.mocr.md
+  pixi run -e docling python agent/docling_dots_mocr_rerf.py pdf/paper.pdf -o md/paper.dots.mocr.md --svg-dir svg/paper.dots.mocr
+  pixi run -e docling python agent/docling_dots_mocr_rerf.py debug_agent/paper.subset.pdf --concurrency 8 --svg-model rednote-hilab/dots.mocr-svg
 
 Notes:
   - Follows the request format used by third_party/dots.mocr.
