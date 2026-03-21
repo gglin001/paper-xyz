@@ -61,26 +61,26 @@ python = "3.13.*"
 # pixi add --pypi 'markitdown[pdf]' -f markitdown
 markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
 
-# marker
-[feature.marker.dependencies]
-python = "3.13.*"
+# # marker
+# [feature.marker.dependencies]
+# python = "3.13.*"
 
-[feature.marker.pypi-dependencies]
-# https://github.com/datalab-to/marker
-marker-pdf = ">=1.10.2, <2"
-# https://github.com/datalab-to/surya
-surya-ocr = ">=0.17.1, <0.18"
+# [feature.marker.pypi-dependencies]
+# # https://github.com/datalab-to/marker
+# marker-pdf = ">=1.10.2, <2"
+# # https://github.com/datalab-to/surya
+# surya-ocr = ">=0.17.1, <0.18"
 
-# mlx
-[feature.mlx.system-requirements]
-macos = "16.0"
+# # mlx
+# [feature.mlx.system-requirements]
+# macos = "16.0"
 
-[feature.mlx.dependencies]
-python = "3.13.*"
-mlx = ">=0.30.6,<0.31"
-mlx-lm = ">=0.30.7,<0.31"
-mlx-vlm = ">=0.3.12,<0.4"
-torchvision = ">=0.25.0,<0.26"
+# [feature.mlx.dependencies]
+# python = "3.13.*"
+# mlx = ">=0.30.6,<0.31"
+# mlx-lm = ">=0.30.7,<0.31"
+# mlx-vlm = ">=0.3.12,<0.4"
+# torchvision = ">=0.25.0,<0.26"
 
 # # ollama
 # [feature.ollama.dependencies]
@@ -90,8 +90,8 @@ torchvision = ">=0.25.0,<0.26"
 # default is implicit
 docling = { features = ["docling"], no-default-feature = true }
 markitdown = { features = ["markitdown"], no-default-feature = true }
-marker = { features = ["marker"], no-default-feature = true }
-mlx = { features = ["mlx"], no-default-feature = true }
+# marker = { features = ["marker"], no-default-feature = true }
+# mlx = { features = ["mlx"], no-default-feature = true }
 # ollama = { features = ["ollama"], no-default-feature = true }
 
 # TODO: add MinerU
