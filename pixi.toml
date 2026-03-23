@@ -102,3 +102,4 @@ markitdown = { features = ["markitdown"], no-default-feature = true }
 PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"
 # for cuda devices
 # CUDA_VISIBLE_DEVICES = "0"
+# CUDA_DEVICE_ORDER = "PCI_BUS_ID"
