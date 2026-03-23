@@ -100,3 +100,5 @@ markitdown = { features = ["markitdown"], no-default-feature = true }
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
 PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"
+# for cuda devices
+# CUDA_VISIBLE_DEVICES = "0"
