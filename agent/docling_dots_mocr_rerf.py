@@ -33,7 +33,7 @@ from PIL import Image
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
-DEFAULT_MODEL = "rednote-hilab/dots.mocr"
+DEFAULT_MODEL = "OCR"
 DEFAULT_MD_PROMPT = """Please output the layout information from the PDF image, including each layout element's bbox, its category, and the corresponding text content within the bbox.
 
 1. Bbox format: [x1, y1, x2, y2]
