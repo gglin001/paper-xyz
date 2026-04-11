@@ -51,6 +51,7 @@ rich = "*"
 python = "3.13.*"
 # https://github.com/docling-project/docling
 docling = ">=2.77.0,<3"
+pymupdf = ">=1.27.1,<2"
 
 # markitdown
 [feature.markitdown.dependencies]
