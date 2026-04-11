@@ -18,7 +18,7 @@ Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf
 Use `pixi` for all local workflows:
 
 - `pixi install`: install or sync the locked environment.
-- `docling` backend runs in its dedicated environment, e.g. `pixi run -e docling python agent/docling_rerf.py pdf/<file>.pdf -o md/<file>.md`.
+- `docling` backend runs in its dedicated environment, e.g. `pixi run -e docling python agent/docling_ref.py pdf/<file>.pdf -o md/<file>.md`.
 - `pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`: extract representative pages for large/complex PDF debug and test loops.
 - Conversion backend selection, backend-specific environments, and exact usage live in `agent/README.md`; check that file first, then use each script's `--help` for final arguments.
 - `pixi run -e default ruff check .`: lint Python code.

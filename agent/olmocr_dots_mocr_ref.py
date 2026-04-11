@@ -2,8 +2,8 @@
 """olmocr + dots.mocr reference CLI script, VLM API mode only.
 
 Examples:
-  pixi run -e default python agent/olmocr_dots_mocr_rerf.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md
-  pixi run -e default python agent/olmocr_dots_mocr_rerf.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md --svg-dir debug_agent/demo_svg --concurrency 8
+  pixi run -e default python agent/olmocr_dots_mocr_ref.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md
+  pixi run -e default python agent/olmocr_dots_mocr_ref.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md --svg-dir debug_agent/demo_svg --concurrency 8
 
 Notes:
   - Uses olmocr's PDF page rendering helper, but sends requests in the style of
