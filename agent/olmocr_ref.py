@@ -36,7 +36,7 @@ from pypdf import PdfReader
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
-DEFAULT_MODEL = "olmocr"
+DEFAULT_MODEL = "OCR"
 DEFAULT_PROMPT = build_no_anchoring_v4_yaml_prompt()
 GUIDED_REGEX = (
     r"---\nprimary_language: (?:[a-z]{2}|null)\n"
