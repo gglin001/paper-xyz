@@ -51,6 +51,7 @@ rich = "*"
 python = "3.13.*"
 # https://github.com/docling-project/docling
 docling = ">=2.77.0,<3"
+pymupdf = ">=1.27.1,<2"
 
 # markitdown
 [feature.markitdown.dependencies]
@@ -100,3 +101,6 @@ markitdown = { features = ["markitdown"], no-default-feature = true }
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
 PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"
+# for cuda devices
+# CUDA_VISIBLE_DEVICES = "0"
+# CUDA_DEVICE_ORDER = "PCI_BUS_ID"
