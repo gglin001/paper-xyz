@@ -24,7 +24,7 @@ hfd.sh mradermacher/LightOnOCR-2-1B-GGUF \
   --include "LightOnOCR-2-1B.f16.gguf" --include "LightOnOCR-2-1B.mmproj-f16.gguf"
 # https://huggingface.co/mradermacher/LightOnOCR-2-1B-GGUF/tree/main
 
-hfd.sh ggml-org/granite-docling-258M-GGUF
+# hfd.sh ggml-org/granite-docling-258M-GGUF
 # https://huggingface.co/ggml-org/granite-docling-258M-GGUF
 
 # -----
