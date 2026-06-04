@@ -9,59 +9,59 @@ version = "0.1.0"
 
 # default
 [dependencies]
-python = "3.13.*"
-uv = ">=0.10.5,<0.11"
-ruff = ">=0.15.2,<0.16"
-ty = ">=0.0.18,<0.0.19"
-pre-commit = ">=4.5.1,<5"
-hatchling = ">=1.29.0,<2"
+python = ">=3.14.5,<3.15"
+uv = ">=0.11.19,<0.12"
+ruff = ">=0.15.15,<0.16"
+ty = ">=0.0.43,<0.0.44"
+pre-commit = ">=4.6.0,<5"
+hatchling = ">=1.30.1,<2"
 
 ripgrep = ">=15.1.0,<16"
-fzf = ">=0.68.0,<0.69"
-fd-find = ">=10.3.0,<11"
-difftastic = ">=0.65.0,<0.66"
-zellij = ">=0.43.1,<0.44"
+fzf = ">=0.73.1,<0.74"
+fd-find = ">=10.4.2,<11"
+difftastic = ">=0.69.0,<0.70"
+zellij = ">=0.44.3,<0.45"
 
 pytorch = ">=2.10.0,<3"
-torchvision = ">=0.25.0,<0.26"
-openai = ">=2.24.0,<3"
+torchvision = ">=0.26.0,<0.27"
+openai = ">=2.41.0,<3"
 websocket-client = ">=1.9.0,<2"
 
 # may needs a latest version, check `activation.env`
-"llama.cpp" = ">=8224,<8225"
-poppler = ">=26.2.0,<27"
+"llama.cpp" = ">=9222,<9223"
+poppler = ">=26.5.0,<27"
 pandoc = ">=3.9.0.2,<4"
 
 [pypi-dependencies]
 # `src/paper_xyz`
 paper_xyz = { path = ".", editable = true }
-requests = ">=2.32.5, <3"
+requests = ">=2.34.2, <3"
 ty-extensions = ">=0.1.0, <0.2"
 # https://github.com/py-pdf/pypdf
-pypdf = ">=6.7.3, <7"
+pypdf = ">=6.12.2, <7"
 # https://github.com/pymupdf/PyMuPDF
-pymupdf = ">=1.27.1, <2"
+pymupdf = ">=1.27.2.3, <2"
 # https://github.com/pymupdf/pymupdf4llm
-pymupdf4llm = ">=0.3.4, <0.4"
+pymupdf4llm = ">=0.3.4, <2"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
-rich = "*"
+rich = ">=13.9.4, <14"
 
 # docling
 [feature.docling.dependencies]
-python = "3.13.*"
+python = ">=3.13.13,<3.14"
 # https://github.com/docling-project/docling
-docling = ">=2.77.0,<3"
-pymupdf = ">=1.27.1,<2"
+docling = ">=2.95.0,<3"
+pymupdf = ">=1.27.2.2,<2"
 
 # markitdown
 [feature.markitdown.dependencies]
-python = "3.13.*"
+python = ">=3.14.5,<3.15"
 
 [feature.markitdown.pypi-dependencies]
 # https://github.com/microsoft/markitdown
 # pixi add --pypi 'markitdown[pdf]' -f markitdown
-markitdown = { version = ">=0.1.5, <0.2", extras = ["pdf"] }
+markitdown = { version = ">=0.0.2, <0.2", extras = ["pdf"] }
 
 # # marker
 # [feature.marker.dependencies]
