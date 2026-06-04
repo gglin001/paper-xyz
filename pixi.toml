@@ -49,7 +49,8 @@ python = ">=3.14.5,<3.15"
 [feature.markitdown.pypi-dependencies]
 # https://github.com/microsoft/markitdown
 # pixi add --pypi 'markitdown[pdf]' -f markitdown
-markitdown = { version = ">=0.0.2, <0.2", extras = ["pdf"] }
+# markitdown = { version = ">=0.0.2, <0.2", extras = ["pdf"] }
+markitdown = ">=0.0.2, <0.2"
 
 [environments]
 # default is implicit
