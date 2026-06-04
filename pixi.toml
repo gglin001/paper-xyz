@@ -16,16 +16,11 @@ ty = ">=0.0.43,<0.0.44"
 pre-commit = ">=4.6.0,<5"
 hatchling = ">=1.30.1,<2"
 
-ripgrep = ">=15.1.0,<16"
-fzf = ">=0.73.1,<0.74"
-fd-find = ">=10.4.2,<11"
-difftastic = ">=0.69.0,<0.70"
 zellij = ">=0.44.3,<0.45"
 
 pytorch = ">=2.10.0,<3"
 torchvision = ">=0.26.0,<0.27"
 openai = ">=2.41.0,<3"
-websocket-client = ">=1.9.0,<2"
 
 # may needs a latest version, check `activation.env`
 "llama.cpp" = ">=9222,<9223"
