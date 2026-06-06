@@ -53,9 +53,33 @@ python = ">=3.14.5,<3.15"
 # markitdown = { version = ">=0.0.2, <0.2", extras = ["pdf"] }
 markitdown = ">=0.0.2, <0.2"
 
+[feature.cu129.system-requirements]
+cuda = "12.9"
+[feature.cu129.target.linux-64.dependencies]
+# CONDA_OVERRIDE_CUDA=12.9 pixi i -e cu129
+# CONDA_OVERRIDE_CUDA=12.9 pixi add cuda-version=12.9 -p linux-64 -f cu129
+# CONDA_OVERRIDE_CUDA=12.9 pixi add cuda-version=12.9 cuda-toolkit=12.9.1 -p linux-64 -f cu129
+# pixi add "llama.cpp[build=*cuda129*]" -p linux-64 -f cu129
+# pixi run -e cu129 llama-server --list-devices
+cuda-version = "12.9.*"
+"llama.cpp" = { version = ">=7880,<7881", build = "*cuda129*" }
+
+[feature.cu130.system-requirements]
+cuda = "13.0"
+[feature.cu130.target.linux-64.dependencies]
+# CONDA_OVERRIDE_CUDA=13.0 pixi i -e cu130
+# CONDA_OVERRIDE_CUDA=13.0 pixi add cuda-version=13.0 -p linux-64 -f cu130
+# CONDA_OVERRIDE_CUDA=13.0 pixi add cuda-version=13.0 cuda-toolkit=13.0 -p linux-64 -f cu130
+# pixi add "llama.cpp[build=*cuda130*]" -p linux-64 -f cu130
+# pixi run -e cu130 llama-server --list-devices
+cuda-version = "13.0.*"
+"llama.cpp" = { version = ">=7880,<7881", build = "*cuda130*" }
+
 [environments]
 # default is implicit
 markitdown = { features = ["markitdown"], no-default-feature = true }
+cu129 = { features = ["cu129"], no-default-feature = true }
+cu130 = { features = ["cu130"], no-default-feature = true }
 
 [activation.env]
 # https://github.com/ggml-org/llama.cpp/releases
