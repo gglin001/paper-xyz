@@ -1,13 +1,15 @@
 ---
 name: pdf-png-md-direct-context
-description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `agent/pdf_to_png_ref.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including flows like `agent/pdf-png-md.md`."
+description: "Convert PDF files into page-level Markdown with a strict two-step workflow in this repository: render PDF pages to PNG with `agent/pdf_to_png_ref.py`, then transcribe each PNG directly in Codex image context without OCR or external converters. Use when tasks request reproducible PDF to PNG to MD conversion with faithful page mapping, including the bundled `references/pdf-png-md.md` flow."
 ---
 
 # PDF PNG to Markdown, Direct Context
 
 ## Overview
 
-Use this skill for conversion tasks that follow the same approach as `agent/pdf-png-md.md`. Keep the workflow reproducible, page aligned, and free of OCR tooling.
+Use this skill for conversion tasks that follow the bundled workflow reference in `references/pdf-png-md.md`. Keep the workflow reproducible, page aligned, and free of OCR tooling.
+
+Load `references/pdf-png-md.md` only when the original compact command/prompt flow is needed.
 
 ## Checklist
 
