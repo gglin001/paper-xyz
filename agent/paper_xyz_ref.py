@@ -146,7 +146,7 @@ def parse_args() -> argparse.Namespace:
         "--max_page_retries",
         type=int,
         default=8,
-        help="Maximum attempts per page, including rotation correction retries.",
+        help="Maximum attempts per page.",
     )
     parser.add_argument(
         "--target_longest_image_dim",

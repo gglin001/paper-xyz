@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
+
+ResponseParser = Literal["markdown", "dots_layout_json"]
 
 
 @dataclass(frozen=True, slots=True)

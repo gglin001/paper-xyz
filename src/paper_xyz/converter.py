@@ -8,14 +8,10 @@ from pathlib import Path
 import httpx
 
 from paper_xyz.api import ChatRequestConfig, request_chat_completion
-from paper_xyz.model_services import (
-    ImagePlacement,
-    TokenParam,
-    get_model_service_profile,
-)
+from paper_xyz.model_services import get_model_service_profile
 from paper_xyz.parsing import parse_page_response
 from paper_xyz.pdf import render_page_png
-from paper_xyz.types import PageResult
+from paper_xyz.types import PageResult, ResponseParser
 
 logger = logging.getLogger(__name__)
 
@@ -33,18 +29,6 @@ class ConversionConfig:
     timeout: float = 120.0
     concurrency: int = 4
     max_page_retries: int = 8
-    max_tokens: int | None = None
-    token_param: TokenParam | None = None
-    temperature: float | None = None
-    top_p: float | None = None
-    top_k: int | None = None
-    frequency_penalty: float | None = None
-    presence_penalty: float | None = None
-    repetition_penalty: float | None = None
-    image_placement: ImagePlacement | None = None
-    text_prefix: str | None = None
-    text_suffix: str | None = None
-    system_prompt: str | None = None
     target_longest_image_dim: int = 1288
 
     def __post_init__(self) -> None:
@@ -64,57 +48,18 @@ class ConversionConfig:
             api_url=self.api_url,
             model=self.model if self.model is not None else profile.model,
             prompt=self.prompt if self.prompt is not None else profile.prompt,
-            max_tokens=(
-                self.max_tokens if self.max_tokens is not None else profile.max_tokens
-            ),
-            token_param=(
-                self.token_param
-                if self.token_param is not None
-                else profile.token_param
-            ),
-            temperature=(
-                self.temperature
-                if self.temperature is not None
-                else profile.temperature
-            ),
-            top_p=self.top_p if self.top_p is not None else profile.top_p,
-            top_k=self.top_k if self.top_k is not None else profile.top_k,
-            frequency_penalty=(
-                self.frequency_penalty
-                if self.frequency_penalty is not None
-                else profile.frequency_penalty
-            ),
-            presence_penalty=(
-                self.presence_penalty
-                if self.presence_penalty is not None
-                else profile.presence_penalty
-            ),
-            repetition_penalty=(
-                self.repetition_penalty
-                if self.repetition_penalty is not None
-                else profile.repetition_penalty
-            ),
-            image_placement=(
-                self.image_placement
-                if self.image_placement is not None
-                else profile.image_placement
-            ),
-            text_prefix=(
-                self.text_prefix
-                if self.text_prefix is not None
-                else profile.text_prefix
-            ),
-            text_suffix=(
-                self.text_suffix
-                if self.text_suffix is not None
-                else profile.text_suffix
-            ),
-            system_prompt=(
-                self.system_prompt
-                if self.system_prompt is not None
-                else profile.system_prompt
-            ),
+            max_tokens=profile.max_tokens,
+            token_param=profile.token_param,
+            temperature=profile.temperature,
+            top_p=profile.top_p,
+            top_k=profile.top_k,
+            repetition_penalty=profile.repetition_penalty,
+            image_first=profile.image_first,
+            text_prefix=profile.text_prefix,
         )
+
+    def response_parser(self) -> ResponseParser:
+        return get_model_service_profile(self.model_service).response_parser
 
 
 @dataclass(frozen=True, slots=True)
@@ -176,6 +121,7 @@ class PdfToMarkdownConverter:
         last_error: Exception | None = None
         cumulative_rotation = 0
         request_config = self._request_config()
+        response_parser = self.config.response_parser()
 
         for attempt in range(1, self.config.max_page_retries + 1):
             try:
@@ -189,7 +135,10 @@ class PdfToMarkdownConverter:
                 raw_response, usage = await request_chat_completion(
                     client, rendered_page, request_config
                 )
-                metadata, markdown = parse_page_response(raw_response)
+                metadata, markdown = parse_page_response(
+                    raw_response,
+                    response_parser=response_parser,
+                )
                 result = PageResult(
                     page_index=page_index,
                     metadata=metadata,

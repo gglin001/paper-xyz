@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from paper_xyz.model_services import ImagePlacement, TokenParam
+from paper_xyz.model_services import TokenParam
 from paper_xyz.parsing import extract_message_text
 from paper_xyz.types import RenderedPage, TokenUsage
 
@@ -20,13 +20,9 @@ class ChatRequestConfig:
     temperature: float | None = 0.0
     top_p: float | None = None
     top_k: int | None = None
-    frequency_penalty: float | None = None
-    presence_penalty: float | None = None
     repetition_penalty: float | None = None
-    image_placement: ImagePlacement = "after_text"
+    image_first: bool = True
     text_prefix: str = ""
-    text_suffix: str = ""
-    system_prompt: str | None = None
 
 
 def build_chat_payload(
@@ -35,22 +31,17 @@ def build_chat_payload(
 ) -> dict[str, Any]:
     text_part = {
         "type": "text",
-        "text": f"{config.text_prefix}{config.prompt}{config.text_suffix}",
+        "text": f"{config.text_prefix}{config.prompt}",
     }
     image_part = {"type": "image_url", "image_url": {"url": page.data_uri}}
-    if config.image_placement == "before_text":
+    if config.image_first:
         user_content = [image_part, text_part]
     else:
         user_content = [text_part, image_part]
 
-    messages: list[dict[str, Any]] = []
-    if config.system_prompt:
-        messages.append({"role": "system", "content": config.system_prompt})
-    messages.append({"role": "user", "content": user_content})
-
     payload: dict[str, Any] = {
         "model": config.model,
-        "messages": messages,
+        "messages": [{"role": "user", "content": user_content}],
     }
     payload[config.token_param] = config.max_tokens
 
@@ -60,10 +51,6 @@ def build_chat_payload(
         payload["top_p"] = config.top_p
     if config.top_k is not None:
         payload["top_k"] = config.top_k
-    if config.frequency_penalty:
-        payload["frequency_penalty"] = config.frequency_penalty
-    if config.presence_penalty:
-        payload["presence_penalty"] = config.presence_penalty
     if config.repetition_penalty is not None:
         payload["repetition_penalty"] = config.repetition_penalty
     return payload
