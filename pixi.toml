@@ -29,6 +29,7 @@ poppler = ">=26.5.0,<27"
 pandoc = ">=3.9.0.2,<4"
 
 # nodejs
+# pnpm config set registry https://registry.npmmirror.com
 pnpm = ">=11.0.3,<12"
 nodejs = ">=24.16.0,<24.17"
 
