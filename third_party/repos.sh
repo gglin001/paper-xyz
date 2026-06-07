@@ -20,7 +20,7 @@ git clone git@github.com:microsoft/markitdown.git
 git clone git@github.com:allenai/olmocr.git
 # git clone git@github.com:pdfminer/pdfminer.six.git
 # git clone git@github.com:jsvine/pdfplumber.git
-git clone git@github.com:pymupdf/pymupdf4llm.git
+# git clone git@github.com:pymupdf/pymupdf4llm.git
 # git clone git@github.com:datalab-to/surya.git
 # git clone git@github.com:getomni-ai/zerox.git
 # git clone git@github.com:Lulzx/zpdf.git

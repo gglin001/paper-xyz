@@ -30,5 +30,4 @@ pixi run -e markitdown markitdown pdf/large.pdf -o md/large.md
 - `agent/olmocr_ref.py`: olmocr-style VLM API reference script that renders PDF pages locally and calls an OpenAI-compatible `chat/completions` endpoint page by page. Help: `pixi run -e default python agent/olmocr_ref.py --help`.
 - `agent/olmocr_dots_mocr_ref.py`: olmocr-rendered PDF to Markdown + per-page SVG reference script using dots.mocr-style image-to-SVG prompting over an OpenAI-compatible API. Help: `pixi run -e default python agent/olmocr_dots_mocr_ref.py --help`.
 - `agent/markitdown_ref.py`: markitdown CLI wrapper (`single`, `plugins`). Help: `pixi run -e markitdown python agent/markitdown_ref.py --help`. List plugins directly: `pixi run -e markitdown markitdown --list-plugins`.
-- `agent/pymupdf4llm_ref.py`: preset-based markdown extraction and JSON/JSONL output. Help: `pixi run -e default python agent/pymupdf4llm_ref.py --help`.
 - `agent/pdf_split_ref.py`: selected-page subset extraction helper. Usage workflow is documented in `Shared Workflow` above. Help: `pixi run -e default python agent/pdf_split_ref.py --help`.

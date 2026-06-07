@@ -45,8 +45,6 @@ ty-extensions = ">=0.1.0, <0.2"
 pypdf = ">=6.12.2, <7"
 # https://github.com/pymupdf/PyMuPDF
 pymupdf = ">=1.27.2.3, <2"
-# https://github.com/pymupdf/pymupdf4llm
-pymupdf4llm = ">=0.3.4, <2"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
 rich = ">=13.9.4, <14"
