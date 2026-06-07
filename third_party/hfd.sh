@@ -1,8 +1,15 @@
 # https://hf-mirror.com/
+wget https://hf-mirror.com/hfd/hfd.sh
+chmod a+x hfd.sh
+# cp hfd.sh ~/.local/bin/
+cp hfd.sh .pixi/envs/default/bin/
 
-# export HF_ENDPOINT=https://hf-mirror.com
+export HF_ENDPOINT=https://hf-mirror.com
 
 pushd third_party
+
+hfd.sh PaddlePaddle/PaddleOCR-VL-1.6-GGUF
+# https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6-GGUF
 
 hfd.sh ggml-org/GLM-OCR-GGUF \
   --include "GLM-OCR-Q8_0.gguf" --include "mmproj-GLM-OCR-Q8_0.gguf"
@@ -23,9 +30,6 @@ hfd.sh mradermacher/LightOnOCR-2-1B-GGUF \
   --include "LightOnOCR-2-1B.Q8_0.gguf" --include "LightOnOCR-2-1B.mmproj-Q8_0.gguf" \
   --include "LightOnOCR-2-1B.f16.gguf" --include "LightOnOCR-2-1B.mmproj-f16.gguf"
 # https://huggingface.co/mradermacher/LightOnOCR-2-1B-GGUF/tree/main
-
-# hfd.sh ggml-org/granite-docling-258M-GGUF
-# https://huggingface.co/ggml-org/granite-docling-258M-GGUF
 
 # -----
 
