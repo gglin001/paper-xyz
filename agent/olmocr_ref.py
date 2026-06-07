@@ -201,6 +201,11 @@ async def build_request_payload(
     prompt: str,
     max_tokens: int,
     temperature: float,
+    top_p: float | None,
+    top_k: int | None,
+    frequency_penalty: float,
+    presence_penalty: float,
+    repetition_penalty: float | None,
     target_longest_image_dim: int,
     rotation: int,
     guided_decoding: bool,
@@ -230,6 +235,16 @@ async def build_request_payload(
         "max_tokens": max_tokens,
         "temperature": temperature,
     }
+    if top_p is not None:
+        payload["top_p"] = top_p
+    if top_k is not None:
+        payload["top_k"] = top_k
+    if frequency_penalty:
+        payload["frequency_penalty"] = frequency_penalty
+    if presence_penalty:
+        payload["presence_penalty"] = presence_penalty
+    if repetition_penalty is not None:
+        payload["repetition_penalty"] = repetition_penalty
     if guided_decoding:
         payload["guided_regex"] = GUIDED_REGEX
     return payload
@@ -249,6 +264,11 @@ async def request_page_once(
         prompt=args.prompt,
         max_tokens=args.max_tokens,
         temperature=args.temperature,
+        top_p=args.top_p,
+        top_k=args.top_k,
+        frequency_penalty=args.frequency_penalty,
+        presence_penalty=args.presence_penalty,
+        repetition_penalty=args.repetition_penalty,
         target_longest_image_dim=args.target_longest_image_dim,
         rotation=rotation,
         guided_decoding=args.guided_decoding,
@@ -276,14 +296,18 @@ async def request_page_once(
     if not markdown.strip():
         raise ValueError(f"Page {page_num} response content is empty")
 
-    finish_reason = choice.get("finish_reason")
-    if finish_reason not in (None, "stop", "end_turn"):
-        raise ValueError(f"Page {page_num} finish_reason={finish_reason}")
-
-    page_response = parse_page_markdown(markdown)
     usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
     input_tokens = int(usage.get("prompt_tokens", 0) or 0)
     output_tokens = int(usage.get("completion_tokens", 0) or 0)
+    finish_reason = choice.get("finish_reason")
+    if finish_reason not in (None, "stop", "end_turn"):
+        raise ValueError(
+            f"Page {page_num} finish_reason={finish_reason} "
+            f"prompt_tokens={input_tokens} completion_tokens={output_tokens} "
+            f"output_chars={len(markdown)}"
+        )
+
+    page_response = parse_page_markdown(markdown)
 
     return PageConversion(
         page_num=page_num,
@@ -459,6 +483,36 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=0.0,
         help="Sampling temperature sent to chat/completions.",
+    )
+    parser.add_argument(
+        "--top-p",
+        type=float,
+        default=None,
+        help="Optional top_p sent to chat/completions.",
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        default=None,
+        help="Optional top_k sent to chat/completions.",
+    )
+    parser.add_argument(
+        "--frequency-penalty",
+        type=float,
+        default=0.0,
+        help="frequency_penalty sent to chat/completions.",
+    )
+    parser.add_argument(
+        "--presence-penalty",
+        type=float,
+        default=0.0,
+        help="presence_penalty sent to chat/completions.",
+    )
+    parser.add_argument(
+        "--repetition-penalty",
+        type=float,
+        default=None,
+        help="Optional repetition_penalty sent to chat/completions when supported by the backend.",
     )
     parser.add_argument(
         "--target-longest-image-dim",
