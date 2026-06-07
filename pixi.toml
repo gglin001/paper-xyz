@@ -37,9 +37,9 @@ nodejs = ">=24.16.0,<24.17"
 bubblewrap = ">=0.11.2,<0.12"
 
 [pypi-dependencies]
-# `src/paper_xyz`
 paper_xyz = { path = ".", editable = true }
 requests = ">=2.34.2, <3"
+httpx = ">=0.28.1, <0.29"
 ty-extensions = ">=0.1.0, <0.2"
 # https://github.com/py-pdf/pypdf
 pypdf = ">=6.12.2, <7"
@@ -47,7 +47,6 @@ pypdf = ">=6.12.2, <7"
 pymupdf = ">=1.27.2.3, <2"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
-rich = ">=13.9.4, <14"
 
 # markitdown
 [feature.markitdown.dependencies]

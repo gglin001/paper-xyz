@@ -1,0 +1,205 @@
+from __future__ import annotations
+
+import asyncio
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+
+import httpx
+
+from paper_xyz.api import ChatRequestConfig, request_chat_completion
+from paper_xyz.parsing import parse_page_response
+from paper_xyz.pdf import render_page_png
+from paper_xyz.prompts import DEFAULT_MARKDOWN_PROMPT
+from paper_xyz.types import PageResult
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, slots=True)
+class ConversionConfig:
+    api_url: str
+    model: str = "OCR"
+    api_key: str | None = None
+    prompt: str = DEFAULT_MARKDOWN_PROMPT
+    timeout: float = 120.0
+    concurrency: int = 4
+    max_page_retries: int = 8
+    max_tokens: int = 8000
+    token_param: str = "max_tokens"
+    temperature: float = 0.0
+    top_p: float | None = None
+    top_k: int | None = None
+    frequency_penalty: float = 0.0
+    presence_penalty: float = 0.0
+    repetition_penalty: float | None = None
+    target_longest_image_dim: int = 1288
+    guided_decoding: bool = False
+
+    def __post_init__(self) -> None:
+        if self.concurrency < 1:
+            raise ValueError("concurrency must be >= 1")
+        if self.max_page_retries < 1:
+            raise ValueError("max_page_retries must be >= 1")
+        if self.max_tokens < 1:
+            raise ValueError("max_tokens must be >= 1")
+
+
+@dataclass(frozen=True, slots=True)
+class ConversionStats:
+    pages: int
+    chars: int
+    prompt_tokens: int
+    completion_tokens: int
+
+
+class PdfToMarkdownConverter:
+    def __init__(self, config: ConversionConfig) -> None:
+        self.config = config
+
+    async def convert(
+        self,
+        pdf_path: str | Path,
+        *,
+        start_page: int,
+        end_page: int,
+    ) -> tuple[str, list[PageResult]]:
+        semaphore = asyncio.Semaphore(self.config.concurrency)
+        headers = (
+            {"Authorization": f"Bearer {self.config.api_key}"}
+            if self.config.api_key
+            else None
+        )
+        limits = httpx.Limits(
+            max_connections=self.config.concurrency,
+            max_keepalive_connections=self.config.concurrency,
+        )
+
+        async with httpx.AsyncClient(
+            headers=headers,
+            limits=limits,
+            timeout=httpx.Timeout(self.config.timeout),
+        ) as client:
+
+            async def run_page(page_index: int) -> PageResult:
+                async with semaphore:
+                    return await self.convert_page(client, Path(pdf_path), page_index)
+
+            page_results = await asyncio.gather(
+                *[
+                    asyncio.create_task(run_page(page_index))
+                    for page_index in range(start_page, end_page + 1)
+                ]
+            )
+
+        return build_document_markdown(page_results), page_results
+
+    async def convert_page(
+        self,
+        client: httpx.AsyncClient,
+        pdf_path: Path,
+        page_index: int,
+    ) -> PageResult:
+        last_result: PageResult | None = None
+        last_error: Exception | None = None
+        cumulative_rotation = 0
+        request_config = self._request_config()
+
+        for attempt in range(1, self.config.max_page_retries + 1):
+            try:
+                rendered_page = await asyncio.to_thread(
+                    render_page_png,
+                    pdf_path,
+                    page_index,
+                    target_longest_image_dim=self.config.target_longest_image_dim,
+                    rotation=cumulative_rotation,
+                )
+                raw_response, usage = await request_chat_completion(
+                    client, rendered_page, request_config
+                )
+                metadata, markdown = parse_page_response(raw_response)
+                result = PageResult(
+                    page_index=page_index,
+                    metadata=metadata,
+                    markdown=markdown,
+                    raw_response=raw_response,
+                    usage=usage,
+                    attempts=attempt,
+                    applied_rotation=cumulative_rotation,
+                    image_width=rendered_page.width,
+                    image_height=rendered_page.height,
+                )
+                last_result = result
+
+                if metadata.is_rotation_valid:
+                    logger.info(
+                        "page=%s attempts=%s prompt_tokens=%s completion_tokens=%s rotation=%s",
+                        page_index,
+                        attempt,
+                        usage.prompt_tokens,
+                        usage.completion_tokens,
+                        cumulative_rotation,
+                    )
+                    return result
+
+                correction = metadata.rotation_correction % 360
+                cumulative_rotation = (cumulative_rotation + correction) % 360
+                logger.info(
+                    "page=%s attempt=%s requested rotation retry, correction=%s next_rotation=%s",
+                    page_index,
+                    attempt,
+                    correction,
+                    cumulative_rotation,
+                )
+            except (httpx.HTTPError, ValueError) as exc:
+                last_error = exc
+                logger.warning(
+                    "page=%s attempt=%s failed: %s", page_index, attempt, exc
+                )
+
+            if attempt < self.config.max_page_retries:
+                await asyncio.sleep(min(2 ** (attempt - 1), 8))
+
+        if last_result is not None:
+            logger.warning(
+                "page=%s exhausted retries, keeping last rotation-invalid response",
+                page_index,
+            )
+            return last_result
+
+        raise RuntimeError(f"conversion failed for page {page_index}: {last_error}")
+
+    def _request_config(self) -> ChatRequestConfig:
+        return ChatRequestConfig(
+            api_url=self.config.api_url,
+            model=self.config.model,
+            prompt=self.config.prompt,
+            max_tokens=self.config.max_tokens,
+            token_param=self.config.token_param,
+            temperature=self.config.temperature,
+            top_p=self.config.top_p,
+            top_k=self.config.top_k,
+            frequency_penalty=self.config.frequency_penalty,
+            presence_penalty=self.config.presence_penalty,
+            repetition_penalty=self.config.repetition_penalty,
+            guided_decoding=self.config.guided_decoding,
+        )
+
+
+def build_document_markdown(page_results: list[PageResult]) -> str:
+    chunks = [
+        page.markdown.rstrip()
+        for page in sorted(page_results, key=lambda result: result.page_index)
+        if page.markdown.strip()
+    ]
+    markdown = "\n\n".join(chunks).strip()
+    return f"{markdown}\n" if markdown else ""
+
+
+def summarize_results(markdown: str, page_results: list[PageResult]) -> ConversionStats:
+    return ConversionStats(
+        pages=len(page_results),
+        chars=len(markdown),
+        prompt_tokens=sum(page.usage.prompt_tokens for page in page_results),
+        completion_tokens=sum(page.usage.completion_tokens for page in page_results),
+    )
