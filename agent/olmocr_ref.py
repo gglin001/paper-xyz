@@ -3,7 +3,7 @@
 
 Examples:
   pixi run -e default python agent/olmocr_ref.py agent/demo.pdf
-  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf --start-page 0 --end-page 1
+  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf --start_page 0 --end_page 1
   pixi run -e default python agent/olmocr_ref.py agent/demo.pdf -o md/demo.olmocr.md --concurrency 8
 
 Notes:
@@ -154,18 +154,18 @@ def resolve_page_range(args: argparse.Namespace, page_count: int) -> tuple[int, 
     end_page = args.end_page if args.end_page is not None else page_count - 1
 
     if start_page < 0:
-        raise ValueError("--start-page must be >= 0")
+        raise ValueError("--start_page must be >= 0")
     if end_page < 0:
-        raise ValueError("--end-page must be >= 0")
+        raise ValueError("--end_page must be >= 0")
     if start_page > end_page:
-        raise ValueError("--start-page must be <= --end-page")
+        raise ValueError("--start_page must be <= --end_page")
     if start_page >= page_count:
         raise ValueError(
-            f"--start-page {start_page} is out of bounds, valid range is 0..{page_count - 1}"
+            f"--start_page {start_page} is out of bounds, valid range is 0..{page_count - 1}"
         )
     if end_page >= page_count:
         raise ValueError(
-            f"--end-page {end_page} is out of bounds, valid range is 0..{page_count - 1}"
+            f"--end_page {end_page} is out of bounds, valid range is 0..{page_count - 1}"
         )
 
     return start_page, end_page
@@ -413,13 +413,13 @@ def parse_args() -> argparse.Namespace:
         help="Output markdown path. Defaults to md/<input-stem>.p<start>-<end>.olmocr.md.",
     )
     parser.add_argument(
-        "--start-page",
+        "--start_page",
         type=int,
         default=0,
         help="First PDF page number to process, 0-based and inclusive. Default: 0.",
     )
     parser.add_argument(
-        "--end-page",
+        "--end_page",
         type=int,
         default=None,
         help=(
@@ -438,7 +438,7 @@ def parse_args() -> argparse.Namespace:
         help="Model name sent in the API payload.",
     )
     parser.add_argument(
-        "--api-key",
+        "--api_key",
         default=None,
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
     )
@@ -455,13 +455,13 @@ def parse_args() -> argparse.Namespace:
         help="Maximum number of pages processed concurrently.",
     )
     parser.add_argument(
-        "--max-page-retries",
+        "--max_page_retries",
         type=int,
         default=8,
         help="Maximum attempts per page, including rotation correction retries.",
     )
     parser.add_argument(
-        "--max-tokens",
+        "--max_tokens",
         type=int,
         default=8000,
         help="max_tokens sent to chat/completions.",
@@ -473,37 +473,37 @@ def parse_args() -> argparse.Namespace:
         help="Sampling temperature sent to chat/completions.",
     )
     parser.add_argument(
-        "--top-p",
+        "--top_p",
         type=float,
         default=None,
         help="Optional top_p sent to chat/completions.",
     )
     parser.add_argument(
-        "--top-k",
+        "--top_k",
         type=int,
         default=None,
         help="Optional top_k sent to chat/completions.",
     )
     parser.add_argument(
-        "--frequency-penalty",
+        "--frequency_penalty",
         type=float,
         default=0.0,
         help="frequency_penalty sent to chat/completions.",
     )
     parser.add_argument(
-        "--presence-penalty",
+        "--presence_penalty",
         type=float,
         default=0.0,
         help="presence_penalty sent to chat/completions.",
     )
     parser.add_argument(
-        "--repetition-penalty",
+        "--repetition_penalty",
         type=float,
         default=None,
         help="Optional repetition_penalty sent to chat/completions when supported by the backend.",
     )
     parser.add_argument(
-        "--target-longest-image-dim",
+        "--target_longest_image_dim",
         type=int,
         default=1288,
         help="Longest rendered page image dimension in pixels.",
@@ -531,7 +531,7 @@ def main() -> int:
         logging.error("--concurrency must be >= 1")
         return 1
     if args.max_page_retries < 1:
-        logging.error("--max-page-retries must be >= 1")
+        logging.error("--max_page_retries must be >= 1")
         return 1
 
     missing_tools = check_external_tools()

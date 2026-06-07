@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("input", help="Input PDF path.")
     parser.add_argument(
         "-od",
-        "--output-dir",
+        "--output_dir",
         required=True,
         help="Output directory. Default: <pdf_dir>/<pdf_stem>",
     )

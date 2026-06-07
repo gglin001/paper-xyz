@@ -3,7 +3,7 @@
 
 Examples:
   pixi run -e default python agent/olmocr_dots_mocr_ref.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md
-  pixi run -e default python agent/olmocr_dots_mocr_ref.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md --svg-dir debug_agent/demo_svg --concurrency 8
+  pixi run -e default python agent/olmocr_dots_mocr_ref.py agent/demo.pdf -o md/demo.olmocr_dots_mocr.md --svg_dir debug_agent/demo_svg --concurrency 8
 
 Notes:
   - Uses olmocr's PDF page rendering helper, but sends requests in the style of
@@ -478,7 +478,7 @@ def parse_args() -> argparse.Namespace:
         help="Output markdown path. Defaults to md/<input-stem>.olmocr_dots_mocr.md.",
     )
     parser.add_argument(
-        "--svg-dir",
+        "--svg_dir",
         help=(
             "Directory for per-page SVG outputs. Defaults to "
             "<output-without-suffix>_svg."
@@ -495,7 +495,7 @@ def parse_args() -> argparse.Namespace:
         help="Model name sent in the API payload.",
     )
     parser.add_argument(
-        "--api-key",
+        "--api_key",
         default=None,
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
     )
@@ -512,19 +512,19 @@ def parse_args() -> argparse.Namespace:
         help="Maximum number of pages processed concurrently.",
     )
     parser.add_argument(
-        "--max-page-retries",
+        "--max_page_retries",
         type=int,
         default=4,
         help="Maximum attempts per page.",
     )
     parser.add_argument(
-        "--max-tokens",
+        "--max_tokens",
         type=int,
         default=32768,
         help="Maximum completion tokens requested from the API.",
     )
     parser.add_argument(
-        "--token-param",
+        "--token_param",
         choices=("max_completion_tokens", "max_tokens"),
         default="max_completion_tokens",
         help="Payload key used for the token limit field.",
@@ -536,24 +536,24 @@ def parse_args() -> argparse.Namespace:
         help="Sampling temperature. dots.mocr SVG examples use a non-zero value.",
     )
     parser.add_argument(
-        "--top-p",
+        "--top_p",
         type=float,
         default=1.0,
         help="top_p sent to chat/completions.",
     )
     parser.add_argument(
-        "--target-longest-image-dim",
+        "--target_longest_image_dim",
         type=int,
         default=1024,
         help="Longest rendered page image dimension in pixels.",
     )
     parser.add_argument(
-        "--prompt-template",
+        "--prompt_template",
         default=DEFAULT_PROMPT_TEMPLATE,
         help="Prompt template. Supports {width} and {height} placeholders.",
     )
     parser.add_argument(
-        "--text-prefix",
+        "--text_prefix",
         default=DEFAULT_TEXT_PREFIX,
         help="Text prefix prepended before the final SVG prompt.",
     )
@@ -575,7 +575,7 @@ def main() -> int:
         logging.error("--concurrency must be >= 1")
         return 1
     if args.max_page_retries < 1:
-        logging.error("--max-page-retries must be >= 1")
+        logging.error("--max_page_retries must be >= 1")
         return 1
 
     missing_tools = check_external_tools()

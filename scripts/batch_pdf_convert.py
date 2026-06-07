@@ -10,8 +10,8 @@ and tees merged stdout/stderr to `<output-md-path>.log`.
 
 Examples:
   pixi run -e default python scripts/batch_pdf_convert.py pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --dry-run pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve-dirs pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --dry_run pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
 """
 
 from __future__ import annotations
@@ -48,7 +48,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "-o",
-        "--output-dir",
+        "--output_dir",
         default="md",
         help="Directory for generated Markdown files. Default: md.",
     )
@@ -58,25 +58,25 @@ def parse_args() -> argparse.Namespace:
         help="Find PDF files recursively under input directories.",
     )
     parser.add_argument(
-        "--preserve-dirs",
+        "--preserve_dirs",
         action="store_true",
         help=(
             "When used with a directory input, preserve relative subdirectories "
-            "under --output-dir."
+            "under --output_dir."
         ),
     )
     parser.add_argument(
-        "--skip-existing",
+        "--skip_existing",
         action="store_true",
         help="Skip PDFs whose output Markdown file already exists.",
     )
     parser.add_argument(
-        "--fail-fast",
+        "--fail_fast",
         action="store_true",
         help="Stop after the first failed converter command.",
     )
     parser.add_argument(
-        "--dry-run",
+        "--dry_run",
         action="store_true",
         help="Print planned commands without running them.",
     )
@@ -164,7 +164,7 @@ def build_tasks(
     if collisions:
         lines = [
             "Multiple PDFs would write to the same Markdown output. "
-            "Use --preserve-dirs or rename inputs."
+            "Use --preserve_dirs or rename inputs."
         ]
         for output_path, first_pdf, second_pdf in collisions[:10]:
             lines.append(f"  {output_path}: {first_pdf} and {second_pdf}")

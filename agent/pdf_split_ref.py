@@ -6,8 +6,8 @@ Shared workflow guidance is documented in agent/README.md.
 
 Examples:
   pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.p1-2.pdf --pages 1-2
-  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --per-page-dir debug_agent/demo_pages --pages 1,3,5-6
-  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.z0-2.pdf --pages 0-2 --zero-based
+  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf --per_page_dir debug_agent/demo_pages --pages 1,3,5-6
+  pixi run -e default python agent/pdf_split_ref.py agent/demo.pdf -o debug_agent/demo.z0-2.pdf --pages 0-2 --zero_based
 
 Notes:
   - Subset outputs default to debug_agent/<stem>.subset.pdf when --output is omitted.
@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help=(
             "Merged output PDF path. Default: debug_agent/<stem>.subset.pdf "
-            "(unless --per-page-dir is set and --output is omitted)."
+            "(unless --per_page_dir is set and --output is omitted)."
         ),
     )
     parser.add_argument(
@@ -49,16 +49,16 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help=(
             "Page selector list, comma separated. Example: 1,3,5-7,10-. "
-            "Use --zero-based to interpret indices from 0."
+            "Use --zero_based to interpret indices from 0."
         ),
     )
     parser.add_argument(
-        "--per-page-dir",
+        "--per_page_dir",
         default=None,
         help="Optional output directory for one PDF per selected page.",
     )
     parser.add_argument(
-        "--zero-based",
+        "--zero_based",
         action="store_true",
         help="Interpret page indices as zero-based.",
     )
@@ -250,7 +250,7 @@ def main() -> int:
                 logging.debug("[pdf_split] per-page file -> %s", path)
 
         if merged_output is None and args.per_page_dir is None:
-            raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
+            raise SystemExit("Nothing to write, set --output and/or --per_page_dir.")
 
         logging.info(
             "[pdf_split] input=%s selected_pages=%s total_pages=%s",

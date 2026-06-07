@@ -3,7 +3,7 @@
 
 Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf
-  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start-page 0 --end-page 1
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start_page 0 --end_page 1
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
 
 Notes:
@@ -76,13 +76,13 @@ def parse_args() -> argparse.Namespace:
         help="Output markdown path. Defaults to md/<input-stem>.p<start>-<end>.paper_xyz.md.",
     )
     parser.add_argument(
-        "--start-page",
+        "--start_page",
         type=int,
         default=0,
         help="First PDF page number to process, 0-based and inclusive. Default: 0.",
     )
     parser.add_argument(
-        "--end-page",
+        "--end_page",
         type=int,
         default=None,
         help="Last PDF page number to process, 0-based and inclusive. Default: last page.",
@@ -96,7 +96,7 @@ def parse_args() -> argparse.Namespace:
         "--model", default=DEFAULT_MODEL, help="Model name sent in the API payload."
     )
     parser.add_argument(
-        "--api-key",
+        "--api_key",
         default=None,
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
     )
@@ -110,19 +110,19 @@ def parse_args() -> argparse.Namespace:
         help="Maximum number of pages processed concurrently.",
     )
     parser.add_argument(
-        "--max-page-retries",
+        "--max_page_retries",
         type=int,
         default=8,
         help="Maximum attempts per page, including rotation correction retries.",
     )
     parser.add_argument(
-        "--max-tokens",
+        "--max_tokens",
         type=int,
         default=8000,
         help="Token limit sent to chat/completions.",
     )
     parser.add_argument(
-        "--token-param",
+        "--token_param",
         default="max_tokens",
         choices=("max_tokens", "max_completion_tokens"),
         help="Name of the token-limit request field. Default: max_tokens.",
@@ -130,25 +130,25 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--temperature", type=float, default=0.0, help="Sampling temperature."
     )
-    parser.add_argument("--top-p", type=float, default=None, help="Optional top_p.")
-    parser.add_argument("--top-k", type=int, default=None, help="Optional top_k.")
+    parser.add_argument("--top_p", type=float, default=None, help="Optional top_p.")
+    parser.add_argument("--top_k", type=int, default=None, help="Optional top_k.")
     parser.add_argument(
-        "--frequency-penalty",
+        "--frequency_penalty",
         type=float,
         default=0.0,
         help="Optional frequency_penalty.",
     )
     parser.add_argument(
-        "--presence-penalty", type=float, default=0.0, help="Optional presence_penalty."
+        "--presence_penalty", type=float, default=0.0, help="Optional presence_penalty."
     )
     parser.add_argument(
-        "--repetition-penalty",
+        "--repetition_penalty",
         type=float,
         default=None,
         help="Optional repetition_penalty when supported by the backend.",
     )
     parser.add_argument(
-        "--target-longest-image-dim",
+        "--target_longest_image_dim",
         type=int,
         default=1288,
         help="Longest rendered page image dimension in pixels.",
@@ -159,7 +159,7 @@ def parse_args() -> argparse.Namespace:
         help="Prompt text. Defaults to paper_xyz's Markdown prompt.",
     )
     parser.add_argument(
-        "--prompt-file", default=None, help="Read prompt text from a file."
+        "--prompt_file", default=None, help="Read prompt text from a file."
     )
     parser.add_argument(
         "--verbose",
