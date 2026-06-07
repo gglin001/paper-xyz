@@ -92,4 +92,6 @@ XDG_DATA_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.data"
 XDG_CACHE_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.cache"
 
 # https://github.com/ggml-org/llama.cpp/releases
-PATH = "${PIXI_PROJECT_ROOT}/debug_agent/llama:${PATH}"
+PAPER_XYZ_PATH_0 = "${PIXI_PROJECT_ROOT}/debug_agent/llama"
+PAPER_XYZ_PATH_1 = "${PIXI_PROJECT_ROOT}/dot.home/.data/pnpm/bin"
+PATH = "${PAPER_XYZ_PATH_0}:${PAPER_XYZ_PATH_1}:${PATH}"
