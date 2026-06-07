@@ -34,7 +34,6 @@ class ConversionConfig:
     presence_penalty: float = 0.0
     repetition_penalty: float | None = None
     target_longest_image_dim: int = 1288
-    guided_decoding: bool = False
 
     def __post_init__(self) -> None:
         if self.concurrency < 1:
@@ -182,7 +181,6 @@ class PdfToMarkdownConverter:
             frequency_penalty=self.config.frequency_penalty,
             presence_penalty=self.config.presence_penalty,
             repetition_penalty=self.config.repetition_penalty,
-            guided_decoding=self.config.guided_decoding,
         )
 
 

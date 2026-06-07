@@ -6,7 +6,6 @@ from typing import Any
 import httpx
 
 from paper_xyz.parsing import extract_message_text
-from paper_xyz.prompts import GUIDED_FRONT_MATTER_REGEX
 from paper_xyz.types import RenderedPage, TokenUsage
 
 
@@ -23,7 +22,6 @@ class ChatRequestConfig:
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
     repetition_penalty: float | None = None
-    guided_decoding: bool = False
 
 
 def build_chat_payload(
@@ -55,9 +53,6 @@ def build_chat_payload(
         payload["presence_penalty"] = config.presence_penalty
     if config.repetition_penalty is not None:
         payload["repetition_penalty"] = config.repetition_penalty
-    if config.guided_decoding:
-        payload["guided_regex"] = GUIDED_FRONT_MATTER_REGEX
-
     return payload
 
 

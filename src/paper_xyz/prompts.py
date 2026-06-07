@@ -25,12 +25,3 @@ Rules:
 - If no readable text exists, use null for primary_language and leave the Markdown body empty.
 - Do not invent content that is not visible on the page.
 """
-
-GUIDED_FRONT_MATTER_REGEX = (
-    r"---\nprimary_language: (?:[a-z]{2}|null)\n"
-    r"is_rotation_valid: (?:true|false|True|False)\n"
-    r"rotation_correction: (?:0|90|180|270)\n"
-    r"is_table: (?:true|false|True|False)\n"
-    r"is_diagram: (?:true|false|True|False)\n"
-    r"---(?:\n[\s\S]*)?"
-)

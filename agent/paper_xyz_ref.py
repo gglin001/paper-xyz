@@ -4,7 +4,7 @@
 Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start-page 0 --end-page 1
-  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8 --guided-decoding
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
 
 Notes:
   - Uses the focused implementation in src/paper_xyz.
@@ -162,11 +162,6 @@ def parse_args() -> argparse.Namespace:
         "--prompt-file", default=None, help="Read prompt text from a file."
     )
     parser.add_argument(
-        "--guided-decoding",
-        action="store_true",
-        help="Attach paper_xyz's front-matter guided regex to the request body.",
-    )
-    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -194,7 +189,6 @@ def build_config(args: argparse.Namespace) -> ConversionConfig:
         presence_penalty=args.presence_penalty,
         repetition_penalty=args.repetition_penalty,
         target_longest_image_dim=args.target_longest_image_dim,
-        guided_decoding=args.guided_decoding,
     )
 
 

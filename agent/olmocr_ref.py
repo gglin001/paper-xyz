@@ -4,7 +4,7 @@
 Examples:
   pixi run -e default python agent/olmocr_ref.py agent/demo.pdf
   pixi run -e default python agent/olmocr_ref.py agent/demo.pdf --start-page 0 --end-page 1
-  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf -o md/demo.olmocr.md --concurrency 8 --guided-decoding
+  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf -o md/demo.olmocr.md --concurrency 8
 
 Notes:
   - Uses olmocr's page render, prompt, and front matter parser, but calls a remote
@@ -39,14 +39,6 @@ HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
 DEFAULT_MODEL = "OCR"
 DEFAULT_PROMPT = build_no_anchoring_v4_yaml_prompt()
-GUIDED_REGEX = (
-    r"---\nprimary_language: (?:[a-z]{2}|null)\n"
-    r"is_rotation_valid: (?:True|False|true|false)\n"
-    r"rotation_correction: (?:0|90|180|270)\n"
-    r"is_table: (?:True|False|true|false)\n"
-    r"is_diagram: (?:True|False|true|false)\n"
-    r"(?:---|---\n[\s\S]+)"
-)
 LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
@@ -208,7 +200,6 @@ async def build_request_payload(
     repetition_penalty: float | None,
     target_longest_image_dim: int,
     rotation: int,
-    guided_decoding: bool,
 ) -> dict[str, Any]:
     image_base64 = await asyncio.to_thread(
         render_pdf_to_base64png,
@@ -245,8 +236,6 @@ async def build_request_payload(
         payload["presence_penalty"] = presence_penalty
     if repetition_penalty is not None:
         payload["repetition_penalty"] = repetition_penalty
-    if guided_decoding:
-        payload["guided_regex"] = GUIDED_REGEX
     return payload
 
 
@@ -271,7 +260,6 @@ async def request_page_once(
         repetition_penalty=args.repetition_penalty,
         target_longest_image_dim=args.target_longest_image_dim,
         rotation=rotation,
-        guided_decoding=args.guided_decoding,
     )
     response = await client.post(args.api, json=payload)
     response.raise_for_status()
@@ -524,11 +512,6 @@ def parse_args() -> argparse.Namespace:
         "--prompt",
         default=DEFAULT_PROMPT,
         help="Prompt text. Default is olmocr's no-anchoring v4 YAML prompt.",
-    )
-    parser.add_argument(
-        "--guided-decoding",
-        action="store_true",
-        help="Attach olmocr's guided regex to the request body.",
     )
     parser.add_argument(
         "--verbose",
