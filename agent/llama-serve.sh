@@ -3,6 +3,10 @@ set -euo pipefail
 
 # llama-server --help
 
+# for cuda devices
+# CUDA_VISIBLE_DEVICES = "0"
+# CUDA_DEVICE_ORDER = "PCI_BUS_ID"
+
 args=(
   #
   # -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
