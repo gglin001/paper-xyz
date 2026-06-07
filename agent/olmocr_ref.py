@@ -2,7 +2,8 @@
 """olmocr reference CLI script, VLM API mode only.
 
 Examples:
-  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf -o md/demo.olmocr.md
+  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf
+  pixi run -e default python agent/olmocr_ref.py agent/demo.pdf --start-page 0 --end-page 1
   pixi run -e default python agent/olmocr_ref.py agent/demo.pdf -o md/demo.olmocr.md --concurrency 8 --guided-decoding
 
 Notes:
@@ -66,8 +67,8 @@ def configure_logging(verbose: int) -> None:
         logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
 
 
-def default_output_path(input_path: Path) -> Path:
-    return Path("md") / f"{input_path.stem}.olmocr.md"
+def default_output_path(input_path: Path, start_page: int, end_page: int) -> Path:
+    return Path("md") / f"{input_path.stem}.p{start_page}-{end_page}.olmocr.md"
 
 
 def rotate_base64_png(image_base64: str, rotation: int) -> str:
@@ -150,6 +151,31 @@ def get_num_pages(input_path: Path) -> int:
     return len(reader.pages)
 
 
+def resolve_page_range(args: argparse.Namespace, page_count: int) -> tuple[int, int]:
+    if page_count < 1:
+        raise ValueError("Input PDF has no pages.")
+
+    start_page = args.start_page
+    end_page = args.end_page if args.end_page is not None else page_count - 1
+
+    if start_page < 0:
+        raise ValueError("--start-page must be >= 0")
+    if end_page < 0:
+        raise ValueError("--end-page must be >= 0")
+    if start_page > end_page:
+        raise ValueError("--start-page must be <= --end-page")
+    if start_page >= page_count:
+        raise ValueError(
+            f"--start-page {start_page} is out of bounds, valid range is 0..{page_count - 1}"
+        )
+    if end_page >= page_count:
+        raise ValueError(
+            f"--end-page {end_page} is out of bounds, valid range is 0..{page_count - 1}"
+        )
+
+    return start_page, end_page
+
+
 def check_external_tools() -> list[str]:
     required_tools = ("pdfinfo", "pdftoppm")
     return [tool for tool in required_tools if shutil.which(tool) is None]
@@ -179,7 +205,7 @@ async def build_request_payload(
     image_base64 = await asyncio.to_thread(
         render_pdf_to_base64png,
         str(input_path),
-        page_num,
+        page_num + 1,
         target_longest_image_dim,
     )
     image_base64 = await asyncio.to_thread(rotate_base64_png, image_base64, rotation)
@@ -326,7 +352,6 @@ async def convert_page(
 async def convert_pdf(
     args: argparse.Namespace, input_path: Path
 ) -> tuple[str, list[PageConversion]]:
-    page_count = get_num_pages(input_path)
     semaphore = asyncio.Semaphore(args.concurrency)
     api_key = parse_api_key(args.api_key)
     headers = {"Authorization": f"Bearer {api_key}"} if api_key else None
@@ -346,7 +371,7 @@ async def convert_pdf(
 
         tasks = [
             asyncio.create_task(run_page(page_num))
-            for page_num in range(1, page_count + 1)
+            for page_num in range(args.start_page, args.end_page + 1)
         ]
         results = await asyncio.gather(*tasks)
 
@@ -370,7 +395,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output",
         "-o",
-        help="Output markdown path. Defaults to md/<input-stem>.olmocr.md.",
+        help="Output markdown path. Defaults to md/<input-stem>.p<start>-<end>.olmocr.md.",
+    )
+    parser.add_argument(
+        "--start-page",
+        type=int,
+        default=0,
+        help="First PDF page number to process, 0-based and inclusive. Default: 0.",
+    )
+    parser.add_argument(
+        "--end-page",
+        type=int,
+        default=None,
+        help=(
+            "Last PDF page number to process, 0-based and inclusive. "
+            "Default: last page."
+        ),
     )
     parser.add_argument(
         "--api",
@@ -467,10 +507,17 @@ def main() -> int:
         logging.error("Input file not found: %s", input_path)
         return 1
 
+    try:
+        page_count = get_num_pages(input_path)
+        args.start_page, args.end_page = resolve_page_range(args, page_count)
+    except Exception as exc:
+        logging.error("%s", exc)
+        return 1
+
     output_path = (
         Path(args.output).resolve()
         if args.output
-        else default_output_path(input_path).resolve()
+        else default_output_path(input_path, args.start_page, args.end_page).resolve()
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -497,6 +544,12 @@ def main() -> int:
 
     logging.info("[olmocr] input=%s", input_path)
     logging.info("[olmocr] output=%s", output_path)
+    logging.info(
+        "[olmocr] page_range=%s-%s total_pages=%s",
+        args.start_page,
+        args.end_page,
+        page_count,
+    )
     logging.info(
         "[olmocr] pages=%s chars=%s prompt_tokens=%s completion_tokens=%s total_time=%.2fs",
         len(page_results),
