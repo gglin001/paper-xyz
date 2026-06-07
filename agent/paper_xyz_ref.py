@@ -5,6 +5,8 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start_page 0 --end_page 1
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
+  pixi run -e default python agent/paper_xyz_ref.py --list_model_services
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr --api http://127.0.0.1:8000/v1/chat/completions
 
 Notes:
   - Uses the focused implementation in src/paper_xyz.
@@ -23,13 +25,17 @@ from pathlib import Path
 
 import httpx
 
-from paper_xyz import DEFAULT_MARKDOWN_PROMPT, ConversionConfig, PdfToMarkdownConverter
+from paper_xyz import (
+    DEFAULT_API,
+    DEFAULT_MODEL_SERVICE,
+    ConversionConfig,
+    PdfToMarkdownConverter,
+    iter_model_service_profiles,
+)
 from paper_xyz.converter import summarize_results
 from paper_xyz.pdf import get_page_count, resolve_page_range
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
-DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
-DEFAULT_MODEL = "OCR"
 LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
 
@@ -52,12 +58,20 @@ def parse_api_key(arg_value: str | None) -> str | None:
     return None
 
 
-def read_prompt(args: argparse.Namespace) -> str:
+def format_model_services() -> str:
+    lines = ["Available model services:"]
+    for profile in iter_model_service_profiles():
+        lines.append(f"  {profile.name}: model={profile.model}")
+        lines.append(f"    {profile.description}")
+    return "\n".join(lines)
+
+
+def read_prompt(args: argparse.Namespace) -> str | None:
     if args.prompt_file:
         return Path(args.prompt_file).read_text(encoding="utf-8")
     if args.prompt:
         return args.prompt
-    return DEFAULT_MARKDOWN_PROMPT
+    return None
 
 
 def parse_args() -> argparse.Namespace:
@@ -69,7 +83,16 @@ def parse_args() -> argparse.Namespace:
         epilog=HELP_EPILOG or None,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
-    parser.add_argument("input", help="Input PDF path. Example: agent/demo.pdf.")
+    parser.add_argument(
+        "input",
+        nargs="?",
+        help="Input PDF path. Example: agent/demo.pdf.",
+    )
+    parser.add_argument(
+        "--list_model_services",
+        action="store_true",
+        help="List built-in model service presets and exit.",
+    )
     parser.add_argument(
         "--output",
         "-o",
@@ -93,7 +116,17 @@ def parse_args() -> argparse.Namespace:
         help="OpenAI-compatible /v1/chat/completions URL.",
     )
     parser.add_argument(
-        "--model", default=DEFAULT_MODEL, help="Model name sent in the API payload."
+        "--model_service",
+        default=DEFAULT_MODEL_SERVICE,
+        help=(
+            "Built-in model service preset. Default: "
+            f"{DEFAULT_MODEL_SERVICE}. Use --list_model_services to inspect presets."
+        ),
+    )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Override the model name sent in the API payload.",
     )
     parser.add_argument(
         "--api_key",
@@ -116,38 +149,6 @@ def parse_args() -> argparse.Namespace:
         help="Maximum attempts per page, including rotation correction retries.",
     )
     parser.add_argument(
-        "--max_tokens",
-        type=int,
-        default=8000,
-        help="Token limit sent to chat/completions.",
-    )
-    parser.add_argument(
-        "--token_param",
-        default="max_tokens",
-        choices=("max_tokens", "max_completion_tokens"),
-        help="Name of the token-limit request field. Default: max_tokens.",
-    )
-    parser.add_argument(
-        "--temperature", type=float, default=0.0, help="Sampling temperature."
-    )
-    parser.add_argument("--top_p", type=float, default=None, help="Optional top_p.")
-    parser.add_argument("--top_k", type=int, default=None, help="Optional top_k.")
-    parser.add_argument(
-        "--frequency_penalty",
-        type=float,
-        default=0.0,
-        help="Optional frequency_penalty.",
-    )
-    parser.add_argument(
-        "--presence_penalty", type=float, default=0.0, help="Optional presence_penalty."
-    )
-    parser.add_argument(
-        "--repetition_penalty",
-        type=float,
-        default=None,
-        help="Optional repetition_penalty when supported by the backend.",
-    )
-    parser.add_argument(
         "--target_longest_image_dim",
         type=int,
         default=1288,
@@ -156,7 +157,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--prompt",
         default=None,
-        help="Prompt text. Defaults to paper_xyz's Markdown prompt.",
+        help="Prompt text. Defaults to the selected model service prompt.",
     )
     parser.add_argument(
         "--prompt_file", default=None, help="Read prompt text from a file."
@@ -168,32 +169,32 @@ def parse_args() -> argparse.Namespace:
         default=0,
         help="Set the verbosity level. -v for info logging, -vv for debug logging.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not args.input and not args.list_model_services:
+        parser.error("input is required unless --list_model_services is used")
+    return args
 
 
 def build_config(args: argparse.Namespace) -> ConversionConfig:
     return ConversionConfig(
         api_url=args.api,
+        model_service=args.model_service,
         model=args.model,
         api_key=parse_api_key(args.api_key),
         prompt=read_prompt(args),
         timeout=args.timeout,
         concurrency=args.concurrency,
         max_page_retries=args.max_page_retries,
-        max_tokens=args.max_tokens,
-        token_param=args.token_param,
-        temperature=args.temperature,
-        top_p=args.top_p,
-        top_k=args.top_k,
-        frequency_penalty=args.frequency_penalty,
-        presence_penalty=args.presence_penalty,
-        repetition_penalty=args.repetition_penalty,
         target_longest_image_dim=args.target_longest_image_dim,
     )
 
 
 def main() -> int:
     args = parse_args()
+    if args.list_model_services:
+        print(format_model_services())
+        return 0
+
     configure_logging(args.verbose)
 
     input_path = Path(args.input).resolve()

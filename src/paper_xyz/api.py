@@ -5,6 +5,7 @@ from typing import Any
 
 import httpx
 
+from paper_xyz.model_services import ImagePlacement, TokenParam
 from paper_xyz.parsing import extract_message_text
 from paper_xyz.types import RenderedPage, TokenUsage
 
@@ -15,34 +16,46 @@ class ChatRequestConfig:
     model: str
     prompt: str
     max_tokens: int = 8000
-    token_param: str = "max_tokens"
-    temperature: float = 0.0
+    token_param: TokenParam = "max_tokens"
+    temperature: float | None = 0.0
     top_p: float | None = None
     top_k: int | None = None
-    frequency_penalty: float = 0.0
-    presence_penalty: float = 0.0
+    frequency_penalty: float | None = None
+    presence_penalty: float | None = None
     repetition_penalty: float | None = None
+    image_placement: ImagePlacement = "after_text"
+    text_prefix: str = ""
+    text_suffix: str = ""
+    system_prompt: str | None = None
 
 
 def build_chat_payload(
     page: RenderedPage,
     config: ChatRequestConfig,
 ) -> dict[str, Any]:
+    text_part = {
+        "type": "text",
+        "text": f"{config.text_prefix}{config.prompt}{config.text_suffix}",
+    }
+    image_part = {"type": "image_url", "image_url": {"url": page.data_uri}}
+    if config.image_placement == "before_text":
+        user_content = [image_part, text_part]
+    else:
+        user_content = [text_part, image_part]
+
+    messages: list[dict[str, Any]] = []
+    if config.system_prompt:
+        messages.append({"role": "system", "content": config.system_prompt})
+    messages.append({"role": "user", "content": user_content})
+
     payload: dict[str, Any] = {
         "model": config.model,
-        "messages": [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": config.prompt},
-                    {"type": "image_url", "image_url": {"url": page.data_uri}},
-                ],
-            }
-        ],
-        "temperature": config.temperature,
+        "messages": messages,
     }
     payload[config.token_param] = config.max_tokens
 
+    if config.temperature is not None:
+        payload["temperature"] = config.temperature
     if config.top_p is not None:
         payload["top_p"] = config.top_p
     if config.top_k is not None:

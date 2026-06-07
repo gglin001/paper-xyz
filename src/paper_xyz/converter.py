@@ -8,40 +8,113 @@ from pathlib import Path
 import httpx
 
 from paper_xyz.api import ChatRequestConfig, request_chat_completion
+from paper_xyz.model_services import (
+    ImagePlacement,
+    TokenParam,
+    get_model_service_profile,
+)
 from paper_xyz.parsing import parse_page_response
 from paper_xyz.pdf import render_page_png
-from paper_xyz.prompts import DEFAULT_MARKDOWN_PROMPT
 from paper_xyz.types import PageResult
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
+DEFAULT_MODEL_SERVICE = "zai-org/GLM-OCR"
+
 
 @dataclass(frozen=True, slots=True)
 class ConversionConfig:
-    api_url: str
-    model: str = "OCR"
+    api_url: str = DEFAULT_API
+    model: str | None = None
+    model_service: str = DEFAULT_MODEL_SERVICE
     api_key: str | None = None
-    prompt: str = DEFAULT_MARKDOWN_PROMPT
+    prompt: str | None = None
     timeout: float = 120.0
     concurrency: int = 4
     max_page_retries: int = 8
-    max_tokens: int = 8000
-    token_param: str = "max_tokens"
-    temperature: float = 0.0
+    max_tokens: int | None = None
+    token_param: TokenParam | None = None
+    temperature: float | None = None
     top_p: float | None = None
     top_k: int | None = None
-    frequency_penalty: float = 0.0
-    presence_penalty: float = 0.0
+    frequency_penalty: float | None = None
+    presence_penalty: float | None = None
     repetition_penalty: float | None = None
+    image_placement: ImagePlacement | None = None
+    text_prefix: str | None = None
+    text_suffix: str | None = None
+    system_prompt: str | None = None
     target_longest_image_dim: int = 1288
 
     def __post_init__(self) -> None:
+        request_config = self.to_chat_request_config()
         if self.concurrency < 1:
             raise ValueError("concurrency must be >= 1")
         if self.max_page_retries < 1:
             raise ValueError("max_page_retries must be >= 1")
-        if self.max_tokens < 1:
+        if request_config.max_tokens < 1:
             raise ValueError("max_tokens must be >= 1")
+        if self.target_longest_image_dim < 1:
+            raise ValueError("target_longest_image_dim must be >= 1")
+
+    def to_chat_request_config(self) -> ChatRequestConfig:
+        profile = get_model_service_profile(self.model_service)
+        return ChatRequestConfig(
+            api_url=self.api_url,
+            model=self.model if self.model is not None else profile.model,
+            prompt=self.prompt if self.prompt is not None else profile.prompt,
+            max_tokens=(
+                self.max_tokens if self.max_tokens is not None else profile.max_tokens
+            ),
+            token_param=(
+                self.token_param
+                if self.token_param is not None
+                else profile.token_param
+            ),
+            temperature=(
+                self.temperature
+                if self.temperature is not None
+                else profile.temperature
+            ),
+            top_p=self.top_p if self.top_p is not None else profile.top_p,
+            top_k=self.top_k if self.top_k is not None else profile.top_k,
+            frequency_penalty=(
+                self.frequency_penalty
+                if self.frequency_penalty is not None
+                else profile.frequency_penalty
+            ),
+            presence_penalty=(
+                self.presence_penalty
+                if self.presence_penalty is not None
+                else profile.presence_penalty
+            ),
+            repetition_penalty=(
+                self.repetition_penalty
+                if self.repetition_penalty is not None
+                else profile.repetition_penalty
+            ),
+            image_placement=(
+                self.image_placement
+                if self.image_placement is not None
+                else profile.image_placement
+            ),
+            text_prefix=(
+                self.text_prefix
+                if self.text_prefix is not None
+                else profile.text_prefix
+            ),
+            text_suffix=(
+                self.text_suffix
+                if self.text_suffix is not None
+                else profile.text_suffix
+            ),
+            system_prompt=(
+                self.system_prompt
+                if self.system_prompt is not None
+                else profile.system_prompt
+            ),
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -169,19 +242,7 @@ class PdfToMarkdownConverter:
         raise RuntimeError(f"conversion failed for page {page_index}: {last_error}")
 
     def _request_config(self) -> ChatRequestConfig:
-        return ChatRequestConfig(
-            api_url=self.config.api_url,
-            model=self.config.model,
-            prompt=self.config.prompt,
-            max_tokens=self.config.max_tokens,
-            token_param=self.config.token_param,
-            temperature=self.config.temperature,
-            top_p=self.config.top_p,
-            top_k=self.config.top_k,
-            frequency_penalty=self.config.frequency_penalty,
-            presence_penalty=self.config.presence_penalty,
-            repetition_penalty=self.config.repetition_penalty,
-        )
+        return self.config.to_chat_request_config()
 
 
 def build_document_markdown(page_results: list[PageResult]) -> str:
