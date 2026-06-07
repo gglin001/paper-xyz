@@ -17,7 +17,7 @@ import argparse
 import logging
 from pathlib import Path
 
-import fitz
+import pymupdf
 
 LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
 
@@ -68,7 +68,7 @@ def main() -> None:
     output_dir = Path(args.output_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    with fitz.open(str(input_path)) as doc:
+    with pymupdf.open(str(input_path)) as doc:
         for index, page in enumerate(doc):
             output_path = output_dir / f"{input_path.stem}-{index}.png"
             page.get_pixmap(dpi=args.dpi, alpha=False).save(str(output_path))

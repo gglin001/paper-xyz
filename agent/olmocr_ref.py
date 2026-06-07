@@ -29,11 +29,11 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import pymupdf
 from olmocr.data.renderpdf import render_pdf_to_base64png
 from olmocr.prompts import PageResponse, build_no_anchoring_v4_yaml_prompt
 from olmocr.train.front_matter import FrontMatterParser
 from PIL import Image
-from pypdf import PdfReader
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 DEFAULT_API = "http://127.0.0.1:11235/v1/chat/completions"
@@ -147,8 +147,11 @@ def build_markdown(page_results: list[PageConversion]) -> str:
 
 
 def get_num_pages(input_path: Path) -> int:
-    reader = PdfReader(str(input_path))
-    return len(reader.pages)
+    document = pymupdf.open(input_path)
+    try:
+        return document.page_count
+    finally:
+        document.close()
 
 
 def resolve_page_range(args: argparse.Namespace, page_count: int) -> tuple[int, int]:

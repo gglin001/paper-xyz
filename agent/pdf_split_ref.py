@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reference PDF splitter using pypdf.
+"""Reference PDF splitter using PyMuPDF.
 
 Use this helper to extract selected pages into a subset PDF.
 Shared workflow guidance is documented in agent/README.md.
@@ -19,7 +19,7 @@ import argparse
 import logging
 from pathlib import Path
 
-from pypdf import PdfReader, PdfWriter
+import pymupdf
 
 HELP_EPILOG = "\n".join((__doc__ or "").strip().splitlines()[2:]).strip()
 LOG_FORMAT = "%(asctime)s\t%(levelname)s\t%(name)s: %(message)s"
@@ -144,46 +144,73 @@ def parse_pages_spec(spec: str, *, total_pages: int, zero_based: bool) -> list[i
     return resolved
 
 
+def copy_pages_to_document(
+    source: pymupdf.Document,
+    page_indexes: list[int],
+) -> pymupdf.Document:
+    output = pymupdf.open()
+    for index in page_indexes:
+        output.insert_pdf(source, from_page=index, to_page=index)
+    return output
+
+
+def source_metadata(source: pymupdf.Document) -> dict[str, str]:
+    return {
+        key: str(value)
+        for key, value in source.metadata.items()
+        if key and value is not None
+    }
+
+
 def write_subset_pdf(
-    reader: PdfReader,
+    source: pymupdf.Document,
     page_indexes: list[int],
     output_path: Path,
 ) -> None:
-    writer = PdfWriter()
-    for index in page_indexes:
-        writer.add_page(reader.pages[index])
-    if reader.metadata:
-        metadata = {
-            k: str(v) for k, v in reader.metadata.items() if k and v is not None
-        }
-        if metadata:
-            writer.add_metadata(metadata)
-
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with output_path.open("wb") as handle:
-        writer.write(handle)
+    output = copy_pages_to_document(source, page_indexes)
+    try:
+        metadata = source_metadata(source)
+        if metadata:
+            output.set_metadata(metadata)
+        output.save(output_path)
+    finally:
+        output.close()
 
 
 def write_per_page_pdfs(
-    reader: PdfReader,
+    source: pymupdf.Document,
     page_indexes: list[int],
     output_dir: Path,
     *,
     stem: str,
 ) -> list[Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    total_digits = max(4, len(str(len(reader.pages))))
+    total_digits = max(4, len(str(source.page_count)))
     outputs: list[Path] = []
 
     for index in page_indexes:
         page_number = index + 1
         output = output_dir / f"{stem}.p{page_number:0{total_digits}d}.pdf"
-        writer = PdfWriter()
-        writer.add_page(reader.pages[index])
-        with output.open("wb") as handle:
-            writer.write(handle)
+        page_doc = copy_pages_to_document(source, [index])
+        try:
+            page_doc.save(output)
+        finally:
+            page_doc.close()
         outputs.append(output)
     return outputs
+
+
+def open_input_pdf(input_path: Path, password: str | None) -> pymupdf.Document:
+    document = pymupdf.open(input_path)
+    if document.needs_pass:
+        if not password:
+            document.close()
+            raise SystemExit("PDF is encrypted. Provide --password.")
+        if document.authenticate(password) == 0:
+            document.close()
+            raise SystemExit("Incorrect password for encrypted PDF.")
+    return document
 
 
 def main() -> int:
@@ -193,50 +220,46 @@ def main() -> int:
     if not input_path.exists():
         raise SystemExit(f"Input PDF not found: {input_path}")
 
-    reader = PdfReader(str(input_path))
-    if reader.is_encrypted:
-        if not args.password:
-            raise SystemExit("PDF is encrypted. Provide --password.")
-        decrypt_status = reader.decrypt(args.password)
-        if decrypt_status == 0:
-            raise SystemExit("Incorrect password for encrypted PDF.")
-
-    page_indexes = parse_pages_spec(
-        args.pages,
-        total_pages=len(reader.pages),
-        zero_based=args.zero_based,
-    )
-
-    merged_output: Path | None = None
-    if args.output:
-        merged_output = Path(args.output)
-    elif args.per_page_dir is None:
-        merged_output = Path("debug_agent") / f"{input_path.stem}.subset.pdf"
-
-    if merged_output is not None:
-        write_subset_pdf(reader, page_indexes, merged_output)
-        logging.info("[pdf_split] merged output -> %s", merged_output)
-
-    if args.per_page_dir is not None:
-        per_page_outputs = write_per_page_pdfs(
-            reader,
-            page_indexes,
-            Path(args.per_page_dir),
-            stem=input_path.stem,
+    document = open_input_pdf(input_path, args.password)
+    try:
+        page_indexes = parse_pages_spec(
+            args.pages,
+            total_pages=document.page_count,
+            zero_based=args.zero_based,
         )
-        logging.info("[pdf_split] per-page output dir -> %s", args.per_page_dir)
-        for path in per_page_outputs:
-            logging.debug("[pdf_split] per-page file -> %s", path)
 
-    if merged_output is None and args.per_page_dir is None:
-        raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
+        merged_output: Path | None = None
+        if args.output:
+            merged_output = Path(args.output)
+        elif args.per_page_dir is None:
+            merged_output = Path("debug_agent") / f"{input_path.stem}.subset.pdf"
 
-    logging.info(
-        "[pdf_split] input=%s selected_pages=%s total_pages=%s",
-        input_path,
-        len(page_indexes),
-        len(reader.pages),
-    )
+        if merged_output is not None:
+            write_subset_pdf(document, page_indexes, merged_output)
+            logging.info("[pdf_split] merged output -> %s", merged_output)
+
+        if args.per_page_dir is not None:
+            per_page_outputs = write_per_page_pdfs(
+                document,
+                page_indexes,
+                Path(args.per_page_dir),
+                stem=input_path.stem,
+            )
+            logging.info("[pdf_split] per-page output dir -> %s", args.per_page_dir)
+            for path in per_page_outputs:
+                logging.debug("[pdf_split] per-page file -> %s", path)
+
+        if merged_output is None and args.per_page_dir is None:
+            raise SystemExit("Nothing to write, set --output and/or --per-page-dir.")
+
+        logging.info(
+            "[pdf_split] input=%s selected_pages=%s total_pages=%s",
+            input_path,
+            len(page_indexes),
+            document.page_count,
+        )
+    finally:
+        document.close()
     return 0
 
 
