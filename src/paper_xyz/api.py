@@ -10,6 +10,14 @@ from paper_xyz.parsing import extract_message_text
 from paper_xyz.types import RenderedPage, TokenUsage
 
 
+class NonRetryableChatResponseError(ValueError):
+    """Raised when the API returned a complete response shape that retries cannot fix."""
+
+    def __init__(self, message: str, *, usage: TokenUsage | None = None) -> None:
+        super().__init__(message)
+        self.usage = usage or TokenUsage()
+
+
 @dataclass(frozen=True, slots=True)
 class ChatRequestConfig:
     api_url: str
@@ -98,9 +106,10 @@ async def request_chat_completion(
 
     finish_reason = choice.get("finish_reason")
     if finish_reason not in config.accepted_finish_reasons:
-        raise ValueError(
+        raise NonRetryableChatResponseError(
             f"Page {page.page_index} finish_reason={finish_reason} "
             f"prompt_tokens={usage.prompt_tokens} "
-            f"completion_tokens={usage.completion_tokens} output_chars={len(text)}"
+            f"completion_tokens={usage.completion_tokens} output_chars={len(text)}",
+            usage=usage,
         )
     return text, usage

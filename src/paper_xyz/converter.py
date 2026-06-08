@@ -7,7 +7,11 @@ from pathlib import Path
 
 import httpx
 
-from paper_xyz.api import ChatRequestConfig, request_chat_completion
+from paper_xyz.api import (
+    ChatRequestConfig,
+    NonRetryableChatResponseError,
+    request_chat_completion,
+)
 from paper_xyz.model_services import get_model_service_profile
 from paper_xyz.parsing import parse_page_response
 from paper_xyz.pdf import render_page_image
@@ -130,11 +134,14 @@ class PdfToMarkdownConverter:
         last_error: Exception | None = None
         last_image_width = 0
         last_image_height = 0
+        last_usage = TokenUsage()
+        attempts_used = 0
         cumulative_rotation = 0
         request_config = self._request_config()
         response_parser = self.config.response_parser()
 
         for attempt in range(1, self.config.max_page_retries + 1):
+            attempts_used = attempt
             try:
                 rendered_page = await asyncio.to_thread(
                     render_page_image,
@@ -195,6 +202,16 @@ class PdfToMarkdownConverter:
                     correction,
                     cumulative_rotation,
                 )
+            except NonRetryableChatResponseError as exc:
+                last_error = exc
+                last_usage = exc.usage
+                logger.warning(
+                    "page=%s attempt=%s failed without retry: %s",
+                    page_index,
+                    attempt,
+                    format_exception(exc),
+                )
+                break
             except (httpx.HTTPError, ValueError) as exc:
                 last_error = exc
                 logger.warning(
@@ -217,16 +234,18 @@ class PdfToMarkdownConverter:
         if self.config.allow_page_failures:
             error = format_exception(last_error)
             logger.error(
-                "page=%s exhausted retries, keeping failed-page placeholder: %s",
+                "page=%s attempts=%s keeping failed-page placeholder: %s",
                 page_index,
+                attempts_used,
                 error,
             )
             return build_failed_page_result(
                 page_index=page_index,
-                attempts=self.config.max_page_retries,
+                attempts=attempts_used,
                 applied_rotation=cumulative_rotation,
                 image_width=last_image_width,
                 image_height=last_image_height,
+                usage=last_usage,
                 error=error,
             )
 
@@ -255,6 +274,7 @@ def build_failed_page_result(
     applied_rotation: int,
     image_width: int,
     image_height: int,
+    usage: TokenUsage,
     error: str,
 ) -> PageResult:
     return PageResult(
@@ -272,7 +292,7 @@ def build_failed_page_result(
             error=error,
         ),
         raw_response="",
-        usage=TokenUsage(),
+        usage=usage,
         attempts=attempts,
         applied_rotation=applied_rotation,
         image_width=image_width,
