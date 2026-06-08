@@ -124,6 +124,26 @@ DOTS_LAYOUT_JSON_PROMPT = """Please output the layout information from the PDF i
 5. Final Output: The entire output must be a single JSON object.
 """
 
+DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT = """Please output the layout information from the PDF image, including each layout element's bbox, its category, and the corresponding text content within the bbox.
+
+1. Bbox format: [x1, y1, x2, y2]
+
+2. Layout Categories: The possible categories are ['Caption', 'Footnote', 'Formula', 'List-item', 'Page-footer', 'Page-header', 'Picture', 'Section-header', 'Table', 'Text', 'Title'].
+
+3. Text Extraction & Formatting Rules:
+    - Picture: For structured visual content such as figures, charts, diagrams, logos, UI layouts, or other graphics, include a `svg` field containing self-contained SVG code for the visual content inside the bbox. The SVG must start with <svg> and end with </svg>. Use single quotes for SVG attributes when possible so the SVG remains valid inside a JSON string. If SVG cannot be produced for the Picture, omit both the `svg` and `text` fields.
+    - Formula: Format its text as LaTeX.
+    - Table: Format its text as HTML.
+    - All Others (Text, Title, etc.): Format their text as Markdown.
+
+4. Constraints:
+    - The output text must be the original text from the image, with no translation.
+    - All layout elements must be sorted according to human reading order.
+    - The output must be valid JSON. Escape any double quotes that appear inside SVG strings.
+
+5. Final Output: The entire output must be a single JSON object.
+"""
+
 DEEPSEEK_OCR_MARKDOWN_PROMPT = """Convert the document to markdown.
 """
 

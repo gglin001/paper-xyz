@@ -6,8 +6,9 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start_page 0 --end_page 1
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
   pixi run -e default python agent/paper_xyz_ref.py --list_model_services
-  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr --api http://127.0.0.1:8000/v1/chat/completions
-  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2 --api http://127.0.0.1:8000/v1/chat/completions
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr-svg
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2
 
 Notes:
   - Uses the focused implementation in src/paper_xyz.

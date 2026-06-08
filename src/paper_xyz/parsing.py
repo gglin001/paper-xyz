@@ -259,6 +259,11 @@ def layout_cells_to_markdown(cells: list[dict[str, Any]]) -> str:
         text = clean_cell_text(cell.get("text", cell.get("content", "")))
 
         if category == "Picture":
+            svg = extract_svg_from_cell(cell)
+            if svg:
+                chunks.append(svg)
+                continue
+
             placeholder = picture_placeholder(cell)
             if placeholder:
                 chunks.append(placeholder)
@@ -272,6 +277,73 @@ def layout_cells_to_markdown(cells: list[dict[str, Any]]) -> str:
             chunks.append(text)
 
     return "\n\n".join(chunks).strip()
+
+
+def extract_svg_from_cell(cell: dict[str, Any]) -> str | None:
+    for key in (
+        "svg",
+        "svg_code",
+        "image_svg",
+        "picture_svg",
+        "text",
+        "content",
+        "html",
+        "markdown",
+    ):
+        svg = extract_svg_from_value(cell.get(key))
+        if svg:
+            return svg
+    return None
+
+
+def extract_svg_from_value(value: Any) -> str | None:
+    if isinstance(value, str):
+        return extract_svg_fragment(value)
+    if isinstance(value, dict):
+        for nested in value.values():
+            svg = extract_svg_from_value(nested)
+            if svg:
+                return svg
+    if isinstance(value, list):
+        for item in value:
+            svg = extract_svg_from_value(item)
+            if svg:
+                return svg
+    return None
+
+
+def extract_svg_fragment(text: str) -> str | None:
+    candidate = strip_outer_code_fence(text).strip()
+    if candidate.lower().startswith("svg:"):
+        candidate = candidate[4:].strip()
+
+    full_match = re.search(r"<svg\b[^>]*>.*?</svg>", candidate, re.DOTALL | re.I)
+    if full_match:
+        return full_match.group(0).strip()
+
+    partial_match = re.search(r"<svg\b[^>]*>.*", candidate, re.DOTALL | re.I)
+    if partial_match:
+        return close_svg_fragment(partial_match.group(0)).strip()
+    return None
+
+
+def close_svg_fragment(svg: str) -> str:
+    tag_names = re.findall(r"<([a-zA-Z][\w:-]*)\b[^>/]*>", svg)
+    closed_names = re.findall(r"</([a-zA-Z][\w:-]*)\s*>", svg)
+    if not tag_names or tag_names[0].lower() != "svg":
+        return svg
+
+    open_stack = [name for name in tag_names]
+    for name in closed_names:
+        lower_name = name.lower()
+        while open_stack and open_stack[-1].lower() != lower_name:
+            open_stack.pop()
+        if open_stack:
+            open_stack.pop()
+
+    while open_stack:
+        svg += f"</{open_stack.pop()}>"
+    return svg
 
 
 def clean_cell_text(value: Any) -> str:

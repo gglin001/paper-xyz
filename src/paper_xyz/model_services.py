@@ -8,6 +8,7 @@ from paper_xyz.prompts import (
     DEEPSEEK_OCR_MARKDOWN_PROMPT,
     DEFAULT_MARKDOWN_PROMPT,
     DOTS_LAYOUT_JSON_PROMPT,
+    DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT,
     FIRERED_OCR_MARKDOWN_PROMPT,
     GLM_OCR_MARKDOWN_PROMPT,
 )
@@ -52,6 +53,21 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         description="dots.mocr OpenAI-compatible VLM service defaults.",
         model="rednote-hilab/dots.mocr",
         prompt=DOTS_LAYOUT_JSON_PROMPT,
+        response_parser="dots_layout_json",
+        max_tokens=32768,
+        token_param="max_completion_tokens",
+        temperature=0.1,
+        top_p=0.9,
+        text_prefix="<|img|><|imgpad|><|endofimg|>",
+    ),
+    "rednote-hilab/dots.mocr-svg": ModelServiceProfile(
+        name="rednote-hilab/dots.mocr-svg",
+        description=(
+            "dots.mocr-svg OpenAI-compatible VLM service defaults for layout "
+            "OCR with SVG code in Picture cells."
+        ),
+        model="rednote-hilab/dots.mocr-svg",
+        prompt=DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT,
         response_parser="dots_layout_json",
         max_tokens=32768,
         token_param="max_completion_tokens",
