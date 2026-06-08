@@ -11,7 +11,13 @@ from paper_xyz.api import ChatRequestConfig, request_chat_completion
 from paper_xyz.model_services import get_model_service_profile
 from paper_xyz.parsing import parse_page_response
 from paper_xyz.pdf import render_page_image
-from paper_xyz.types import ImageRenderProfile, PageResult, ResponseParser
+from paper_xyz.types import (
+    ImageRenderProfile,
+    PageMetadata,
+    PageResult,
+    ResponseParser,
+    TokenUsage,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +33,7 @@ class ConversionConfig:
     timeout: float = 120.0
     concurrency: int = 4
     max_page_retries: int = 8
+    allow_page_failures: bool = True
 
     def __post_init__(self) -> None:
         request_config = self.to_chat_request_config()
@@ -66,6 +73,7 @@ class ConversionConfig:
 @dataclass(frozen=True, slots=True)
 class ConversionStats:
     pages: int
+    failed_pages: int
     chars: int
     prompt_tokens: int
     completion_tokens: int
@@ -120,6 +128,8 @@ class PdfToMarkdownConverter:
     ) -> PageResult:
         last_result: PageResult | None = None
         last_error: Exception | None = None
+        last_image_width = 0
+        last_image_height = 0
         cumulative_rotation = 0
         request_config = self._request_config()
         response_parser = self.config.response_parser()
@@ -133,6 +143,8 @@ class PdfToMarkdownConverter:
                     profile=self.config.image_render_profile(),
                     rotation=cumulative_rotation,
                 )
+                last_image_width = rendered_page.width
+                last_image_height = rendered_page.height
                 logger.info(
                     "page=%s attempt=%s requesting model=%s image=%sx%s mime=%s rotation=%s",
                     page_index,
@@ -202,6 +214,22 @@ class PdfToMarkdownConverter:
             )
             return last_result
 
+        if self.config.allow_page_failures:
+            error = format_exception(last_error)
+            logger.error(
+                "page=%s exhausted retries, keeping failed-page placeholder: %s",
+                page_index,
+                error,
+            )
+            return build_failed_page_result(
+                page_index=page_index,
+                attempts=self.config.max_page_retries,
+                applied_rotation=cumulative_rotation,
+                image_width=last_image_width,
+                image_height=last_image_height,
+                error=error,
+            )
+
         raise RuntimeError(
             f"conversion failed for page {page_index}: {format_exception(last_error)}"
         )
@@ -220,6 +248,49 @@ def build_document_markdown(page_results: list[PageResult]) -> str:
     return f"{markdown}\n" if markdown else ""
 
 
+def build_failed_page_result(
+    *,
+    page_index: int,
+    attempts: int,
+    applied_rotation: int,
+    image_width: int,
+    image_height: int,
+    error: str,
+) -> PageResult:
+    return PageResult(
+        page_index=page_index,
+        metadata=PageMetadata(
+            primary_language=None,
+            is_rotation_valid=True,
+            rotation_correction=0,
+            is_table=False,
+            is_diagram=False,
+        ),
+        markdown=failed_page_markdown(
+            page_index=page_index,
+            attempts=attempts,
+            error=error,
+        ),
+        raw_response="",
+        usage=TokenUsage(),
+        attempts=attempts,
+        applied_rotation=applied_rotation,
+        image_width=image_width,
+        image_height=image_height,
+        error=error,
+    )
+
+
+def failed_page_markdown(*, page_index: int, attempts: int, error: str) -> str:
+    safe_error = " ".join(error.split()).replace("--", "- -")
+    return (
+        "<!-- "
+        f"paper_xyz: page_index={page_index} pdf_page={page_index + 1} "
+        f"conversion_failed_after_attempts={attempts} error={safe_error}"
+        " -->"
+    )
+
+
 def format_exception(exc: Exception | None) -> str:
     if exc is None:
         return "unknown error"
@@ -230,6 +301,7 @@ def format_exception(exc: Exception | None) -> str:
 def summarize_results(markdown: str, page_results: list[PageResult]) -> ConversionStats:
     return ConversionStats(
         pages=len(page_results),
+        failed_pages=sum(1 for page in page_results if page.error is not None),
         chars=len(markdown),
         prompt_tokens=sum(page.usage.prompt_tokens for page in page_results),
         completion_tokens=sum(page.usage.completion_tokens for page in page_results),

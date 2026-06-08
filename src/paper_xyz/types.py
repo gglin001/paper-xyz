@@ -101,3 +101,4 @@ class PageResult:
     applied_rotation: int
     image_width: int
     image_height: int
+    error: str | None = None

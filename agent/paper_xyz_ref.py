@@ -14,6 +14,8 @@ Notes:
   - Uses the focused implementation in src/paper_xyz.
   - Renders PDF pages locally with PyMuPDF and calls an OpenAI-compatible
     `chat/completions` endpoint page by page.
+  - A page that exhausts retries is kept as a Markdown placeholder by default;
+    use --fail_fast to restore all-or-nothing behavior.
   - The CLI exposes only shared runtime controls. Model-specific defaults live
     in src/paper_xyz/model_services.py.
 """
@@ -28,7 +30,6 @@ import time
 from pathlib import Path
 
 import httpx
-
 from paper_xyz import (
     DEFAULT_API,
     DEFAULT_MODEL_SERVICE,
@@ -142,6 +143,14 @@ def parse_args() -> argparse.Namespace:
         help="Maximum attempts per page.",
     )
     parser.add_argument(
+        "--fail_fast",
+        action="store_true",
+        help=(
+            "Exit non-zero when any page exhausts retries. By default, failed "
+            "pages are kept as Markdown placeholders so successful pages are written."
+        ),
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -162,6 +171,7 @@ def build_config(args: argparse.Namespace) -> ConversionConfig:
         timeout=args.timeout,
         concurrency=args.concurrency,
         max_page_retries=args.max_page_retries,
+        allow_page_failures=not args.fail_fast,
     )
 
 
@@ -226,13 +236,22 @@ def main() -> int:
         "[paper_xyz] page_range=%s-%s total_pages=%s", start_page, end_page, page_count
     )
     logging.info(
-        "[paper_xyz] pages=%s chars=%s prompt_tokens=%s completion_tokens=%s total_time=%.2fs",
+        "[paper_xyz] pages=%s failed_pages=%s chars=%s prompt_tokens=%s completion_tokens=%s total_time=%.2fs",
         stats.pages,
+        stats.failed_pages,
         stats.chars,
         stats.prompt_tokens,
         stats.completion_tokens,
         elapsed,
     )
+    failed_page_indexes = [
+        str(page.page_index) for page in page_results if page.error is not None
+    ]
+    if failed_page_indexes:
+        logging.warning(
+            "[paper_xyz] failed_page_indexes=%s",
+            ",".join(failed_page_indexes),
+        )
     return 0
 
 
