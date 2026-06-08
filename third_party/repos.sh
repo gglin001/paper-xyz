@@ -3,7 +3,7 @@ pushd third_party
 git clone git@github.com:deepseek-ai/DeepSeek-OCR.git
 git clone git@github.com:FireRedTeam/FireRed-OCR.git
 git clone git@github.com:zai-org/GLM-OCR.git
-git clone git@github.com:opendatalab/MinerU.git
+# git clone git@github.com:opendatalab/MinerU.git
 git clone git@github.com:opendatalab/OmniDocBench.git
 git clone git@github.com:pymupdf/PyMuPDF.git
 git clone git@github.com:datalab-to/chandra.git
