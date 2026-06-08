@@ -7,11 +7,14 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
   pixi run -e default python agent/paper_xyz_ref.py --list_model_services
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr --api http://127.0.0.1:8000/v1/chat/completions
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2 --api http://127.0.0.1:8000/v1/chat/completions
 
 Notes:
   - Uses the focused implementation in src/paper_xyz.
   - Renders PDF pages locally with PyMuPDF and calls an OpenAI-compatible
     `chat/completions` endpoint page by page.
+  - The CLI exposes only shared runtime controls. Model-specific defaults live
+    in src/paper_xyz/model_services.py.
 """
 
 from __future__ import annotations
@@ -61,17 +64,11 @@ def parse_api_key(arg_value: str | None) -> str | None:
 def format_model_services() -> str:
     lines = ["Available model services:"]
     for profile in iter_model_service_profiles():
-        lines.append(f"  {profile.name}: model={profile.model}")
+        lines.append(
+            f"  {profile.name}: model={profile.model} parser={profile.response_parser}"
+        )
         lines.append(f"    {profile.description}")
     return "\n".join(lines)
-
-
-def read_prompt(args: argparse.Namespace) -> str | None:
-    if args.prompt_file:
-        return Path(args.prompt_file).read_text(encoding="utf-8")
-    if args.prompt:
-        return args.prompt
-    return None
 
 
 def parse_args() -> argparse.Namespace:
@@ -124,11 +121,6 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
-        "--model",
-        default=None,
-        help="Override the model name sent in the API payload.",
-    )
-    parser.add_argument(
         "--api_key",
         default=None,
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
@@ -149,20 +141,6 @@ def parse_args() -> argparse.Namespace:
         help="Maximum attempts per page.",
     )
     parser.add_argument(
-        "--target_longest_image_dim",
-        type=int,
-        default=1288,
-        help="Longest rendered page image dimension in pixels.",
-    )
-    parser.add_argument(
-        "--prompt",
-        default=None,
-        help="Prompt text. Defaults to the selected model service prompt.",
-    )
-    parser.add_argument(
-        "--prompt_file", default=None, help="Read prompt text from a file."
-    )
-    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -179,13 +157,10 @@ def build_config(args: argparse.Namespace) -> ConversionConfig:
     return ConversionConfig(
         api_url=args.api,
         model_service=args.model_service,
-        model=args.model,
         api_key=parse_api_key(args.api_key),
-        prompt=read_prompt(args),
         timeout=args.timeout,
         concurrency=args.concurrency,
         max_page_retries=args.max_page_retries,
-        target_longest_image_dim=args.target_longest_image_dim,
     )
 
 

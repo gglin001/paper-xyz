@@ -4,6 +4,8 @@ import json
 import re
 from typing import Any
 
+from bs4 import BeautifulSoup
+
 from paper_xyz.types import PageMetadata, ResponseParser
 
 FRONT_MATTER_RE = re.compile(
@@ -37,6 +39,8 @@ def parse_page_response(
         return parse_markdown_response(text)
     if response_parser == "dots_layout_json":
         return parse_dots_layout_json_response(text)
+    if response_parser == "chandra_html":
+        return parse_chandra_html_response(text)
     raise ValueError(f"Unsupported response_parser: {response_parser}")
 
 
@@ -65,6 +69,124 @@ def parse_dots_layout_json_response(text: str) -> tuple[PageMetadata, str]:
 
     markdown = layout_cells_to_markdown(cells)
     return layout_metadata(cells), markdown
+
+
+def parse_chandra_html_response(text: str) -> tuple[PageMetadata, str]:
+    html = strip_outer_code_fence(text).strip()
+    if not html:
+        return default_metadata(""), ""
+
+    soup = BeautifulSoup(html, "html.parser")
+    metadata = chandra_html_metadata(soup)
+    content_html = chandra_content_html(soup)
+    if not content_html:
+        return metadata, ""
+
+    try:
+        markdown = chandra_html_to_markdown(content_html)
+    except Exception:
+        markdown = normalize_markdown_body(content_html)
+
+    if not markdown.strip():
+        markdown = normalize_markdown_body(content_html)
+    return metadata, normalize_markdown_body(markdown)
+
+
+def chandra_content_html(
+    soup: Any,
+    *,
+    include_headers_footers: bool = False,
+    include_images: bool = True,
+) -> str:
+    top_level_divs = soup.find_all("div", recursive=False)
+    if not top_level_divs:
+        return str(soup)
+
+    chunks: list[str] = []
+    for div in top_level_divs:
+        label = str(div.get("data-label", "") or "").strip()
+
+        if label == "Blank-Page":
+            continue
+        if not include_headers_footers and label in {"Page-Header", "Page-Footer"}:
+            continue
+        if not include_images and label in {"Image", "Figure"}:
+            continue
+
+        if label in {"Image", "Figure"}:
+            for img in div.find_all("img"):
+                if not img.get("src"):
+                    img["src"] = ""
+        else:
+            for img in div.find_all("img"):
+                if not img.get("src"):
+                    img.decompose()
+
+        strip_chandra_layout_attrs(div)
+        chunk = str(div.decode_contents()).strip()
+        if chunk:
+            chunks.append(chunk)
+
+    return "\n\n".join(chunks)
+
+
+def strip_chandra_layout_attrs(node: Any) -> None:
+    for attr in ("data-bbox", "data-label"):
+        node.attrs.pop(attr, None)
+    for tag in node.find_all(True):
+        for attr in ("data-bbox", "data-label"):
+            tag.attrs.pop(attr, None)
+
+
+def chandra_html_to_markdown(html: str) -> str:
+    from markdownify import MarkdownConverter
+
+    class ChandraMarkdownConverter(MarkdownConverter):
+        def convert_math(self, el: Any, text: str, parent_tags: Any) -> str:
+            math = text.strip()
+            if not math:
+                return ""
+            if el.has_attr("display") and el["display"] == "block":
+                return f"\n\n$$\n{math}\n$$\n\n"
+            return f" ${math}$ "
+
+        def convert_table(self, el: Any, text: str, parent_tags: Any) -> str:
+            return f"\n\n{el}\n\n"
+
+    converter = ChandraMarkdownConverter(
+        heading_style="ATX",
+        bullets="-",
+        escape_misc=False,
+        escape_underscores=True,
+        escape_asterisks=True,
+    )
+    return converter.convert(html).strip()
+
+
+def chandra_html_metadata(soup: Any) -> PageMetadata:
+    labels = [
+        str(div.get("data-label", "") or "").strip()
+        for div in soup.find_all("div", recursive=False)
+    ]
+    content_labels = [
+        label
+        for label in labels
+        if label and label not in {"Page-Header", "Page-Footer", "Blank-Page"}
+    ]
+    table_count = sum(label == "Table" for label in content_labels)
+    diagram_count = sum(
+        label in {"Image", "Figure", "Diagram"} for label in content_labels
+    )
+    content_count = len(content_labels)
+    is_table = table_count > 0 and table_count >= max(1, content_count // 2)
+    is_diagram = diagram_count > 0 and diagram_count >= max(1, content_count // 2)
+    return PageMetadata(
+        primary_language=None,
+        is_rotation_valid=True,
+        rotation_correction=0,
+        is_table=is_table,
+        is_diagram=is_diagram,
+    )
 
 
 def extract_layout_cells(text: str) -> list[dict[str, Any]] | None:

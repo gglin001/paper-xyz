@@ -22,14 +22,11 @@ DEFAULT_MODEL_SERVICE = "zai-org/GLM-OCR"
 @dataclass(frozen=True, slots=True)
 class ConversionConfig:
     api_url: str = DEFAULT_API
-    model: str | None = None
     model_service: str = DEFAULT_MODEL_SERVICE
     api_key: str | None = None
-    prompt: str | None = None
     timeout: float = 120.0
     concurrency: int = 4
     max_page_retries: int = 8
-    target_longest_image_dim: int = 1288
 
     def __post_init__(self) -> None:
         request_config = self.to_chat_request_config()
@@ -39,15 +36,15 @@ class ConversionConfig:
             raise ValueError("max_page_retries must be >= 1")
         if request_config.max_tokens < 1:
             raise ValueError("max_tokens must be >= 1")
-        if self.target_longest_image_dim < 1:
+        if self.target_longest_image_dim() < 1:
             raise ValueError("target_longest_image_dim must be >= 1")
 
     def to_chat_request_config(self) -> ChatRequestConfig:
         profile = get_model_service_profile(self.model_service)
         return ChatRequestConfig(
             api_url=self.api_url,
-            model=self.model if self.model is not None else profile.model,
-            prompt=self.prompt if self.prompt is not None else profile.prompt,
+            model=profile.model,
+            prompt=profile.prompt,
             max_tokens=profile.max_tokens,
             token_param=profile.token_param,
             temperature=profile.temperature,
@@ -60,6 +57,9 @@ class ConversionConfig:
 
     def response_parser(self) -> ResponseParser:
         return get_model_service_profile(self.model_service).response_parser
+
+    def target_longest_image_dim(self) -> int:
+        return get_model_service_profile(self.model_service).target_longest_image_dim
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +129,7 @@ class PdfToMarkdownConverter:
                     render_page_png,
                     pdf_path,
                     page_index,
-                    target_longest_image_dim=self.config.target_longest_image_dim,
+                    target_longest_image_dim=self.config.target_longest_image_dim(),
                     rotation=cumulative_rotation,
                 )
                 raw_response, usage = await request_chat_completion(

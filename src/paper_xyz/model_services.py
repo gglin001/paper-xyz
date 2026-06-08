@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from paper_xyz.prompts import (
+    CHANDRA_OCR_LAYOUT_PROMPT,
     DEEPSEEK_OCR_MARKDOWN_PROMPT,
     DEFAULT_MARKDOWN_PROMPT,
     DOTS_LAYOUT_JSON_PROMPT,
@@ -30,6 +31,7 @@ class ModelServiceProfile:
     repetition_penalty: float | None = None
     image_first: bool = True
     text_prefix: str = ""
+    target_longest_image_dim: int = 1288
 
 
 MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
@@ -99,6 +101,20 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         response_parser="markdown",
         max_tokens=8192,
         temperature=0.0,
+    ),
+    "datalab-to/chandra-ocr-2": ModelServiceProfile(
+        name="datalab-to/chandra-ocr-2",
+        description=(
+            "Chandra OCR 2 vLLM service defaults from third_party/chandra. "
+            "The official vLLM launcher serves the model as 'chandra'."
+        ),
+        model="chandra",
+        prompt=CHANDRA_OCR_LAYOUT_PROMPT,
+        response_parser="chandra_html",
+        max_tokens=12384,
+        temperature=0.0,
+        top_p=0.1,
+        target_longest_image_dim=2240,
     ),
 }
 

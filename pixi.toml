@@ -38,9 +38,12 @@ bubblewrap = ">=0.11.2,<0.12"
 
 [pypi-dependencies]
 paper_xyz = { path = ".", editable = true }
+ty-extensions = ">=0.1.0, <0.2"
+
 requests = ">=2.34.2, <3"
 httpx = ">=0.28.1, <0.29"
-ty-extensions = ">=0.1.0, <0.2"
+bs4 = ">=0.0.2, <0.0.3"
+
 # https://github.com/py-pdf/pypdf
 pypdf = ">=6.12.2, <7"
 # https://github.com/pymupdf/PyMuPDF

@@ -6,7 +6,7 @@ git clone git@github.com:zai-org/GLM-OCR.git
 git clone git@github.com:opendatalab/MinerU.git
 git clone git@github.com:opendatalab/OmniDocBench.git
 git clone git@github.com:pymupdf/PyMuPDF.git
-# git clone git@github.com:datalab-to/chandra.git
+git clone git@github.com:datalab-to/chandra.git
 # git clone git@github.com:docling-project/docling.git
 # git clone git@github.com:docling-project/docling-core.git
 # git clone git@github.com:DCC-BS/docling-glm-ocr.git
