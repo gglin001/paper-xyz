@@ -23,6 +23,12 @@ class ChatRequestConfig:
     repetition_penalty: float | None = None
     image_first: bool = True
     text_prefix: str = ""
+    accepted_finish_reasons: tuple[str | None, ...] = (None, "stop", "end_turn")
+
+    def prompt_for_page(self, page: RenderedPage) -> str:
+        return self.prompt.replace("{width}", str(page.width)).replace(
+            "{height}", str(page.height)
+        )
 
 
 def build_chat_payload(
@@ -31,7 +37,7 @@ def build_chat_payload(
 ) -> dict[str, Any]:
     text_part = {
         "type": "text",
-        "text": f"{config.text_prefix}{config.prompt}",
+        "text": f"{config.text_prefix}{config.prompt_for_page(page)}",
     }
     image_part = {"type": "image_url", "image_url": {"url": page.data_uri}}
     if config.image_first:
@@ -81,15 +87,17 @@ async def request_chat_completion(
     if not text.strip():
         raise ValueError(f"Page {page.page_index} response content is empty")
 
-    finish_reason = choice.get("finish_reason")
-    if finish_reason not in (None, "stop", "end_turn"):
-        raise ValueError(
-            f"Page {page.page_index} finish_reason={finish_reason} output_chars={len(text)}"
-        )
-
     usage_data = data.get("usage") if isinstance(data.get("usage"), dict) else {}
     usage = TokenUsage(
         prompt_tokens=int(usage_data.get("prompt_tokens", 0) or 0),
         completion_tokens=int(usage_data.get("completion_tokens", 0) or 0),
     )
+
+    finish_reason = choice.get("finish_reason")
+    if finish_reason not in config.accepted_finish_reasons:
+        raise ValueError(
+            f"Page {page.page_index} finish_reason={finish_reason} "
+            f"prompt_tokens={usage.prompt_tokens} "
+            f"completion_tokens={usage.completion_tokens} output_chars={len(text)}"
+        )
     return text, usage

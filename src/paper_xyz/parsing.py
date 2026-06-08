@@ -41,6 +41,8 @@ def parse_page_response(
         return parse_dots_layout_json_response(text)
     if response_parser == "chandra_html":
         return parse_chandra_html_response(text)
+    if response_parser == "svg":
+        return parse_svg_response(text)
     raise ValueError(f"Unsupported response_parser: {response_parser}")
 
 
@@ -90,6 +92,12 @@ def parse_chandra_html_response(text: str) -> tuple[PageMetadata, str]:
     if not markdown.strip():
         markdown = normalize_markdown_body(content_html)
     return metadata, normalize_markdown_body(markdown)
+
+
+def parse_svg_response(text: str) -> tuple[PageMetadata, str]:
+    svg = extract_svg_fragment(text)
+    body = svg if svg else normalize_markdown_body(text)
+    return default_metadata(body), body
 
 
 def chandra_content_html(

@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-ResponseParser = Literal["markdown", "dots_layout_json", "chandra_html"]
+ResponseParser = Literal["markdown", "dots_layout_json", "chandra_html", "svg"]
 
 
 @dataclass(frozen=True, slots=True)

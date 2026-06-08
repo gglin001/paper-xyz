@@ -53,6 +53,7 @@ class ConversionConfig:
             repetition_penalty=profile.repetition_penalty,
             image_first=profile.image_first,
             text_prefix=profile.text_prefix,
+            accepted_finish_reasons=profile.accepted_finish_reasons,
         )
 
     def response_parser(self) -> ResponseParser:
@@ -132,6 +133,15 @@ class PdfToMarkdownConverter:
                     target_longest_image_dim=self.config.target_longest_image_dim(),
                     rotation=cumulative_rotation,
                 )
+                logger.info(
+                    "page=%s attempt=%s requesting model=%s image=%sx%s rotation=%s",
+                    page_index,
+                    attempt,
+                    request_config.model,
+                    rendered_page.width,
+                    rendered_page.height,
+                    cumulative_rotation,
+                )
                 raw_response, usage = await request_chat_completion(
                     client, rendered_page, request_config
                 )
@@ -175,7 +185,10 @@ class PdfToMarkdownConverter:
             except (httpx.HTTPError, ValueError) as exc:
                 last_error = exc
                 logger.warning(
-                    "page=%s attempt=%s failed: %s", page_index, attempt, exc
+                    "page=%s attempt=%s failed: %s",
+                    page_index,
+                    attempt,
+                    format_exception(exc),
                 )
 
             if attempt < self.config.max_page_retries:
@@ -188,7 +201,9 @@ class PdfToMarkdownConverter:
             )
             return last_result
 
-        raise RuntimeError(f"conversion failed for page {page_index}: {last_error}")
+        raise RuntimeError(
+            f"conversion failed for page {page_index}: {format_exception(last_error)}"
+        )
 
     def _request_config(self) -> ChatRequestConfig:
         return self.config.to_chat_request_config()
@@ -202,6 +217,13 @@ def build_document_markdown(page_results: list[PageResult]) -> str:
     ]
     markdown = "\n\n".join(chunks).strip()
     return f"{markdown}\n" if markdown else ""
+
+
+def format_exception(exc: Exception | None) -> str:
+    if exc is None:
+        return "unknown error"
+    message = str(exc).strip()
+    return f"{type(exc).__name__}: {message}" if message else type(exc).__name__
 
 
 def summarize_results(markdown: str, page_results: list[PageResult]) -> ConversionStats:

@@ -7,8 +7,8 @@ from paper_xyz.prompts import (
     CHANDRA_OCR_LAYOUT_PROMPT,
     DEEPSEEK_OCR_MARKDOWN_PROMPT,
     DEFAULT_MARKDOWN_PROMPT,
+    DOTS_IMAGE_TO_SVG_PROMPT,
     DOTS_LAYOUT_JSON_PROMPT,
-    DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT,
     FIRERED_OCR_MARKDOWN_PROMPT,
     GLM_OCR_MARKDOWN_PROMPT,
 )
@@ -33,6 +33,7 @@ class ModelServiceProfile:
     image_first: bool = True
     text_prefix: str = ""
     target_longest_image_dim: int = 1288
+    accepted_finish_reasons: tuple[str | None, ...] = (None, "stop", "end_turn")
 
 
 MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
@@ -63,17 +64,18 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
     "rednote-hilab/dots.mocr-svg": ModelServiceProfile(
         name="rednote-hilab/dots.mocr-svg",
         description=(
-            "dots.mocr-svg OpenAI-compatible VLM service defaults for layout "
-            "OCR with SVG code in Picture cells."
+            "dots.mocr-svg OpenAI-compatible VLM service defaults for image-to-SVG "
+            "parsing."
         ),
         model="rednote-hilab/dots.mocr-svg",
-        prompt=DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT,
-        response_parser="dots_layout_json",
+        prompt=DOTS_IMAGE_TO_SVG_PROMPT,
+        response_parser="svg",
         max_tokens=32768,
         token_param="max_completion_tokens",
-        temperature=0.1,
-        top_p=0.9,
+        temperature=0.9,
+        top_p=1.0,
         text_prefix="<|img|><|imgpad|><|endofimg|>",
+        accepted_finish_reasons=(None, "stop", "end_turn", "length"),
     ),
     "rednote-hilab/dots.ocr-1.5": ModelServiceProfile(
         name="rednote-hilab/dots.ocr-1.5",

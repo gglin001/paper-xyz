@@ -144,6 +144,10 @@ DOTS_LAYOUT_JSON_WITH_PICTURE_SVG_PROMPT = """Please output the layout informati
 5. Final Output: The entire output must be a single JSON object.
 """
 
+DOTS_IMAGE_TO_SVG_PROMPT = (
+    'Please generate the SVG code based on the image.viewBox="0 0 {width} {height}"'
+)
+
 DEEPSEEK_OCR_MARKDOWN_PROMPT = """Convert the document to markdown.
 """
 
