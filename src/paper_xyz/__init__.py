@@ -15,7 +15,13 @@ from paper_xyz.model_services import (
     supported_model_services,
 )
 from paper_xyz.prompts import DEFAULT_MARKDOWN_PROMPT
-from paper_xyz.types import PageMetadata, PageResult, RenderedPage, TokenUsage
+from paper_xyz.types import (
+    ImageRenderProfile,
+    PageMetadata,
+    PageResult,
+    RenderedPage,
+    TokenUsage,
+)
 
 __all__ = [
     "ConversionConfig",
@@ -23,6 +29,7 @@ __all__ = [
     "DEFAULT_API",
     "DEFAULT_MARKDOWN_PROMPT",
     "DEFAULT_MODEL_SERVICE",
+    "ImageRenderProfile",
     "ModelServiceProfile",
     "PageMetadata",
     "PageResult",

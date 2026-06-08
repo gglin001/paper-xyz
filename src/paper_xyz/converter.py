@@ -10,8 +10,8 @@ import httpx
 from paper_xyz.api import ChatRequestConfig, request_chat_completion
 from paper_xyz.model_services import get_model_service_profile
 from paper_xyz.parsing import parse_page_response
-from paper_xyz.pdf import render_page_png
-from paper_xyz.types import PageResult, ResponseParser
+from paper_xyz.pdf import render_page_image
+from paper_xyz.types import ImageRenderProfile, PageResult, ResponseParser
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +36,7 @@ class ConversionConfig:
             raise ValueError("max_page_retries must be >= 1")
         if request_config.max_tokens < 1:
             raise ValueError("max_tokens must be >= 1")
-        if self.target_longest_image_dim() < 1:
-            raise ValueError("target_longest_image_dim must be >= 1")
+        self.image_render_profile()
 
     def to_chat_request_config(self) -> ChatRequestConfig:
         profile = get_model_service_profile(self.model_service)
@@ -51,6 +50,7 @@ class ConversionConfig:
             top_p=profile.top_p,
             top_k=profile.top_k,
             repetition_penalty=profile.repetition_penalty,
+            extra_body=dict(profile.extra_body),
             image_first=profile.image_first,
             text_prefix=profile.text_prefix,
             accepted_finish_reasons=profile.accepted_finish_reasons,
@@ -59,8 +59,8 @@ class ConversionConfig:
     def response_parser(self) -> ResponseParser:
         return get_model_service_profile(self.model_service).response_parser
 
-    def target_longest_image_dim(self) -> int:
-        return get_model_service_profile(self.model_service).target_longest_image_dim
+    def image_render_profile(self) -> ImageRenderProfile:
+        return get_model_service_profile(self.model_service).render_profile()
 
 
 @dataclass(frozen=True, slots=True)
@@ -127,19 +127,20 @@ class PdfToMarkdownConverter:
         for attempt in range(1, self.config.max_page_retries + 1):
             try:
                 rendered_page = await asyncio.to_thread(
-                    render_page_png,
+                    render_page_image,
                     pdf_path,
                     page_index,
-                    target_longest_image_dim=self.config.target_longest_image_dim(),
+                    profile=self.config.image_render_profile(),
                     rotation=cumulative_rotation,
                 )
                 logger.info(
-                    "page=%s attempt=%s requesting model=%s image=%sx%s rotation=%s",
+                    "page=%s attempt=%s requesting model=%s image=%sx%s mime=%s rotation=%s",
                     page_index,
                     attempt,
                     request_config.model,
                     rendered_page.width,
                     rendered_page.height,
+                    rendered_page.image_mime_type,
                     cumulative_rotation,
                 )
                 raw_response, usage = await request_chat_completion(

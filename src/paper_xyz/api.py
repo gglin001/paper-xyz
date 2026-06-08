@@ -21,6 +21,7 @@ class ChatRequestConfig:
     top_p: float | None = None
     top_k: int | None = None
     repetition_penalty: float | None = None
+    extra_body: dict[str, Any] | None = None
     image_first: bool = True
     text_prefix: str = ""
     accepted_finish_reasons: tuple[str | None, ...] = (None, "stop", "end_turn")
@@ -59,6 +60,8 @@ def build_chat_payload(
         payload["top_k"] = config.top_k
     if config.repetition_penalty is not None:
         payload["repetition_penalty"] = config.repetition_penalty
+    if config.extra_body:
+        payload.update(config.extra_body)
     return payload
 
 

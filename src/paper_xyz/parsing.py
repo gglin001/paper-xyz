@@ -41,6 +41,8 @@ def parse_page_response(
         return parse_dots_layout_json_response(text)
     if response_parser == "chandra_html":
         return parse_chandra_html_response(text)
+    if response_parser == "deepseek_markdown":
+        return parse_deepseek_markdown_response(text)
     if response_parser == "svg":
         return parse_svg_response(text)
     raise ValueError(f"Unsupported response_parser: {response_parser}")
@@ -94,10 +96,35 @@ def parse_chandra_html_response(text: str) -> tuple[PageMetadata, str]:
     return metadata, normalize_markdown_body(markdown)
 
 
+def parse_deepseek_markdown_response(text: str) -> tuple[PageMetadata, str]:
+    body = clean_deepseek_markdown(text)
+    return default_metadata(body), normalize_markdown_body(body)
+
+
 def parse_svg_response(text: str) -> tuple[PageMetadata, str]:
     svg = extract_svg_fragment(text)
     body = svg if svg else normalize_markdown_body(text)
     return default_metadata(body), body
+
+
+def clean_deepseek_markdown(text: str) -> str:
+    body = text.replace("<\uff5cend\u2581of\u2581sentence\uff5c>", "")
+    body = re.sub(
+        r"<\|ref\|>(.*?)<\|/ref\|><\|det\|>(.*?)<\|/det\|>",
+        replace_deepseek_ref,
+        body,
+        flags=re.DOTALL,
+    )
+    body = body.replace("\\coloneqq", ":=").replace("\\eqqcolon", "=:")
+    body = re.sub(r"\n{3,}", "\n\n", body)
+    return body.strip()
+
+
+def replace_deepseek_ref(match: re.Match[str]) -> str:
+    label = match.group(1).strip().lower()
+    if label == "image":
+        return "\n![Picture](image.png)\n"
+    return ""
 
 
 def chandra_content_html(
