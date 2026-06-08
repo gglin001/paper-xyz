@@ -24,5 +24,6 @@ git clone git@github.com:allenai/olmocr.git
 # git clone git@github.com:datalab-to/surya.git
 # git clone git@github.com:getomni-ai/zerox.git
 # git clone git@github.com:Lulzx/zpdf.git
+git clone git@github.com:Tencent-Hunyuan/HunyuanOCR.git
 
 popd
