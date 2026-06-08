@@ -9,6 +9,7 @@ ResizeStrategy = Literal["smart", "chandra"]
 ResponseParser = Literal[
     "markdown",
     "dots_layout_json",
+    "infinity_layout_json",
     "chandra_html",
     "deepseek_markdown",
     "svg",

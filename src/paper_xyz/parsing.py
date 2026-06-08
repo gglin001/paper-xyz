@@ -39,6 +39,8 @@ def parse_page_response(
         return parse_markdown_response(text)
     if response_parser == "dots_layout_json":
         return parse_dots_layout_json_response(text)
+    if response_parser == "infinity_layout_json":
+        return parse_infinity_layout_json_response(text)
     if response_parser == "chandra_html":
         return parse_chandra_html_response(text)
     if response_parser == "deepseek_markdown":
@@ -73,6 +75,17 @@ def parse_dots_layout_json_response(text: str) -> tuple[PageMetadata, str]:
 
     markdown = layout_cells_to_markdown(cells)
     return layout_metadata(cells), markdown
+
+
+def parse_infinity_layout_json_response(text: str) -> tuple[PageMetadata, str]:
+    payload = extract_infinity_json_payload(text)
+    cells = layout_cells_from_json(payload) if payload is not None else None
+    if not cells:
+        body = normalize_markdown_body(text)
+        return default_metadata(body), body
+
+    markdown = infinity_layout_cells_to_markdown(cells)
+    return infinity_layout_metadata(cells), markdown
 
 
 def parse_chandra_html_response(text: str) -> tuple[PageMetadata, str]:
@@ -252,6 +265,56 @@ def extract_json_payload(text: str) -> Any | None:
     return None
 
 
+def extract_infinity_json_payload(text: str) -> Any | None:
+    candidate = extract_json_code_content(text)
+    if not candidate:
+        return None
+
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError:
+        pass
+
+    truncated, was_truncated = truncate_last_incomplete_layout_element(candidate)
+    if was_truncated:
+        try:
+            return json.loads(truncated)
+        except json.JSONDecodeError:
+            pass
+
+    return extract_json_payload(candidate)
+
+
+def extract_json_code_content(text: str) -> str:
+    match = re.search(r"```(?:json)?\s*\n(.*?)\n```", text, re.DOTALL | re.I)
+    if match:
+        return match.group(1).strip()
+
+    partial = re.search(r"```(?:json)?\s*\n(.*)", text, re.DOTALL | re.I)
+    if partial:
+        return partial.group(1).strip()
+
+    return text.strip()
+
+
+def truncate_last_incomplete_layout_element(text: str) -> tuple[str, bool]:
+    candidate = text.strip()
+    if not candidate:
+        return candidate, False
+    if len(candidate) <= 65536 and candidate.rstrip().endswith("]"):
+        return candidate, False
+
+    bbox_matches = list(re.finditer(r'\{\s*"bbox"\s*:', candidate))
+    if len(bbox_matches) <= 1:
+        return candidate, False
+
+    truncated = candidate[: bbox_matches[-1].start()].rstrip()
+    if not truncated.endswith(","):
+        return candidate, False
+
+    return f"{truncated[:-1]}]", True
+
+
 def layout_cells_from_json(value: Any) -> list[dict[str, Any]] | None:
     if isinstance(value, list):
         return [item for item in value if isinstance(item, dict)]
@@ -305,6 +368,27 @@ def layout_cells_to_markdown(cells: list[dict[str, Any]]) -> str:
             continue
 
         if category == "Formula" and text:
+            chunks.append(format_formula_markdown(text))
+            continue
+
+        if text:
+            chunks.append(text)
+
+    return "\n\n".join(chunks).strip()
+
+
+def infinity_layout_cells_to_markdown(cells: list[dict[str, Any]]) -> str:
+    chunks: list[str] = []
+    for cell in cells:
+        category = str(cell.get("category", "") or "").strip().lower()
+        if category in {"header", "footer", "page_footnote"}:
+            continue
+
+        text = clean_cell_text(cell.get("text", cell.get("content", "")))
+        if category == "figure" and not text:
+            continue
+
+        if category == "formula" and text:
             chunks.append(format_formula_markdown(text))
             continue
 
@@ -442,6 +526,31 @@ def layout_metadata(cells: list[dict[str, Any]]) -> PageMetadata:
     content_count = len(content_categories)
     is_table = table_count > 0 and table_count >= max(1, content_count // 2)
     is_diagram = picture_count > 0 and picture_count >= max(1, content_count // 2)
+    return PageMetadata(
+        primary_language=None,
+        is_rotation_valid=True,
+        rotation_correction=0,
+        is_table=is_table,
+        is_diagram=is_diagram,
+    )
+
+
+def infinity_layout_metadata(cells: list[dict[str, Any]]) -> PageMetadata:
+    categories = [
+        str(cell.get("category", "") or "").strip().lower()
+        for cell in cells
+        if isinstance(cell, dict)
+    ]
+    content_categories = [
+        category
+        for category in categories
+        if category and category not in {"header", "footer", "page_footnote"}
+    ]
+    table_count = sum(category == "table" for category in content_categories)
+    figure_count = sum(category == "figure" for category in content_categories)
+    content_count = len(content_categories)
+    is_table = table_count > 0 and table_count >= max(1, content_count // 2)
+    is_diagram = figure_count > 0 and figure_count >= max(1, content_count // 2)
     return PageMetadata(
         primary_language=None,
         is_rotation_valid=True,

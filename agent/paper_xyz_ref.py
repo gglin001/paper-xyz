@@ -9,6 +9,7 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr-svg
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service infly/Infinity-Parser2-Pro
 
 Notes:
   - Uses the focused implementation in src/paper_xyz.

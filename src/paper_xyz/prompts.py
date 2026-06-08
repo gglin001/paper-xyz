@@ -148,6 +148,21 @@ DOTS_IMAGE_TO_SVG_PROMPT = (
     'Please generate the SVG code based on the image.viewBox="0 0 {width} {height}"'
 )
 
+INFINITY_PARSER2_DOC2JSON_PROMPT = """
+- Extract layout information from the provided PDF image.
+- For each layout element, output its bbox, category, and the text content within the bbox.
+- Bbox format: [x1, y1, x2, y2].
+- Allowed layout categories: ['header', 'title', 'text', 'figure', 'table', 'formula', 'figure_caption', 'table_caption', 'formula_caption', 'figure_footnote', 'table_footnote', 'page_footnote', 'footer'].
+- Text extraction and formatting:
+  1) For 'figure', the text field must be an empty string.
+  2) For 'formula', format text as LaTeX.
+  3) For 'table', format text as HTML.
+  4) For all other categories (e.g., text, title), format text as Markdown.
+- The output text must be exactly the original text from the image, with no translation or rewriting.
+- Sort all layout elements in human reading order.
+- Final output must be a single JSON object.
+"""
+
 DEEPSEEK_OCR_MARKDOWN_PROMPT = """Convert the document to markdown.
 """
 

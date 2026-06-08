@@ -11,6 +11,7 @@ from paper_xyz.prompts import (
     DOTS_LAYOUT_JSON_PROMPT,
     FIRERED_OCR_MARKDOWN_PROMPT,
     GLM_OCR_MARKDOWN_PROMPT,
+    INFINITY_PARSER2_DOC2JSON_PROMPT,
 )
 from paper_xyz.types import ImageRenderProfile, ResponseParser
 
@@ -71,6 +72,15 @@ FIRERED_RENDER_PROFILE = ImageRenderProfile(
     render_dpi=200,
     target_longest_dim=None,
     max_longest_dim=3500,
+    image_format="PNG",
+)
+
+INFINITY_PARSER2_RENDER_PROFILE = ImageRenderProfile(
+    render_dpi=300,
+    target_longest_dim=None,
+    resize_factor=32,
+    min_pixels=2048,
+    max_pixels=16777216,
     image_format="PNG",
 )
 
@@ -199,6 +209,38 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         temperature=0.0,
         image_render_profile=FIRERED_RENDER_PROFILE,
     ),
+    "infly/Infinity-Parser2-Pro": ModelServiceProfile(
+        name="infly/Infinity-Parser2-Pro",
+        description=(
+            "Infinity-Parser2 Pro OpenAI-compatible vLLM service defaults. "
+            "Uses the official doc2json prompt and converts layout JSON to Markdown."
+        ),
+        model="infly/Infinity-Parser2-Pro",
+        prompt=INFINITY_PARSER2_DOC2JSON_PROMPT,
+        response_parser="infinity_layout_json",
+        max_tokens=32768,
+        temperature=0.0,
+        top_p=1.0,
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+        image_render_profile=INFINITY_PARSER2_RENDER_PROFILE,
+        accepted_finish_reasons=(None, "stop", "end_turn", "length"),
+    ),
+    "infly/Infinity-Parser2-Flash": ModelServiceProfile(
+        name="infly/Infinity-Parser2-Flash",
+        description=(
+            "Infinity-Parser2 Flash OpenAI-compatible vLLM service defaults. "
+            "Uses the official doc2json prompt and converts layout JSON to Markdown."
+        ),
+        model="infly/Infinity-Parser2-Flash",
+        prompt=INFINITY_PARSER2_DOC2JSON_PROMPT,
+        response_parser="infinity_layout_json",
+        max_tokens=32768,
+        temperature=0.0,
+        top_p=1.0,
+        extra_body={"chat_template_kwargs": {"enable_thinking": False}},
+        image_render_profile=INFINITY_PARSER2_RENDER_PROFILE,
+        accepted_finish_reasons=(None, "stop", "end_turn", "length"),
+    ),
     "datalab-to/chandra-ocr-2": ModelServiceProfile(
         name="datalab-to/chandra-ocr-2",
         description=(
@@ -227,6 +269,9 @@ MODEL_SERVICE_ALIASES: dict[str, str] = {
     "dots.ocr-1.5-svg": "rednote-hilab/dots.ocr-1.5-svg",
     "firered-ocr": "FireRedTeam/FireRed-OCR-2B",
     "firered-ocr-2b": "FireRedTeam/FireRed-OCR-2B",
+    "infinity-parser2": "infly/Infinity-Parser2-Pro",
+    "infinity-parser2-pro": "infly/Infinity-Parser2-Pro",
+    "infinity-parser2-flash": "infly/Infinity-Parser2-Flash",
 }
 
 PROFILE_KEYS_BY_LOWER: dict[str, str] = {
