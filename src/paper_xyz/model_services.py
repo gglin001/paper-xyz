@@ -108,7 +108,7 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
             "Chandra OCR 2 vLLM service defaults from third_party/chandra. "
             "The official vLLM launcher serves the model as 'chandra'."
         ),
-        model="chandra",
+        model="datalab-to/chandra-ocr-2",
         prompt=CHANDRA_OCR_LAYOUT_PROMPT,
         response_parser="chandra_html",
         max_tokens=12384,
