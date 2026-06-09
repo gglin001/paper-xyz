@@ -6,34 +6,34 @@ This repository follows a convert-then-analyze workflow:
 
 - `pdf/`: source papers provided by users.
 - `md/`: generated Markdown used as the primary analysis input.
-- `png/`: image files produced during the `pdf-image-ocr-md` process.
-- `agent/`: reference materials only (templates/examples/draft scripts), not production pipeline code.
-- `scripts/`: directly usable scripts.
-- `debug_agent/`: untracked scratch workspace for temp files and local experiments (use this instead of `/tmp`).
+- `png/`:wpagwe images produced during PDF-to-image workflows.
+- `agent/`: reference scripts and sample inputs, not production pipeline code.
+- `scripts/`: directly usable project scripts.
+- `debug_agent/`: untracked scratch workspace for temp files and local experiments.
 
 Keep filename stems aligned across formats when practical, e.g. `pdf/MyPaper.pdf` -> `md/MyPaper.md` and `png/MyPaper/`.
 
+## PDF Conversion
+
+Use `agent/paper_xyz_ref.py` as the primary reference CLI for PDF-to-Markdown conversion. It renders pages locally and calls an OpenAI-compatible `/v1/chat/completions` VLM API page by page.
+
+- Single PDF: `pixi run -e default python agent/paper_xyz_ref.py pdf/<file>.pdf -o md/<file>.md`
+- List model presets: `pixi run -e default python agent/paper_xyz_ref.py --list_model_services`
+- Batch PDFs: `pixi run -e default python scripts/batch_pdf_convert.py pdf -o md -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8`
+
+`paper_xyz_ref.py` keeps failed pages as Markdown placeholders by default; use `--fail_fast` when partial output is not acceptable. Use the script's `--help` for model service, API, retry, timeout, and page-range options.
+
+For large or complex PDFs, first split representative pages into `debug_agent/`, tune settings on the subset, then rerun the same settings on the full PDF:
+
+`pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`
+
 ## Build, Test, and Development Commands
 
-Use `pixi` for all local workflows:
-
 - `pixi install`: install or sync the locked environment.
-- `pixi run -e default python agent/pdf_split_ref.py pdf/<file>.pdf --pages <selector> -o debug_agent/<file>.subset.pdf`: extract representative pages for large/complex PDF debug and test loops.
-- Conversion backend selection, backend-specific environments, and exact usage live in `agent/README.md`; check that file first, then use each script's `--help` for final arguments.
 - `pixi run -e default ruff check .`: lint Python code.
 - `pixi run -e default ruff format .`: format Python code.
 - `pixi run -e default ty check .`: run type checks.
-- skip `pre-commit`; handled manually.
-
-## Large or Complex PDF Debug/Test Workflow
-
-When source PDFs are large or structurally complex, or when you need fast debug/test iteration:
-
-1. Split first with `agent/pdf_split_ref.py`, and save subset PDFs under `debug_agent/`.
-2. Pick representative pages, especially layout-heavy or error-prone pages, for parameter tuning and troubleshooting.
-3. Run conversion backends against the subset PDF in their own pixi environments until prompts/parameters are stable, then run lightweight checks/tests on the same subset.
-4. Re-run the same settings on the full source PDF in `pdf/` after the subset workflow is stable.
-5. Keep temporary subset files in `debug_agent/`, and keep final analysis inputs in `md/`.
+- Skip `pre-commit`; checks are handled manually.
 
 ## Coding Style & Naming Conventions
 
