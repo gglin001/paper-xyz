@@ -9,7 +9,7 @@ this script appends:
 and tees merged stdout/stderr to `<output-md-path>.log`.
 
 Examples:
-  pixi run -e default python scripts/batch_pdf_convert.py pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py pdf -o md -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
   pixi run -e default python scripts/batch_pdf_convert.py --dry_run pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
   pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
 """
@@ -36,8 +36,11 @@ class ConversionTask:
         return Path(f"{self.output_path}.log")
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    raw_args = sys.argv[1:] if argv is None else argv
+
     parser = argparse.ArgumentParser(
+        usage="%(prog)s [options] input_path -- command ...",
         description="Run one converter command for each PDF under a path.",
         epilog=HELP_EPILOG or None,
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -80,14 +83,19 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print planned commands without running them.",
     )
-    parser.add_argument(
-        "command",
-        nargs=argparse.REMAINDER,
-        help="Converter command after --. Example: -- pixi run -e default python agent/olmocr_ref.py --concurrency 8",
-    )
 
-    args = parser.parse_args()
-    if not args.command:
+    try:
+        separator_index = raw_args.index("--")
+    except ValueError:
+        batch_args = raw_args
+        command: list[str] = []
+    else:
+        batch_args = raw_args[:separator_index]
+        command = raw_args[separator_index + 1 :]
+
+    args = parser.parse_args(batch_args)
+    args.command = command
+    if not command:
         parser.error("Provide a converter command after --.")
     return args
 
