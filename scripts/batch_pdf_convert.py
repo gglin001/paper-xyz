@@ -9,9 +9,9 @@ this script appends:
 and tees merged stdout/stderr to `<output-md-path>.log`.
 
 Examples:
-  pixi run -e default python scripts/batch_pdf_convert.py pdf -o md -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --dry_run pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs pdf -- pixi run -e default python agent/olmocr_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py pdf -o md -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --dry_run pdf -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs pdf -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
 """
 
 from __future__ import annotations

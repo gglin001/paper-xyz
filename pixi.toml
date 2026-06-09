@@ -5,47 +5,41 @@ name = "paper-xyz"
 platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
-[tasks]
-
-# default
 [dependencies]
 python = ">=3.14.5,<3.15"
 uv = ">=0.11.19,<0.12"
-ruff = ">=0.15.15,<0.16"
-ty = ">=0.0.43,<0.0.44"
+ruff = ">=0.15.16,<0.16"
+ty = ">=0.0.44,<0.0.45"
 pre-commit = ">=4.6.0,<5"
 hatchling = ">=1.30.1,<2"
 
 zellij = ">=0.44.3,<0.45"
 aria2 = ">=1.37.0,<2"
 
-pytorch = ">=2.10.0,<3"
+pytorch = ">=2.11.0,<3"
 torchvision = ">=0.26.0,<0.27"
 openai = ">=2.41.0,<3"
 
 # may needs a latest version, check `activation.env`
 "llama.cpp" = ">=9222,<9223"
 poppler = ">=26.5.0,<27"
-pandoc = ">=3.9.0.2,<4"
+pandoc = ">=3.10,<4"
 
 # nodejs
 # pnpm config set registry https://registry.npmmirror.com
-pnpm = ">=11.0.3,<12"
+pnpm = ">=11.5.2,<12"
 nodejs = ">=24.16.0,<24.17"
-
-[target.linux-64.dependencies]
-bubblewrap = ">=0.11.2,<0.12"
 
 [pypi-dependencies]
 paper_xyz = { path = ".", editable = true }
 ty-extensions = ">=0.1.0, <0.2"
 
 requests = ">=2.34.2, <3"
-httpx = ">=0.28.1, <0.29"
+httpx = "*"
 bs4 = ">=0.0.2, <0.0.3"
 
 # https://github.com/py-pdf/pypdf
-pypdf = ">=6.12.2, <7"
+pypdf = ">=6.13.1, <7"
 # https://github.com/pymupdf/PyMuPDF
 pymupdf = ">=1.27.2.3, <2"
 # https://github.com/allenai/olmocr
@@ -54,13 +48,13 @@ olmocr = ">=0.4.27, <0.5"
 # markitdown
 [feature.markitdown.dependencies]
 python = ">=3.14.5,<3.15"
-
 [feature.markitdown.pypi-dependencies]
 # https://github.com/microsoft/markitdown
 # pixi add --pypi 'markitdown[pdf]' -f markitdown
 # markitdown = { version = ">=0.0.2, <0.2", extras = ["pdf"] }
 markitdown = ">=0.0.2, <0.2"
 
+# cu129
 [feature.cu129.system-requirements]
 cuda = "12.9"
 [feature.cu129.target.linux-64.dependencies]
@@ -70,8 +64,9 @@ cuda = "12.9"
 # pixi add "llama.cpp[build=*cuda129*]" -p linux-64 -f cu129
 # pixi run -e cu129 llama-server --list-devices
 cuda-version = "12.9.*"
-"llama.cpp" = { version = ">=7880,<7881", build = "*cuda129*" }
+"llama.cpp" = { version = ">=9222,<9223", build = "*cuda129*" }
 
+# cu130
 [feature.cu130.system-requirements]
 cuda = "13.0"
 [feature.cu130.target.linux-64.dependencies]
@@ -81,7 +76,7 @@ cuda = "13.0"
 # pixi add "llama.cpp[build=*cuda130*]" -p linux-64 -f cu130
 # pixi run -e cu130 llama-server --list-devices
 cuda-version = "13.0.*"
-"llama.cpp" = { version = ">=7880,<7881", build = "*cuda130*" }
+"llama.cpp" = { version = ">=9222,<9223", build = "*cuda130*" }
 
 [environments]
 # default is implicit
