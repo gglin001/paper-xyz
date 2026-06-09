@@ -231,8 +231,8 @@ def main() -> int:
     stats = summarize_results(markdown, page_results)
     elapsed = time.time() - start
 
-    logging.info("[paper_xyz] input=%s", input_path)
-    logging.info("[paper_xyz] output=%s", output_path)
+    logging.info("[paper_xyz] input: %s", input_path)
+    logging.info("[paper_xyz] output: %s", output_path)
     logging.info(
         "[paper_xyz] page_range=%s-%s total_pages=%s", start_page, end_page, page_count
     )

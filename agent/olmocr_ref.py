@@ -582,8 +582,8 @@ def main() -> int:
     total_input_tokens = sum(page.input_tokens for page in page_results)
     total_output_tokens = sum(page.output_tokens for page in page_results)
 
-    logging.info("[olmocr] input=%s", input_path)
-    logging.info("[olmocr] output=%s", output_path)
+    logging.info("[olmocr] input: %s", input_path)
+    logging.info("[olmocr] outpu: %s", output_path)
     logging.info(
         "[olmocr] page_range=%s-%s total_pages=%s",
         args.start_page,
