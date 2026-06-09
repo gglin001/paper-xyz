@@ -1,18 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# llama-server --help
+# for cuda devices
+# CUDA_VISIBLE_DEVICES = "0"
+# CUDA_DEVICE_ORDER = "PCI_BUS_ID"
 
 args=(
   #
-  # -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
-  # -mm third_party/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf
-  #
-  -m third_party/FireRed-OCR-GGUF/FireRed-OCR.Q8_0.gguf
-  -mm third_party/FireRed-OCR-GGUF/FireRed-OCR.mmproj-Q8_0.gguf
-  #
-  # -m third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.f16.gguf
-  # -mm third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.mmproj-f16.gguf
+  -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
+  -mm third_party/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf
   #
   --temp 0.0
   #
@@ -21,11 +17,11 @@ args=(
   #
 )
 
-if pgrep -f 'llama-server' >/dev/null 2>&1; then
+if pgrep -laf 'llama-server' >/dev/null 2>&1; then
   exit 0
 fi
 
-# llama-server "${args[@]}"
+# pixi run -e cu129 llama-server "${args[@]}"
 zellij a llama --create-background
 zellij -s llama run -- pixi run -e cu129 llama-server "${args[@]}"
 

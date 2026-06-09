@@ -16,12 +16,12 @@ hatchling = ">=1.30.1,<2"
 zellij = ">=0.44.3,<0.45"
 aria2 = ">=1.37.0,<2"
 
-pytorch = ">=2.11.0,<3"
+nomkl = ">=1.0,<2"
+
+pytorch = { version = ">=2.11.0,<3", build = "*cpu_generic*" }
 torchvision = ">=0.26.0,<0.27"
 openai = ">=2.41.0,<3"
 
-# may needs a latest version, check `activation.env`
-"llama.cpp" = ">=9222,<9223"
 poppler = ">=26.5.0,<27"
 pandoc = ">=3.10,<4"
 
@@ -45,6 +45,11 @@ pymupdf = ">=1.27.2.3, <2"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
 
+# llama
+[feature.llama.dependencies]
+# may needs a latest version, check `activation.env`
+"llama.cpp" = ">=9222,<9223"
+
 # markitdown
 [feature.markitdown.dependencies]
 python = ">=3.14.5,<3.15"
@@ -62,7 +67,7 @@ cuda = "12.9"
 # CONDA_OVERRIDE_CUDA=12.9 pixi add cuda-version=12.9 -p linux-64 -f cu129
 # CONDA_OVERRIDE_CUDA=12.9 pixi add cuda-version=12.9 cuda-toolkit=12.9.1 -p linux-64 -f cu129
 # pixi add "llama.cpp[build=*cuda129*]" -p linux-64 -f cu129
-# pixi run -e cu129 llama-server --list-devices
+# pixi run -e cu129 pixi run -e llama llama-server --list-devices
 cuda-version = "12.9.*"
 "llama.cpp" = { version = ">=9222,<9223", build = "*cuda129*" }
 
@@ -74,12 +79,13 @@ cuda = "13.0"
 # CONDA_OVERRIDE_CUDA=13.0 pixi add cuda-version=13.0 -p linux-64 -f cu130
 # CONDA_OVERRIDE_CUDA=13.0 pixi add cuda-version=13.0 cuda-toolkit=13.0 -p linux-64 -f cu130
 # pixi add "llama.cpp[build=*cuda130*]" -p linux-64 -f cu130
-# pixi run -e cu130 llama-server --list-devices
+# pixi run -e cu130 pixi run -e llama llama-server --list-devices
 cuda-version = "13.0.*"
 "llama.cpp" = { version = ">=9222,<9223", build = "*cuda130*" }
 
 [environments]
 # default is implicit
+llama = { features = ["llama"], no-default-feature = true }
 markitdown = { features = ["markitdown"], no-default-feature = true }
 cu129 = { features = ["cu129"], no-default-feature = true }
 cu130 = { features = ["cu130"], no-default-feature = true }

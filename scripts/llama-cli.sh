@@ -1,24 +1,9 @@
-# llama-cli --help
+# pixi run -e llama llama-cli --help
 
 args=(
   #
   -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
   -mm third_party/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf
-  #
-  # -m third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.f16.gguf
-  # -mm third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.mmproj-f16.gguf
-  #
-  # -m third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.Q8_0.gguf
-  # -mm third_party/GLM-OCR-GGUF-mradermacher/GLM-OCR.mmproj-Q8_0.gguf
-  #
-  # -m third_party/FireRed-OCR-GGUF/FireRed-OCR.Q8_0.gguf
-  # -mm third_party/FireRed-OCR-GGUF/FireRed-OCR.mmproj-Q8_0.gguf
-  #
-  # -m third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.Q8_0.gguf
-  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.mmproj-Q8_0.gguf
-  #
-  # -m third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.f16.gguf
-  # -mm third_party/LightOnOCR-2-1B-GGUF/LightOnOCR-2-1B.mmproj-f16.gguf
   #
   # -n 10000
   # --temp 0.0
@@ -30,4 +15,4 @@ args=(
   --image png/demo/demo-0.png
   #
 )
-llama-cli "${args[@]}"
+pixi run -e llama llama-cli "${args[@]}"
