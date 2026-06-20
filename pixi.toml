@@ -91,10 +91,13 @@ cu129 = { features = ["cu129"], no-default-feature = true }
 cu130 = { features = ["cu130"], no-default-feature = true }
 
 [activation.env]
-HOME = "${PIXI_PROJECT_ROOT}/dot.home"
-XDG_CONFIG_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.config"
-XDG_DATA_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.data"
-XDG_CACHE_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.cache"
+
+# CODEX_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.codex"
+
+# HOME = "${PIXI_PROJECT_ROOT}/dot.home"
+# XDG_CONFIG_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.config"
+# XDG_DATA_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.data"
+# XDG_CACHE_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.cache"
 
 # https://github.com/ggml-org/llama.cpp/releases
 PAPER_XYZ_PATH_0 = "${PIXI_PROJECT_ROOT}/debug_agent/llama"
