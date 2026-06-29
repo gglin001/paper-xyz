@@ -30,6 +30,7 @@ openpyxl = ">=3.1.5,<4"
 # pnpm config set registry https://registry.npmmirror.com
 pnpm = ">=11.5.2,<12"
 nodejs = ">=24.16.0,<24.17"
+"llama.cpp" = ">=0.0.1661,<9803"
 
 [pypi-dependencies]
 paper_xyz = { path = ".", editable = true }
@@ -93,14 +94,9 @@ cu130 = { features = ["cu130"], no-default-feature = true }
 
 [activation.env]
 
-# CODEX_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.codex"
-
-# HOME = "${PIXI_PROJECT_ROOT}/dot.home"
-# XDG_CONFIG_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.config"
-# XDG_DATA_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.data"
-# XDG_CACHE_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.cache"
-
 # https://github.com/ggml-org/llama.cpp/releases
 PAPER_XYZ_PATH_0 = "${PIXI_PROJECT_ROOT}/debug_agent/llama"
 PAPER_XYZ_PATH_1 = "${PIXI_PROJECT_ROOT}/dot.home/.data/pnpm/bin"
 PATH = "${PAPER_XYZ_PATH_0}:${PAPER_XYZ_PATH_1}:${PATH}"
+
+# CODEX_HOME = "${PIXI_PROJECT_ROOT}/dot.home/.codex"
