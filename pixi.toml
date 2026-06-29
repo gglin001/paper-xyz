@@ -29,7 +29,7 @@ openpyxl = ">=3.1.5,<4"
 # nodejs
 # pnpm config set registry https://registry.npmmirror.com
 pnpm = ">=11.9.0,<12"
-nodejs = ">=24.18.0,<26.5"
+nodejs = ">=24.18.0,<24.19"
 
 [pypi-dependencies]
 paper_xyz = { path = ".", editable = true }
