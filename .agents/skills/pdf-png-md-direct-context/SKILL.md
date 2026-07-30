@@ -32,7 +32,7 @@ pixi run -e default python agent/pdf_to_png_ref.py <input_pdf> -od <output_png_d
 Demo example:
 
 ```bash
-pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
+pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od raw/png/demo
 mkdir -p md/demo
 ```
 

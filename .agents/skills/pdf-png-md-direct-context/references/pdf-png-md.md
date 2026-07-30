@@ -1,19 +1,19 @@
 - optional pre-step for large/complex PDFs, or debug/test workflows, split representative pages first:
 
 ```bash
-pixi run -e default python agent/pdf_split_ref.py pdf/large.pdf --pages 10-20 -o debug_agent/large.p10-20.pdf
+pixi run -e default python agent/pdf_split_ref.py raw/large.pdf --pages 10-20 -o debug_agent/large.p10-20.pdf
 ```
 
 - run bash for `pdf -> png`
 
 ```bash
-pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
+pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od raw/png/demo
 ```
 
 - for codex prompt, `png -> md`
 
 ```
-将 @png/demo 目录下的 png 文件 转换成 markdown 文件, 输出同名 md 文件到 `md/demo/`, 逐个处理每一个文件, 要求:
+将 @raw/png/demo 目录下的 png 文件 转换成 markdown 文件, 输出同名 md 文件到 `md/demo/`, 逐个处理每一个文件, 要求:
 
 - 将 image 文件加入到 context 中, 直接理解这个 image 而不是通过额外的转换的方式
 - 不要使用任何的 ocr 方案

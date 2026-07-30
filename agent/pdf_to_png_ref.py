@@ -7,8 +7,8 @@ Tip:
   script on the subset PDF while tuning conversion settings.
 
 Examples:
-  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo
-  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od png/demo --dpi 300
+  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od raw/png/demo
+  pixi run -e default python agent/pdf_to_png_ref.py agent/demo.pdf -od raw/png/demo --dpi 300
 """
 
 from __future__ import annotations

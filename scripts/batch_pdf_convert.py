@@ -9,9 +9,9 @@ this script appends:
 and tees merged stdout/stderr to `<output-md-path>.log`.
 
 Examples:
-  pixi run -e default python scripts/batch_pdf_convert.py pdf -o md -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --dry_run pdf -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
-  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs pdf -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py raw -o md -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --dry_run raw -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
+  pixi run -e default python scripts/batch_pdf_convert.py --recursive --preserve_dirs raw -- pixi run -e default python agent/paper_xyz_ref.py --concurrency 8
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "input_path",
-        help="PDF file or directory containing PDF files. Example: pdf.",
+        help="PDF file or directory containing PDF files. Example: raw.",
     )
     parser.add_argument(
         "-o",

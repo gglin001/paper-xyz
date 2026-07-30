@@ -19,7 +19,7 @@ Requirements:
 Demo filled example:
 
 ```text
-Convert PNG files in `png/demo` to Markdown files in `md/demo`, processing each file one by one in sorted filename order.
+Convert PNG files in `raw/png/demo` to Markdown files in `md/demo`, processing each file one by one in sorted filename order.
 
 Requirements:
 
