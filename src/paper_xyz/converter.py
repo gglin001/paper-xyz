@@ -36,6 +36,7 @@ DEFAULT_MODEL_SERVICE = "zai-org/GLM-OCR"
 class ConversionConfig:
     api_url: str = DEFAULT_API
     model_service: str = DEFAULT_MODEL_SERVICE
+    model: str | None = None
     api_key: str | None = None
     timeout: float = 120.0
     concurrency: int = 4
@@ -58,7 +59,7 @@ class ConversionConfig:
         profile = get_model_service_profile(self.model_service)
         return ChatRequestConfig(
             api_url=self.api_url,
-            model=profile.model,
+            model=self.model or profile.model,
             prompt=profile.prompt,
             max_tokens=profile.max_tokens,
             token_param=profile.token_param,

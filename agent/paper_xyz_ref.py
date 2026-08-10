@@ -7,7 +7,7 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.md --include_page_numbers --extract_images
   pixi run -e default python agent/paper_xyz_ref.py --list_model_services
-  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr --model third_party/dots.mocr-bf16
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr-svg
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service infly/Infinity-Parser2-Pro
@@ -127,6 +127,14 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--model",
+        default=None,
+        help=(
+            "Override the model name or path sent to the API. Defaults to the "
+            "selected model service preset."
+        ),
+    )
+    parser.add_argument(
         "--api_key",
         default=None,
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
@@ -205,6 +213,7 @@ def build_config(args: argparse.Namespace) -> ConversionConfig:
     return ConversionConfig(
         api_url=args.api,
         model_service=args.model_service,
+        model=args.model,
         api_key=parse_api_key(args.api_key),
         timeout=args.timeout,
         concurrency=args.concurrency,

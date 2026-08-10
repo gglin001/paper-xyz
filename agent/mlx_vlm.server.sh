@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 # pixi run -e mlx mlx_vlm.generate --help
 
 args=(

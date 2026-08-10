@@ -19,4 +19,8 @@ hfd.sh mlx-community/dots.mocr-bf16
 # https://huggingface.co/mlx-community/dots.mocr-bf16
 # python -m mlx_vlm.generate --model mlx-community/dots.mocr-bf16 --max-tokens 100 --temperature 0.0 --prompt "Describe this image." --image <path_to_image>
 
+hfd.sh mlx-community/dots.mocr-8bit
+# https://huggingface.co/mlx-community/dots.mocr-8bit
+# python -m mlx_vlm.generate --model mlx-community/dots.mocr-8bit --max-tokens 100 --temperature 0.0 --prompt "Describe this image." --image <path_to_image>
+
 popd

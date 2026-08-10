@@ -121,7 +121,6 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         token_param="max_completion_tokens",
         temperature=0.1,
         top_p=0.9,
-        text_prefix="<|img|><|imgpad|><|endofimg|>",
         image_render_profile=DOTS_RENDER_PROFILE,
     ),
     "rednote-hilab/dots.mocr-svg": ModelServiceProfile(
@@ -137,7 +136,6 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         token_param="max_completion_tokens",
         temperature=0.9,
         top_p=1.0,
-        text_prefix="<|img|><|imgpad|><|endofimg|>",
         image_render_profile=DOTS_RENDER_PROFILE,
         accepted_finish_reasons=(None, "stop", "end_turn", "length"),
     ),
