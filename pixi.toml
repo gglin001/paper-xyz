@@ -7,23 +7,23 @@ version = "0.1.0"
 
 [dependencies]
 python = ">=3.14.6,<3.15"
-uv = ">=0.11.25,<0.12"
-ruff = ">=0.15.20,<0.16"
-ty = ">=0.0.55,<0.0.56"
-pre-commit = ">=4.6.0,<5"
-hatchling = ">=1.30.1,<2"
+uv = ">=0.12.3,<0.13"
+ruff = ">=0.16.2,<0.17"
+ty = ">=0.0.69,<0.0.70"
+pre-commit = ">=4.6.1,<5"
+hatchling = ">=1.31.0,<2"
 
 zellij = ">=0.44.3,<0.45"
 aria2 = ">=1.37.0,<2"
 
 nomkl = ">=1.0,<2"
 
-pytorch = { version = ">=2.12.1,<3", build = "*cpu_generic*" }
-torchvision = ">=0.27.1,<0.28"
-openai = ">=2.44.0,<3"
+pytorch = { version = ">=2.13.0,<3", build = "*cpu_generic*" }
+torchvision = ">=0.28.0,<0.29"
+openai = ">=2.53.0,<3"
 
-poppler = ">=26.5.0,<27"
-pandoc = ">=3.10,<4"
+poppler = ">=26.7.0,<27"
+pandoc = ">=3.10.1,<4"
 openpyxl = ">=3.1.5,<4"
 
 [pypi-dependencies]
@@ -35,9 +35,9 @@ httpx = "*"
 bs4 = ">=0.0.2, <0.0.3"
 
 # https://github.com/py-pdf/pypdf
-pypdf = ">=6.14.2, <7"
+pypdf = ">=6.15.0, <7"
 # https://github.com/pymupdf/PyMuPDF
-pymupdf = ">=1.28.0, <2"
+pymupdf = ">=1.28.2, <2"
 # https://github.com/allenai/olmocr
 olmocr = ">=0.4.27, <0.5"
 
@@ -53,7 +53,7 @@ markitdown = ">=0.0.2, <0.2"
 # llama
 [feature.llama.dependencies]
 # may needs a latest version, check `activation.env`
-"llama.cpp" = ">=9802,<9803"
+"llama.cpp" = ">=10223,<10224"
 
 # mlx
 [feature.mlx.system-requirements]
@@ -75,7 +75,7 @@ cuda = "12.9"
 # pixi add "llama.cpp[build=*cuda129*]" -p linux-64 -f cu129
 # pixi run -e cu129 pixi run -e llama llama-server --list-devices
 cuda-version = "12.9.*"
-"llama.cpp" = { version = ">=9802,<9803", build = "*cuda129*" }
+"llama.cpp" = { version = ">=10223,<10224", build = "*cuda129*" }
 
 # cu130
 [feature.cu130.system-requirements]
@@ -87,7 +87,7 @@ cuda = "13.0"
 # pixi add "llama.cpp[build=*cuda130*]" -p linux-64 -f cu130
 # pixi run -e cu130 pixi run -e llama llama-server --list-devices
 cuda-version = "13.0.*"
-"llama.cpp" = { version = ">=9802,<9803", build = "*cuda130*" }
+"llama.cpp" = { version = ">=10223,<10224", build = "*cuda130*" }
 
 [environments]
 # default is implicit
