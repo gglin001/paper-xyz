@@ -55,6 +55,16 @@ markitdown = ">=0.0.2, <0.2"
 # may needs a latest version, check `activation.env`
 "llama.cpp" = ">=9802,<9803"
 
+# mlx
+[feature.mlx.system-requirements]
+macos = "16.0"
+[feature.mlx.target.osx-arm64.dependencies]
+python = ">=3.14.6,<3.15"
+mlx = ">=0.32.0,<0.33"
+mlx-vlm = ">=0.6.10,<0.7"
+mlx-lm = ">=0.31.3,<0.32"
+torchvision = ">=0.28.0,<0.29"
+
 # cu129
 [feature.cu129.system-requirements]
 cuda = "12.9"
@@ -82,6 +92,7 @@ cuda-version = "13.0.*"
 [environments]
 # default is implicit
 llama = { features = ["llama"], no-default-feature = true }
+mlx = { features = ["mlx"], no-default-feature = true }
 markitdown = { features = ["markitdown"], no-default-feature = true }
 cu129 = { features = ["cu129"], no-default-feature = true }
 cu130 = { features = ["cu130"], no-default-feature = true }
