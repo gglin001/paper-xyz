@@ -2,10 +2,7 @@
 
 args=(
   #
-  # --model third_party/GLM-OCR-bf16
-  --model third_party/GLM-OCR-8bit
-  # --model third_party/DeepSeek-OCR-2-8bit
-  # --model third_party/dots.ocr-bf16
+  --model third_party/dots.mocr-bf16
   #
   --max-tokens 10000
   --temperature 0.0
