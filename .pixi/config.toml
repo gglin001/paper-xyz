@@ -1,12 +1,15 @@
 default-channels = ["conda-forge"]
+run-post-link-scripts = "insecure"
 
 [mirrors]
 # https://pixi.sh/dev/reference/pixi_configuration/
 # redirect all requests for conda-forge to the prefix.dev mirror
+# prefix and conda support CEP 16
 "https://conda.anaconda.org/conda-forge" = [
-    # "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud",
-    "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge",
+    "https://conda.anaconda.org/conda-forge",
     "https://prefix.dev/conda-forge",
+    # "oci://ghcr.io/channel-mirrors/conda-forge",
+    # "https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge",
 ]
 "https://conda.anaconda.org/conda-forge/label" = [
     "https://conda.anaconda.org/conda-forge/label",
