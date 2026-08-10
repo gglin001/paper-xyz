@@ -26,8 +26,8 @@ git clone git@github.com:allenai/olmocr.git
 # git clone git@github.com:Lulzx/zpdf.git
 git clone git@github.com:Tencent-Hunyuan/HunyuanOCR.git
 git clone git@github.com:infly-ai/INF-MLLM.git
-git clone git@github.com:baidu/Unlimited-OCR.git
-git clone git@hf.co:baidu/Unlimited-OCR Unlimited-OCR-hf
+# git clone git@github.com:baidu/Unlimited-OCR.git Unlimited-OCR-gh
+git clone git@hf.co:baidu/Unlimited-OCR Unlimited-OCR
 
 git clone git@github.com:vllm-project/vllm.git --single-branch --depth 1000
 git clone git@github.com:ggml-org/llama.cpp.git --single-branch --depth 1000
