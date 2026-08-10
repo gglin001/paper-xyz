@@ -26,5 +26,6 @@ git clone git@github.com:allenai/olmocr.git
 # git clone git@github.com:Lulzx/zpdf.git
 git clone git@github.com:Tencent-Hunyuan/HunyuanOCR.git
 git clone git@github.com:infly-ai/INF-MLLM.git
+git clone git@github.com:Blaizzy/mlx-vlm.git --single-branch
 
 popd

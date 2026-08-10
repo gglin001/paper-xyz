@@ -12,7 +12,7 @@ args=(
   #
   --prompt "Parse this document and convert it into standard markdown format."
   #
-  --image raw/png/demo/demo-0.png
+  --image agent/demo.png
   #
 )
 pixi run -e llama llama-cli "${args[@]}"
