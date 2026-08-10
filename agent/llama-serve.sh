@@ -3,11 +3,13 @@ set -euo pipefail
 
 # pixi run -e llama llama-server --help
 
-
 args=(
   #
-  -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
-  -mm third_party/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf
+  # -m third_party/GLM-OCR-GGUF/GLM-OCR-Q8_0.gguf
+  # -mm third_party/GLM-OCR-GGUF/mmproj-GLM-OCR-Q8_0.gguf
+  #
+  -m third_party/Unlimited-OCR-GGUF/Unlimited-OCR-Q8_0.gguf
+  -mm third_party/Unlimited-OCR-GGUF/mmproj-Unlimited-OCR-F16.gguf
   #
   --temp 0.0
   #
