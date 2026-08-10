@@ -13,7 +13,7 @@ args=(
   #
   -st
   #
-  --prompt "Parse this document and convert it into standard markdown format."
+  --prompt "<|grounding|>Convert the document to markdown."
   #
   --image agent/demo.png
   #

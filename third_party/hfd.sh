@@ -8,6 +8,10 @@ export HF_ENDPOINT=https://hf-mirror.com
 
 pushd third_party
 
+hfd.sh sahilchachra/Unlimited-OCR-GGUF \
+  --include "Unlimited-OCR-Q8_0.gguf" --include "mmproj-Unlimited-OCR-F16.gguf"
+# https://huggingface.co/sahilchachra/Unlimited-OCR-GGUF
+
 hfd.sh ggml-org/GLM-OCR-GGUF \
   --include "GLM-OCR-Q8_0.gguf" --include "mmproj-GLM-OCR-Q8_0.gguf"
 https://huggingface.co/ggml-org/GLM-OCR-GGUF
