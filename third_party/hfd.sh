@@ -17,6 +17,10 @@ hfd.sh ggml-org/GLM-OCR-GGUF \
 https://huggingface.co/ggml-org/GLM-OCR-GGUF
 # llama-server -hf ggml-org/GLM-OCR-GGUF
 
+hfd.sh lodrick-the-lafted/dots.mocr-gguf \
+  --include "dotsmocr-1.8b-q8_0.gguf" --include "mmproj-dotsmocr-bf16.gguf"
+# https://huggingface.co/lodrick-the-lafted/dots.mocr-gguf
+
 # -----
 
 hfd.sh mlx-community/dots.mocr-bf16
