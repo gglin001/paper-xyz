@@ -5,7 +5,7 @@ set -euo pipefail
 
 args=(
   #
-  --model third_party/dots.mocr-bf16
+  --model third_party/dots.mocr-8bit
   #
   --trust-remote-code
   #
