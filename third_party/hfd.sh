@@ -21,6 +21,10 @@ hfd.sh lodrick-the-lafted/dots.mocr-gguf \
   --include "dotsmocr-1.8b-q8_0.gguf" --include "mmproj-dotsmocr-bf16.gguf"
 # https://huggingface.co/lodrick-the-lafted/dots.mocr-gguf
 
+hfd.sh prithivMLmods/chandra-ocr-2-GGUF \
+  --include "chandra-ocr-2.Q8_0.gguf" --include "chandra-ocr-2.mmproj-bf16.gguf"
+# https://huggingface.co/prithivMLmods/chandra-ocr-2-GGUF
+
 # -----
 
 hfd.sh mlx-community/dots.mocr-bf16
