@@ -5,6 +5,7 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --start_page 0 --end_page 1
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.md --include_page_numbers --extract_images
   pixi run -e default python agent/paper_xyz_ref.py --list_model_services
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr-svg
@@ -17,6 +18,7 @@ Notes:
     `chat/completions` endpoint page by page.
   - A page that exhausts retries is kept as a Markdown placeholder by default;
     use --fail_fast to restore all-or-nothing behavior.
+  - Use scripts/extract_pdf_images.py to extract images without calling a VLM.
   - The CLI exposes only shared runtime controls. Model-specific defaults live
     in src/paper_xyz/model_services.py.
 """
@@ -35,6 +37,7 @@ from paper_xyz import (
     DEFAULT_API,
     DEFAULT_MODEL_SERVICE,
     ConversionConfig,
+    ImageExtractionConfig,
     PdfToMarkdownConverter,
     iter_model_service_profiles,
 )
@@ -152,6 +155,40 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--include_page_numbers",
+        action="store_true",
+        help=("Add deterministic paper_xyz page markers to the generated Markdown."),
+    )
+    parser.add_argument(
+        "--extract_images",
+        action="store_true",
+        help=(
+            "Extract PDF images as PNG files next to the Markdown output under "
+            "<output-stem>/page-X-image-Y.png."
+        ),
+    )
+    parser.add_argument(
+        "--image_bbox_tolerance",
+        type=float,
+        default=1.0,
+        help=(
+            "PDF-point tolerance used to collapse duplicate image occurrences. "
+            "Default: 1.0."
+        ),
+    )
+    parser.add_argument(
+        "--min_image_width",
+        type=int,
+        default=32,
+        help="Skip extracted images narrower than this many pixels. Default: 32.",
+    )
+    parser.add_argument(
+        "--min_image_height",
+        type=int,
+        default=32,
+        help="Skip extracted images shorter than this many pixels. Default: 32.",
+    )
+    parser.add_argument(
         "--verbose",
         "-v",
         action="count",
@@ -173,6 +210,13 @@ def build_config(args: argparse.Namespace) -> ConversionConfig:
         concurrency=args.concurrency,
         max_page_retries=args.max_page_retries,
         allow_page_failures=not args.fail_fast,
+        include_page_numbers=args.include_page_numbers,
+        image_extraction=ImageExtractionConfig(
+            enabled=args.extract_images,
+            bbox_tolerance=args.image_bbox_tolerance,
+            min_width=args.min_image_width,
+            min_height=args.min_image_height,
+        ),
     )
 
 
@@ -212,7 +256,12 @@ def main() -> int:
     try:
         converter = PdfToMarkdownConverter(config)
         markdown, page_results = asyncio.run(
-            converter.convert(input_path, start_page=start_page, end_page=end_page)
+            converter.convert(
+                input_path,
+                start_page=start_page,
+                end_page=end_page,
+                output_path=output_path,
+            )
         )
     except httpx.HTTPStatusError as exc:
         body = exc.response.text[:500] if exc.response is not None else ""
@@ -237,9 +286,10 @@ def main() -> int:
         "[paper_xyz] page_range=%s-%s total_pages=%s", start_page, end_page, page_count
     )
     logging.info(
-        "[paper_xyz] pages=%s failed_pages=%s chars=%s prompt_tokens=%s completion_tokens=%s total_time=%.2fs",
+        "[paper_xyz] pages=%s failed_pages=%s extracted_images=%s chars=%s prompt_tokens=%s completion_tokens=%s total_time=%.2fs",
         stats.pages,
         stats.failed_pages,
+        stats.extracted_images,
         stats.chars,
         stats.prompt_tokens,
         stats.completion_tokens,

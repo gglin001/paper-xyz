@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -12,10 +13,12 @@ from paper_xyz.api import (
     NonRetryableChatResponseError,
     request_chat_completion,
 )
+from paper_xyz.images import extract_document_images
 from paper_xyz.model_services import get_model_service_profile
 from paper_xyz.parsing import parse_page_response
 from paper_xyz.pdf import render_page_image
 from paper_xyz.types import (
+    ImageExtractionConfig,
     ImageRenderProfile,
     PageMetadata,
     PageResult,
@@ -38,6 +41,8 @@ class ConversionConfig:
     concurrency: int = 4
     max_page_retries: int = 8
     allow_page_failures: bool = True
+    include_page_numbers: bool = False
+    image_extraction: ImageExtractionConfig = ImageExtractionConfig()
 
     def __post_init__(self) -> None:
         request_config = self.to_chat_request_config()
@@ -81,6 +86,7 @@ class ConversionStats:
     chars: int
     prompt_tokens: int
     completion_tokens: int
+    extracted_images: int = 0
 
 
 class PdfToMarkdownConverter:
@@ -93,7 +99,16 @@ class PdfToMarkdownConverter:
         *,
         start_page: int,
         end_page: int,
+        output_path: str | Path | None = None,
     ) -> tuple[str, list[PageResult]]:
+        if self.config.image_extraction.enabled:
+            if output_path is None:
+                raise ValueError(
+                    "output_path is required when image extraction is enabled"
+                )
+            if Path(output_path).suffix.lower() != ".md":
+                raise ValueError("output_path must end with .md")
+
         semaphore = asyncio.Semaphore(self.config.concurrency)
         headers = (
             {"Authorization": f"Bearer {self.config.api_key}"}
@@ -122,7 +137,29 @@ class PdfToMarkdownConverter:
                 ]
             )
 
-        return build_document_markdown(page_results), page_results
+        if self.config.image_extraction.enabled:
+            assert output_path is not None
+            images_by_page = await asyncio.to_thread(
+                extract_document_images,
+                pdf_path,
+                output_path,
+                start_page=start_page,
+                end_page=end_page,
+                config=self.config.image_extraction,
+            )
+            for page_result in page_results:
+                page_result.extracted_images = images_by_page.get(
+                    page_result.page_index, ()
+                )
+
+        return (
+            build_document_markdown(
+                page_results,
+                include_page_numbers=self.config.include_page_numbers,
+                resolve_images=self.config.image_extraction.enabled,
+            ),
+            page_results,
+        )
 
     async def convert_page(
         self,
@@ -257,14 +294,90 @@ class PdfToMarkdownConverter:
         return self.config.to_chat_request_config()
 
 
-def build_document_markdown(page_results: list[PageResult]) -> str:
-    chunks = [
-        page.markdown.rstrip()
-        for page in sorted(page_results, key=lambda result: result.page_index)
-        if page.markdown.strip()
-    ]
+MODEL_IMAGE_PLACEHOLDER_RE = re.compile(r"!\[(?P<alt>[^\]]*)\]\((?P<target>[^)]*)\)")
+
+
+def build_document_markdown(
+    page_results: list[PageResult],
+    *,
+    include_page_numbers: bool = False,
+    resolve_images: bool = False,
+) -> str:
+    chunks = []
+    for page in sorted(page_results, key=lambda result: result.page_index):
+        page_markdown = resolve_page_images(page) if resolve_images else page.markdown
+        if include_page_numbers:
+            page_marker = (
+                "<!-- "
+                f"paper_xyz: page_index={page.page_index} "
+                f"pdf_page={page.page_index + 1}"
+                " -->"
+            )
+            page_markdown = f"{page_marker}\n\n{page_markdown}".rstrip()
+        if page_markdown.strip():
+            chunks.append(page_markdown)
+
     markdown = "\n\n".join(chunks).strip()
     return f"{markdown}\n" if markdown else ""
+
+
+def resolve_page_images(page: PageResult) -> str:
+    markdown = page.markdown.rstrip()
+    images = list(page.extracted_images)
+    if not images:
+        return remove_model_image_placeholders(markdown)
+
+    next_image_index = 0
+
+    def replace_placeholder(match: re.Match[str]) -> str:
+        nonlocal next_image_index
+        if not is_model_image_placeholder(match.group("target")):
+            return match.group(0)
+        if next_image_index >= len(images):
+            return ""
+
+        image = images[next_image_index]
+        next_image_index += 1
+        alt = normalized_image_alt(
+            match.group("alt"), page.page_index, image.image_index
+        )
+        return f"![{alt}]({image.relative_path})"
+
+    markdown = MODEL_IMAGE_PLACEHOLDER_RE.sub(replace_placeholder, markdown).rstrip()
+    remaining_images = images[next_image_index:]
+    if remaining_images:
+        references = "\n\n".join(
+            f"![Page {page.page_index + 1} image {image.image_index}]"
+            f"({image.relative_path})"
+            for image in remaining_images
+        )
+        markdown = f"{markdown}\n\n{references}".strip()
+    return markdown
+
+
+def remove_model_image_placeholders(markdown: str) -> str:
+    def remove_placeholder(match: re.Match[str]) -> str:
+        if is_model_image_placeholder(match.group("target")):
+            return ""
+        return match.group(0)
+
+    return MODEL_IMAGE_PLACEHOLDER_RE.sub(remove_placeholder, markdown).rstrip()
+
+
+def is_model_image_placeholder(target: str) -> bool:
+    normalized = target.strip()
+    return (
+        not normalized
+        or normalized == "image.png"
+        or (normalized.startswith("page_") and normalized.endswith(".png"))
+    )
+
+
+def normalized_image_alt(alt: str, page_index: int, image_index: int) -> str:
+    normalized = alt.strip()
+    if normalized and normalized.lower() not in {"picture", "image"}:
+        return normalized
+    return f"Page {page_index + 1} image {image_index}"
 
 
 def build_failed_page_result(
@@ -325,4 +438,5 @@ def summarize_results(markdown: str, page_results: list[PageResult]) -> Conversi
         chars=len(markdown),
         prompt_tokens=sum(page.usage.prompt_tokens for page in page_results),
         completion_tokens=sum(page.usage.completion_tokens for page in page_results),
+        extracted_images=sum(len(page.extracted_images) for page in page_results),
     )

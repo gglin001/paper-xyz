@@ -59,6 +59,32 @@ class ImageRenderProfile:
 
 
 @dataclass(frozen=True, slots=True)
+class ImageExtractionConfig:
+    enabled: bool = False
+    bbox_tolerance: float = 1.0
+    min_width: int = 32
+    min_height: int = 32
+
+    def __post_init__(self) -> None:
+        if self.bbox_tolerance < 0:
+            raise ValueError("bbox_tolerance must be >= 0")
+        if self.min_width < 1:
+            raise ValueError("min_width must be >= 1")
+        if self.min_height < 1:
+            raise ValueError("min_height must be >= 1")
+
+
+@dataclass(frozen=True, slots=True)
+class ExtractedImage:
+    page_index: int
+    image_index: int
+    relative_path: str
+    bbox: tuple[float, float, float, float]
+    width: int
+    height: int
+
+
+@dataclass(frozen=True, slots=True)
 class TokenUsage:
     prompt_tokens: int = 0
     completion_tokens: int = 0
@@ -103,3 +129,4 @@ class PageResult:
     image_width: int
     image_height: int
     error: str | None = None
+    extracted_images: tuple[ExtractedImage, ...] = ()
