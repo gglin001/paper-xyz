@@ -11,6 +11,14 @@ from paper_xyz.types import PageMetadata, ResponseParser
 FRONT_MATTER_RE = re.compile(
     r"\A\s*---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)(.*)\Z", re.DOTALL
 )
+UNLIMITED_DET_RE = re.compile(
+    r"^<\|det\|>([^<\s]+)(?:\s*\[[^\]]*\])?\s*<\|/det\|>\s*(.*)$",
+    re.DOTALL,
+)
+UNLIMITED_LLAMA_DET_RE = re.compile(
+    r"^([^\s\[]+)\s+\[[^\]]*\]\s*;?\s*(.*)$",
+    re.DOTALL,
+)
 
 
 def extract_message_text(content: Any) -> str:
@@ -45,6 +53,8 @@ def parse_page_response(
         return parse_chandra_html_response(text)
     if response_parser == "deepseek_markdown":
         return parse_deepseek_markdown_response(text)
+    if response_parser == "unlimited_ocr":
+        return parse_unlimited_ocr_response(text)
     if response_parser == "svg":
         return parse_svg_response(text)
     raise ValueError(f"Unsupported response_parser: {response_parser}")
@@ -114,6 +124,11 @@ def parse_deepseek_markdown_response(text: str) -> tuple[PageMetadata, str]:
     return default_metadata(body), normalize_markdown_body(body)
 
 
+def parse_unlimited_ocr_response(text: str) -> tuple[PageMetadata, str]:
+    body = clean_unlimited_ocr_markdown(text)
+    return default_metadata(body), normalize_markdown_body(body)
+
+
 def parse_svg_response(text: str) -> tuple[PageMetadata, str]:
     svg = extract_svg_fragment(text)
     body = svg if svg else normalize_markdown_body(text)
@@ -138,6 +153,40 @@ def replace_deepseek_ref(match: re.Match[str]) -> str:
     if label == "image":
         return "\n![Picture](image.png)\n"
     return ""
+
+
+def clean_unlimited_ocr_markdown(text: str) -> str:
+    blocks: list[list[str]] = []
+    current: list[str] | None = None
+    skip_block = False
+
+    for raw_line in text.splitlines():
+        line = raw_line.rstrip()
+        if not line:
+            continue
+
+        match = UNLIMITED_DET_RE.match(line) or UNLIMITED_LLAMA_DET_RE.match(line)
+        if match:
+            category = match.group(1).strip().lower()
+            content = match.group(2).strip()
+            if current:
+                blocks.append(current)
+            skip_block = category in {"image", "figure", "picture"}
+            current = None if skip_block else [content]
+            continue
+
+        if skip_block:
+            continue
+        if current is None:
+            current = []
+        current.append(line)
+
+    if current is not None:
+        blocks.append(current)
+
+    body = "\n\n".join("\n".join(block) for block in blocks if block).strip()
+    body = body.replace("<｜end▁of▁sentence｜>", "")
+    return re.sub(r"\n{3,}", "\n\n", body).strip()
 
 
 def chandra_content_html(

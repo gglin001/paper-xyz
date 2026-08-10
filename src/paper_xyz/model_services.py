@@ -12,6 +12,7 @@ from paper_xyz.prompts import (
     FIRERED_OCR_MARKDOWN_PROMPT,
     GLM_OCR_MARKDOWN_PROMPT,
     INFINITY_PARSER2_DOC2JSON_PROMPT,
+    UNLIMITED_OCR_DOCUMENT_PROMPT,
 )
 from paper_xyz.types import ImageRenderProfile, ResponseParser
 
@@ -65,6 +66,15 @@ DOTS_RENDER_PROFILE = ImageRenderProfile(
 DEEPSEEK_RENDER_PROFILE = ImageRenderProfile(
     render_dpi=144,
     target_longest_dim=None,
+    image_format="PNG",
+)
+
+UNLIMITED_OCR_RENDER_PROFILE = ImageRenderProfile(
+    # llama.cpp's dynamic preprocessor already makes 640px tiles; sending the
+    # original 300-DPI page makes this checkpoint loop on dense pages. Keep the
+    # rendered page near the shared 1288px default instead.
+    render_dpi=None,
+    target_longest_dim=1288,
     image_format="PNG",
 )
 
@@ -197,6 +207,32 @@ MODEL_SERVICE_PROFILES: dict[str, ModelServiceProfile] = {
         text_prefix="<|grounding|>",
         image_render_profile=DEEPSEEK_RENDER_PROFILE,
     ),
+    "baidu/Unlimited-OCR": ModelServiceProfile(
+        name="baidu/Unlimited-OCR",
+        description=(
+            "Unlimited-OCR OpenAI-compatible service defaults. Uses the official "
+            "single-image document parsing prompt and removes layout grounding "
+            "markers from the Markdown output."
+        ),
+        model="Unlimited-OCR",
+        prompt=UNLIMITED_OCR_DOCUMENT_PROMPT,
+        response_parser="unlimited_ocr",
+        max_tokens=4096,
+        temperature=0.0,
+        extra_body={
+            "skip_special_tokens": False,
+            "dry_multiplier": 1.2,
+            "dry_base": 1.75,
+            "dry_allowed_length": 1,
+            "dry_penalty_last_n": 128,
+            # The server schema rejects []; the sampler ignores an empty
+            # breaker, which is the JSON equivalent of CLI `none`.
+            "dry_sequence_breakers": [""],
+        },
+        image_first=False,
+        image_render_profile=UNLIMITED_OCR_RENDER_PROFILE,
+        accepted_finish_reasons=(None, "stop", "end_turn", "length"),
+    ),
     "FireRedTeam/FireRed-OCR-2B": ModelServiceProfile(
         name="FireRedTeam/FireRed-OCR-2B",
         description="FireRed-OCR OpenAI-compatible VLM service defaults.",
@@ -260,6 +296,7 @@ MODEL_SERVICE_ALIASES: dict[str, str] = {
     "glm-ocr": "zai-org/GLM-OCR",
     "glmocr": "zai-org/GLM-OCR",
     "deepseek-ocr": "deepseek-ai/DeepSeek-OCR",
+    "unlimited-ocr": "baidu/Unlimited-OCR",
     "dots.mocr": "rednote-hilab/dots.mocr",
     "dots.mocr-svg": "rednote-hilab/dots.mocr-svg",
     "dots.ocr": "rednote-hilab/dots.ocr-1.5",

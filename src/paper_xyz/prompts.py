@@ -166,6 +166,8 @@ INFINITY_PARSER2_DOC2JSON_PROMPT = """
 DEEPSEEK_OCR_MARKDOWN_PROMPT = """Convert the document to markdown.
 """
 
+UNLIMITED_OCR_DOCUMENT_PROMPT = """document parsing."""
+
 FIRERED_OCR_MARKDOWN_PROMPT = """You are an AI assistant specialized in converting PDF images to Markdown format. Please follow these instructions for the conversion:
 
 1. Text Processing:

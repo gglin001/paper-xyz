@@ -7,6 +7,7 @@ Examples:
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.paper_xyz.md --concurrency 8
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf -o md/demo.md --include_page_numbers --extract_images
   pixi run -e default python agent/paper_xyz_ref.py --list_model_services
+  pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service baidu/Unlimited-OCR
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr --model third_party/dots.mocr-8bit
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service rednote-hilab/dots.mocr-svg
   pixi run -e default python agent/paper_xyz_ref.py agent/demo.pdf --model_service datalab-to/chandra-ocr-2
@@ -23,7 +24,7 @@ Notes:
     in src/paper_xyz/model_services.py.
 """
 
-from __future__ import annotations
+from __future__ import annotations  # noqa: I001
 
 import argparse
 import asyncio
@@ -33,6 +34,7 @@ import time
 from pathlib import Path
 
 import httpx
+
 from paper_xyz import (
     DEFAULT_API,
     DEFAULT_MODEL_SERVICE,

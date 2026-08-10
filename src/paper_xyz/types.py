@@ -12,6 +12,7 @@ ResponseParser = Literal[
     "infinity_layout_json",
     "chandra_html",
     "deepseek_markdown",
+    "unlimited_ocr",
     "svg",
 ]
 
