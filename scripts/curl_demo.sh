@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
 # scripts for debug usage
 
 API_BASE=http://127.0.0.1:11235
