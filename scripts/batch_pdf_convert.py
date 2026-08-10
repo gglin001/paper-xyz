@@ -210,7 +210,9 @@ def run_with_tee(argv: list[str], log_path: Path) -> int:
             raise RuntimeError("Expected subprocess stdout pipe.")
 
         try:
-            for chunk in iter(lambda: process.stdout.read(8192), b""):
+            for chunk in iter(
+                lambda: process.stdout.read(8192), b""
+            ):  # ty:ignore[unresolved-attribute]
                 sys.stdout.buffer.write(chunk)
                 sys.stdout.buffer.flush()
                 log_file.write(chunk)

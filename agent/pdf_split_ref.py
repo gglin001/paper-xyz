@@ -157,7 +157,7 @@ def copy_pages_to_document(
 def source_metadata(source: pymupdf.Document) -> dict[str, str]:
     return {
         key: str(value)
-        for key, value in source.metadata.items()
+        for key, value in source.metadata.items()  # ty:ignore[unresolved-attribute]
         if key and value is not None
     }
 
