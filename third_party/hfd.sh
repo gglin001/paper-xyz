@@ -35,4 +35,10 @@ hfd.sh mlx-community/dots.mocr-8bit
 # https://huggingface.co/mlx-community/dots.mocr-8bit
 # python -m mlx_vlm.generate --model mlx-community/dots.mocr-8bit --max-tokens 100 --temperature 0.0 --prompt "Describe this image." --image <path_to_image>
 
+# -----
+
+hfd.sh unsloth/Qwen3.8-27B-GGUF \
+  --include "Qwen3.8-27B-UD-Q4_K_XL.gguf" --include "mmproj-BF16.gguf"
+# https://huggingface.co/unsloth/Qwen3.8-27B-GGUF
+
 popd
