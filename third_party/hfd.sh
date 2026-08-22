@@ -14,7 +14,7 @@ hfd.sh sahilchachra/Unlimited-OCR-GGUF \
 
 hfd.sh ggml-org/GLM-OCR-GGUF \
   --include "GLM-OCR-Q8_0.gguf" --include "mmproj-GLM-OCR-Q8_0.gguf"
-https://huggingface.co/ggml-org/GLM-OCR-GGUF
+# https://huggingface.co/ggml-org/GLM-OCR-GGUF
 # llama-server -hf ggml-org/GLM-OCR-GGUF
 
 hfd.sh lodrick-the-lafted/dots.mocr-gguf \
@@ -25,6 +25,15 @@ hfd.sh prithivMLmods/chandra-ocr-2-GGUF \
   --include "chandra-ocr-2.Q8_0.gguf" --include "chandra-ocr-2.mmproj-bf16.gguf"
 # https://huggingface.co/prithivMLmods/chandra-ocr-2-GGUF
 
+hfd.sh Abiray/OvisOCR2-GGUF \
+  --include "OvisOCR2-Q8_0.gguf" --include "mmproj-BF16.gguf" \
+  --include "OvisOCR2-BF16.gguf"
+# https://huggingface.co/Abiray/OvisOCR2-GGUF
+
+hfd.sh prithivMLmods/HunyuanOCR-1.5-GGUF-Updated \
+  --include "HunyuanOCR.Q8_0.gguf" --include "HunyuanOCR.mmproj-bf16.gguf"
+# https://huggingface.co/prithivMLmods/HunyuanOCR-1.5-GGUF-Updated
+
 # -----
 
 hfd.sh mlx-community/dots.mocr-bf16
@@ -34,6 +43,9 @@ hfd.sh mlx-community/dots.mocr-bf16
 hfd.sh mlx-community/dots.mocr-8bit
 # https://huggingface.co/mlx-community/dots.mocr-8bit
 # python -m mlx_vlm.generate --model mlx-community/dots.mocr-8bit --max-tokens 100 --temperature 0.0 --prompt "Describe this image." --image <path_to_image>
+
+hfd.sh mlx-community/OvisOCR2-8bit
+# https://huggingface.co/mlx-community/OvisOCR2-8bit
 
 # -----
 
