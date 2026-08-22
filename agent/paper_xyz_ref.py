@@ -142,7 +142,7 @@ def parse_args() -> argparse.Namespace:
         help="Bearer token. Falls back to OPENAI_API_KEY or API_KEY if unset.",
     )
     parser.add_argument(
-        "--timeout", type=float, default=120.0, help="Per-request timeout in seconds."
+        "--timeout", type=float, default=300.0, help="Per-request timeout in seconds."
     )
     parser.add_argument(
         "--concurrency",
